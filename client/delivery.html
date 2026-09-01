@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -222,7 +222,7 @@
             <div id="modal-qr-paytm-fb" style="display:none; padding:20px; background:#E0F7FA; border-radius:10px; color:#00838F; font-size:12px; font-weight:700;">
               ⚠️ Paytm QR not found.
             </div>
-            <div style="font-size:10px; color:#00838F; font-weight:700; margin-top:6px;">Paytm · UPI ID: paytm.s2uf1hd@pty</div>
+            <div style="font-size:10px; color:#00838F; font-weight:700; margin-top:6px;">Paytm · All UPI Apps</div>
           </div>
         </div>
 
@@ -276,7 +276,7 @@
     <div id="del-qr-paytm" style="display:none;">
       <img src="assets/paytm_qr.jpg" alt="Paytm QR" style="width:100%; max-width:280px; border-radius:14px; border:2px solid #80DEEA;" onerror="this.style.display='none'; document.getElementById('del-qr-paytm-fallback').style.display='block'">
       <div id="del-qr-paytm-fallback" style="display:none; padding:30px; background:#E0F7FA; border-radius:12px; color:#00838F; font-size:13px; font-weight:700;">&#9888;&#65039; Paytm QR not found.</div>
-      <div style="margin-top:8px; font-size:11px; color:#00838F; font-weight:700;">Paytm &bull; UPI ID: paytm.s2uf1hd@pty</div>
+      <div style="margin-top:8px; font-size:11px; color:#00838F; font-weight:700;">Paytm &bull; All UPI Apps</div>
     </div>
 
     <div style="margin-top:18px;">
@@ -343,6 +343,17 @@ async function loadOrders() {
     }
     const data = await apiFetch(url);
     allOrders = data.orders || [];
+
+    // Populate locations filter from actual order locations
+    const locFilter = document.getElementById('delivery-location-filter');
+    if (locFilter) {
+      const currentLoc = locFilter.value;
+      const locations = [...new Set(allOrders.map(o => o.delivery_address).filter(Boolean))].sort();
+      locFilter.innerHTML = '<option value="">📍 All Locations</option>' +
+        locations.map(l => `<option value="${escapeHtml(l)}">${escapeHtml(l)}</option>`).join('');
+      if (currentLoc) locFilter.value = currentLoc;
+    }
+
     renderOrders();
   } catch (e) {
     document.getElementById('orders-list').innerHTML =

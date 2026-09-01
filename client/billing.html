@@ -224,13 +224,6 @@
           <input type="text" id="order-table" class="form-control" placeholder="Table No" style="max-width:80px;padding:6px 10px;">
           <select id="order-location" class="form-control" style="display:none; max-width:110px; padding:6px 10px;" onchange="toggleLocationOther()">
             <option value="">Location</option>
-            <option value="Leaders">Leaders</option>
-            <option value="B3">B3</option>
-            <option value="Queens">Queens</option>
-            <option value="VVH">VVH</option>
-            <option value="Kings">Kings</option>
-            <option value="Prince">Prince</option>
-            <option value="IGH">IGH</option>
             <option value="Other">Other</option>
           </select>
           <input type="text" id="order-location-other" class="form-control" placeholder="Specify" style="display:none; max-width:90px; padding:6px 10px;">
@@ -610,6 +603,28 @@ function toggleLocationOther() {
   const val = document.getElementById('order-location').value;
   document.getElementById('order-location-other').style.display = val === 'Other' ? 'block' : 'none';
 }
+
+function populateDeliveryLocations(locString) {
+  const sel = document.getElementById('order-location');
+  if (!sel) return;
+  const currentVal = sel.value;
+  const locs = (locString || 'Zone 1, Zone 2, Zone 3')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+  
+  sel.innerHTML = '<option value="">Location</option>' +
+    locs.map(l => `<option value="${escapeHtml(l)}">${escapeHtml(l)}</option>`).join('') +
+    '<option value="Other">Other</option>';
+  if (currentVal) sel.value = currentVal;
+}
+
+// Fetch public settings to load configured delivery locations
+fetch('/api/settings/public').then(r => r.json()).then(d => {
+  if (d && d.delivery_locations !== undefined) {
+    populateDeliveryLocations(d.delivery_locations);
+  }
+}).catch(() => {});
 
 let billItems = [];
 let menuItems = [];
@@ -1390,7 +1405,7 @@ function buildPreviews() {
     if (deliveryAddr === 'Other') deliveryAddr = (document.getElementById('order-location-other').value || '').trim();
   }
 
-  const _rn = await getRestaurantName();
+  const _rn = getRestaurantNameSync();
 
   // ── RECEIPT preview ──
   let r = '        ' + _rn + '\n';

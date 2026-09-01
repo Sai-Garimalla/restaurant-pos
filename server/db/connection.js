@@ -25,7 +25,7 @@ const dbConfig = {
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   timezone: 'Z',
-  ssl: { rejectUnauthorized: true },
+  ssl: { rejectUnauthorized: false },
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -50,9 +50,35 @@ const pool = {
 
 // Schema version — bump this when you add new tables/columns so the next
 // cold start re-runs DDL; otherwise only a fast ping is performed.
-const SCHEMA_VERSION = '8';
+const SCHEMA_VERSION = '10';
+
+async function ensureColumn(conn, tableName, columnName, columnDef) {
+  try {
+    const [rows] = await conn.execute(
+      "SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?",
+      [tableName, columnName]
+    );
+    if (rows.length === 0) {
+      await conn.execute(`ALTER TABLE \`${tableName}\` ADD COLUMN \`${columnName}\` ${columnDef}`);
+      console.log(`➕ Added missing column: ${tableName}.${columnName}`);
+    }
+  } catch (err) {
+    console.error(`Failed to ensure column ${tableName}.${columnName}:`, err.message);
+  }
+}
 
 async function initDB() {
+  // Auto-create databases if they do not exist
+  try {
+    const { database, ...configWithoutDB } = dbConfig;
+    const tempConn = await mysql.createConnection(configWithoutDB);
+    await tempConn.execute(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}\``);
+    await tempConn.execute(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}_test\``);
+    await tempConn.end();
+  } catch (err) {
+    console.error("⚠️  Failed to auto-create database (might lack permissions):", err.message);
+  }
+
   // Fast path: if schema is already up-to-date just ping the DB
   try {
     const [rows] = await mainPool.execute(
@@ -118,7 +144,7 @@ async function initSingleDB(targetPool, isTest = false) {
     `);
     
     // Add missing columns / fix constraints on users table
-    try { await conn.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(20)"); } catch(e) {}
+    await ensureColumn(conn, 'users', 'phone', 'VARCHAR(20)');
     try { await conn.execute("ALTER TABLE users MODIFY COLUMN role ENUM('admin','staff','delivery_boy','kitchen') DEFAULT 'admin'"); } catch(e) {}
     // Make email optional (nullable) — TiDB requires dropping unique index first
     try { await conn.execute("ALTER TABLE users DROP INDEX email"); } catch(e) {}
@@ -168,6 +194,7 @@ async function initSingleDB(targetPool, isTest = false) {
         delivered_by INT,
         delivered_at TIMESTAMP NULL,
         assigned_delivery_boy INT,
+        change_settled TINYINT(1) DEFAULT 0,
         created_by INT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (created_by) REFERENCES users(id),
@@ -175,28 +202,23 @@ async function initSingleDB(targetPool, isTest = false) {
       )
     `);
 
-    // Add missing columns to bills table (safe for existing DBs)
-    const billAlters = [
-      "ALTER TABLE bills ADD COLUMN IF NOT EXISTS customer_name VARCHAR(100)",
-      "ALTER TABLE bills ADD COLUMN IF NOT EXISTS order_type VARCHAR(100) DEFAULT 'Dine-in'",
-      "ALTER TABLE bills ADD COLUMN IF NOT EXISTS delivery_address TEXT",
-      "ALTER TABLE bills ADD COLUMN IF NOT EXISTS custom_note TEXT",
-      "ALTER TABLE bills MODIFY COLUMN status ENUM('completed','draft','cancelled') DEFAULT 'completed'",
-      "ALTER TABLE bills ADD COLUMN IF NOT EXISTS token_prefix VARCHAR(5) DEFAULT 'T'",
-      "ALTER TABLE bills ADD COLUMN IF NOT EXISTS delivery_status ENUM('pending','preparing','ready','picked_up','delivered') DEFAULT 'pending'",
-      "ALTER TABLE bills ADD COLUMN IF NOT EXISTS packing_status ENUM('pending','packing','packed') DEFAULT 'pending'",
-      "ALTER TABLE bills ADD COLUMN IF NOT EXISTS cash_collected DECIMAL(10,2) DEFAULT 0",
-      "ALTER TABLE bills ADD COLUMN IF NOT EXISTS upi_collected DECIMAL(10,2) DEFAULT 0",
-      "ALTER TABLE bills ADD COLUMN IF NOT EXISTS parcel_enabled TINYINT(1) DEFAULT 0",
-      "ALTER TABLE bills ADD COLUMN IF NOT EXISTS parcel_charge DECIMAL(10,2) DEFAULT 0",
-      "ALTER TABLE bills ADD COLUMN IF NOT EXISTS delivered_by INT",
-      "ALTER TABLE bills ADD COLUMN IF NOT EXISTS delivered_at TIMESTAMP NULL",
-      "ALTER TABLE bills ADD COLUMN IF NOT EXISTS assigned_delivery_boy INT",
-      "ALTER TABLE bills ADD COLUMN IF NOT EXISTS change_settled TINYINT(1) DEFAULT 0",
-    ];
-    for (const sql of billAlters) {
-      try { await conn.execute(sql); } catch(e) { /* column may already exist */ }
-    }
+    // Ensure all columns exist on bills table
+    await ensureColumn(conn, 'bills', 'customer_name', 'VARCHAR(100)');
+    await ensureColumn(conn, 'bills', 'order_type', "VARCHAR(100) DEFAULT 'Dine-in'");
+    await ensureColumn(conn, 'bills', 'delivery_address', 'TEXT');
+    await ensureColumn(conn, 'bills', 'custom_note', 'TEXT');
+    await ensureColumn(conn, 'bills', 'token_prefix', "VARCHAR(5) DEFAULT 'T'");
+    await ensureColumn(conn, 'bills', 'delivery_status', "ENUM('pending','preparing','ready','picked_up','delivered') DEFAULT 'pending'");
+    await ensureColumn(conn, 'bills', 'packing_status', "ENUM('pending','packing','packed') DEFAULT 'pending'");
+    await ensureColumn(conn, 'bills', 'cash_collected', 'DECIMAL(10,2) DEFAULT 0');
+    await ensureColumn(conn, 'bills', 'upi_collected', 'DECIMAL(10,2) DEFAULT 0');
+    await ensureColumn(conn, 'bills', 'parcel_enabled', 'TINYINT(1) DEFAULT 0');
+    await ensureColumn(conn, 'bills', 'parcel_charge', 'DECIMAL(10,2) DEFAULT 0');
+    await ensureColumn(conn, 'bills', 'delivered_by', 'INT');
+    await ensureColumn(conn, 'bills', 'delivered_at', 'TIMESTAMP NULL');
+    await ensureColumn(conn, 'bills', 'assigned_delivery_boy', 'INT');
+    await ensureColumn(conn, 'bills', 'change_settled', 'TINYINT(1) DEFAULT 0');
+    try { await conn.execute("ALTER TABLE bills MODIFY COLUMN status ENUM('completed','draft','cancelled') DEFAULT 'completed'"); } catch(e) {}
 
     // Bill items table
     await conn.execute(`
@@ -244,9 +266,15 @@ async function initSingleDB(targetPool, isTest = false) {
     // Insert default settings if not exists
     const defaultSettings = [
       ['restaurant_name', 'Your Restaurant'],
+      ['tagline', 'Good Food, Great Experience'],
       ['address', ''],
       ['phone', ''],
+      ['email', ''],
+      ['gst_number', ''],
+      ['currency', '₹'],
+      ['timezone', 'Asia/Kolkata'],
       ['footer', 'Thank you for dining with us! Visit again soon.'],
+      ['delivery_locations', 'Zone 1, Zone 2, Zone 3'],
       ['token_format', 'daily'],
       ['auto_print_kot', '1'],
       ['auto_print_receipt', '1'],

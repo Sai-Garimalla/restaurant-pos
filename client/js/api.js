@@ -112,17 +112,37 @@ function showToast(message, type = 'success') {
   setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(100%)'; toast.style.transition = '.3s'; setTimeout(() => toast.remove(), 300); }, 3500);
 }
 
-// ── Restaurant name cache (fetched once from /api/settings/public) ──
-let _cachedRestaurantName = null;
-async function getRestaurantName() {
-  if (_cachedRestaurantName) return _cachedRestaurantName;
+// ── Public settings cache (fetched once from /api/settings/public) ──
+let _cachedPublicSettings = null;
+fetch('/api/settings/public').then(r => r.json()).then(d => {
+  if (d) _cachedPublicSettings = d;
+}).catch(() => {});
+
+function getPublicSettingsSync() {
+  return _cachedPublicSettings || {};
+}
+
+async function getPublicSettings() {
+  if (_cachedPublicSettings) return _cachedPublicSettings;
   try {
-    const d = await fetch('/api/settings/public').then(r => r.json());
-    _cachedRestaurantName = (d && d.restaurant_name) ? d.restaurant_name : 'Restaurant POS';
+    _cachedPublicSettings = await fetch('/api/settings/public').then(r => r.json());
   } catch {
-    _cachedRestaurantName = 'Restaurant POS';
+    _cachedPublicSettings = {};
   }
-  return _cachedRestaurantName;
+  return _cachedPublicSettings;
+}
+
+function getRestaurantNameSync() {
+  return (_cachedPublicSettings && _cachedPublicSettings.restaurant_name) || 'Restaurant POS';
+}
+
+async function getRestaurantName() {
+  const s = await getPublicSettings();
+  return (s && s.restaurant_name) || 'Restaurant POS';
+}
+
+function getCurrencySymbolSync() {
+  return (_cachedPublicSettings && _cachedPublicSettings.currency) || '₹';
 }
 
 // Sidebar setup
@@ -267,7 +287,8 @@ async function initSidebar(activePage) {
 }
 
 function formatCurrency(val) {
-  return '₹' + parseFloat(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+  const sym = getCurrencySymbolSync();
+  return sym + parseFloat(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 });
 }
 
 function formatDate(str) {

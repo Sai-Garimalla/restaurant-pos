@@ -34,22 +34,52 @@
       <div class="settings-grid">
         <!-- Restaurant Info -->
         <div class="card settings-section">
-          <h3>🏪 Restaurant Information</h3>
+          <h3>🏪 Restaurant Information &amp; Branding</h3>
           <div class="form-group">
             <label class="form-label">Restaurant Name</label>
             <input type="text" class="form-control" id="s-name" placeholder="Your Restaurant Name">
           </div>
           <div class="form-group">
+            <label class="form-label">Tagline / Slogan</label>
+            <input type="text" class="form-control" id="s-tagline" placeholder="Good Food, Great Experience">
+          </div>
+          <div class="form-group">
             <label class="form-label">Address</label>
             <textarea class="form-control" id="s-address" rows="2" placeholder="Full address"></textarea>
           </div>
+          <div class="grid-2" style="gap:10px">
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input type="text" class="form-control" id="s-phone" placeholder="+91 98765 43210">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" id="s-email" placeholder="contact@restaurant.com">
+            </div>
+          </div>
+          <div class="grid-2" style="gap:10px">
+            <div class="form-group">
+              <label class="form-label">GST / Tax Number</label>
+              <input type="text" class="form-control" id="s-gst" placeholder="GSTIN (optional)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Currency Symbol</label>
+              <input type="text" class="form-control" id="s-currency" placeholder="₹" maxlength="5">
+            </div>
+          </div>
           <div class="form-group">
-            <label class="form-label">Phone</label>
-            <input type="text" class="form-control" id="s-phone" placeholder="+91 98765 43210">
+            <label class="form-label">Timezone</label>
+            <input type="text" class="form-control" id="s-timezone" placeholder="Asia/Kolkata">
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Standard IANA timezone for order timestamps (e.g. Asia/Kolkata, UTC, America/New_York)</div>
           </div>
           <div class="form-group">
             <label class="form-label">Receipt Footer Message</label>
             <input type="text" class="form-control" id="s-footer" placeholder="Thank you for dining with us!">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Delivery Locations / Areas (comma-separated)</label>
+            <input type="text" class="form-control" id="s-delivery-locations" placeholder="Zone 1, Zone 2, Zone 3">
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Defines the options shown in the Location dropdown on the New Bill page</div>
           </div>
         </div>
 
@@ -185,9 +215,15 @@ async function loadSettings() {
   try {
     const s = await apiFetch('/settings');
     document.getElementById('s-name').value = s.restaurant_name || '';
+    document.getElementById('s-tagline').value = s.tagline || '';
     document.getElementById('s-address').value = s.address || '';
     document.getElementById('s-phone').value = s.phone || '';
+    document.getElementById('s-email').value = s.email || '';
+    document.getElementById('s-gst').value = s.gst_number || '';
+    document.getElementById('s-currency').value = s.currency || '₹';
+    document.getElementById('s-timezone').value = s.timezone || 'Asia/Kolkata';
     document.getElementById('s-footer').value = s.footer || '';
+    document.getElementById('s-delivery-locations').value = s.delivery_locations || '';
     document.getElementById('s-token-format').value = s.token_format || 'daily';
     document.getElementById('s-auto-receipt').checked = s.auto_print_receipt === '1';
     document.getElementById('s-auto-kot').checked = s.auto_print_kot === '1';
@@ -209,9 +245,15 @@ async function saveSettings() {
       method: 'POST',
       body: JSON.stringify({
         restaurant_name: document.getElementById('s-name').value,
+        tagline: document.getElementById('s-tagline').value,
         address: document.getElementById('s-address').value,
         phone: document.getElementById('s-phone').value,
+        email: document.getElementById('s-email').value,
+        gst_number: document.getElementById('s-gst').value,
+        currency: document.getElementById('s-currency').value || '₹',
+        timezone: document.getElementById('s-timezone').value || 'Asia/Kolkata',
         footer: document.getElementById('s-footer').value,
+        delivery_locations: document.getElementById('s-delivery-locations').value,
         token_format: document.getElementById('s-token-format').value,
         auto_print_receipt: document.getElementById('s-auto-receipt').checked ? '1' : '0',
         auto_print_kot: document.getElementById('s-auto-kot').checked ? '1' : '0',

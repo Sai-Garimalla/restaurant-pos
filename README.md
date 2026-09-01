@@ -70,43 +70,35 @@ cp .env.example .env
 
 Edit `.env` with your database credentials and other settings. See [CONFIGURATION.md](CONFIGURATION.md) for details.
 
-### 4. Configure Restaurant Info
-
-Edit [`config/restaurant.json`](config/restaurant.json) with your restaurant's name, address, phone, and receipt footer text.
-
-### 5. Set Up the Database
-
-Create your database, then start the server — the schema is created automatically on first startup:
-
-```bash
-# MySQL example
-mysql -u root -p -e "CREATE DATABASE restaurant_pos;"
-```
-
-### 6. Start the Server
+### 4. Start the Server
 
 ```bash
 npm start
 # Server runs on http://localhost:3000
 ```
 
-### 7. Open the App
+> **Note:** The server automatically connects to MySQL, creates the database if it doesn't exist, and runs all schema migrations.
 
-Navigate to `http://localhost:3000` in your browser.
+### 5. Open the App & Set Up Admin
 
-### 8. Create Admin Account
+Navigate to `http://localhost:3000` in your browser. On first launch, fill out the **"Set Up Admin"** form to create your admin account.
 
-On first launch, you'll see a **"Set Up Admin"** form on the login page. Create your admin account.
+### 6. Configure Restaurant Info & Settings
 
-### 9. Add Your Menu
+Log in as admin and go to **Settings** (`/settings.html`) to configure:
+- Restaurant Name, Tagline, Address, Phone, Email, and GST / Tax Number
+- Currency Symbol and Timezone
+- Receipt Footer Message
+- Delivery Locations / Areas
+- Thermal Printer IP Addresses, Port, and Paper Width (80mm / 58mm)
+- Auto-print preferences & Database Environment
+
+All settings are stored directly in your database.
+
+### 7. Add Your Menu
 
 Go to **Menu Management** → Add items manually, or upload a CSV/XLSX file.  
 Alternatively, edit and run `scripts/update_menu.js`.
-
-### 10. Configure Printer (Optional)
-
-Go to **Settings** → enter your printer's IP address and select your paper width (80mm or 58mm).  
-Flash the ESP32 bridge sketch (see [Printing](#printing) below).
 
 ---
 
@@ -119,11 +111,8 @@ restaurant-pos/
 │   ├── css/style.css        # All styles
 │   ├── js/api.js            # Shared API helpers and sidebar
 │   └── *.html               # Application pages
-├── config/
-│   ├── restaurant.json      # Restaurant identity (name, address, phone)
-│   └── printer.json         # Printer defaults
 ├── server/                  # Backend (Node.js + Express)
-│   ├── db/connection.js     # DB pool + schema init
+│   ├── db/connection.js     # DB pool + schema init & migrations
 │   ├── middleware/          # Auth middleware
 │   └── routes/              # API route handlers
 ├── scripts/                 # Utility scripts (menu seed, db flush, etc.)

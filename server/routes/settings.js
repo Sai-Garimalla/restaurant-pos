@@ -8,7 +8,7 @@ const { authenticateToken, requireAdmin } = require('../middleware/auth');
 router.get('/public', async (req, res) => {
   try {
     const [rows] = await pool.execute(
-      "SELECT key_name, value FROM settings WHERE key_name IN ('restaurant_name','address','phone','footer')"
+      "SELECT key_name, value FROM settings WHERE key_name IN ('restaurant_name','tagline','address','phone','email','gst_number','footer','currency','timezone','delivery_locations')"
     );
     const data = {};
     rows.forEach(r => { data[r.key_name] = r.value; });

@@ -1,8 +1,0 @@
-{
-  "_comment": "Thermal printer configuration. Supports any ESC/POS-compatible network thermal printer on TCP port 9100.",
-  "paperWidth": 80,
-  "_paperWidthNote": "Set to 80 for 80mm paper (48 chars/line) or 58 for 58mm paper (32 chars/line).",
-  "autoCut": true,
-  "cashDrawerKick": false,
-  "_cashDrawerKickNote": "Set to true if a cash drawer is connected to the receipt printer (pulse via pin 2)."
-}

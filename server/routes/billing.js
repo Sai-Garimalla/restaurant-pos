@@ -75,16 +75,47 @@ function generateBillNumber(date, prefix, token) {
 
 // ── MQTT cloud print bridge ──
 let mqttClient = null;
-if (process.env.MQTT_HOST) {
-  mqttClient = mqtt.connect(`mqtts://${process.env.MQTT_HOST}`, {
-    username: process.env.MQTT_USER,
-    password: process.env.MQTT_PASS,
-    reconnectPeriod: 2000,   // auto-reconnect every 2s
+const rawMqttHost = (process.env.MQTT_HOST || '').trim();
+const isMqttConfigured = Boolean(
+  rawMqttHost &&
+  !rawMqttHost.includes('example.com') &&
+  !rawMqttHost.startsWith('your-') &&
+  rawMqttHost !== 'placeholder'
+);
+
+if (isMqttConfigured) {
+  let lastMqttErrorMsg = null;
+  let lastMqttOfflineWarned = false;
+
+  mqttClient = mqtt.connect(`mqtts://${rawMqttHost}`, {
+    username: process.env.MQTT_USER || undefined,
+    password: process.env.MQTT_PASS || undefined,
+    reconnectPeriod: 10000,   // reconnect every 10s (throttled)
     connectTimeout: 10000,   // 10s connect timeout
   });
-  mqttClient.on('connect', () => console.log('✅ Connected to MQTT Print Broker'));
-  mqttClient.on('error',   (err) => console.error('❌ MQTT Broker Error:', err.message));
-  mqttClient.on('offline', () => console.warn('⚠️  MQTT Broker offline'));
+
+  mqttClient.on('connect', () => {
+    lastMqttErrorMsg = null;
+    lastMqttOfflineWarned = false;
+    console.log('✅ Connected to MQTT Print Broker');
+  });
+
+  mqttClient.on('error', (err) => {
+    // Only log once per unique error message to prevent console spam
+    if (lastMqttErrorMsg !== err.message) {
+      lastMqttErrorMsg = err.message;
+      console.error(`❌ MQTT Broker Error (${rawMqttHost}):`, err.message);
+    }
+  });
+
+  mqttClient.on('offline', () => {
+    if (!lastMqttOfflineWarned) {
+      lastMqttOfflineWarned = true;
+      console.warn('⚠️  MQTT Broker offline');
+    }
+  });
+} else {
+  console.log('ℹ️  MQTT Print Broker not configured — cloud printing via ESP32 is disabled.');
 }
 
 // ── Wait for MQTT connection (handles Vercel cold-start delay) ──
@@ -203,21 +234,25 @@ async function buildCustomerReceipt(bill, items, settings) {
   const itemNameW  = Math.floor(lw * 0.5); // item name column
   const totalsLabelW = lw - 12;            // totals label width
 
+  const tz = settings.timezone || 'Asia/Kolkata';
   const { LF, INIT, BOLD_ON, BOLD_OFF, CENTER, LEFT, DBL_HT, NORMAL, CUT, SLINE, pad, padL } = ep(lw);
 
   let r = INIT;
   r += CENTER + BOLD_ON + DBL_HT + (settings.restaurant_name || 'Restaurant') + LF + NORMAL + BOLD_OFF;
+  if (settings.tagline) r += CENTER + settings.tagline + LF;
   if (settings.address) {
     settings.address.split('\n').forEach(line => { r += CENTER + line.trim() + LF; });
   }
   if (settings.phone)   r += CENTER + 'Ph: ' + settings.phone + LF;
+  if (settings.email)   r += CENTER + 'Email: ' + settings.email + LF;
+  if (settings.gst_number) r += CENTER + 'GSTIN: ' + settings.gst_number + LF;
   r += LEFT + SLINE + LF;
   r += CENTER + BOLD_ON + 'CUSTOMER RECEIPT' + BOLD_OFF + LF;
   r += LEFT + SLINE + LF;
 
   r += 'Bill No  : ' + bill.bill_number + LF;
-  r += 'Date     : ' + new Date(bill.created_at).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' }) + LF;
-  r += 'Time     : ' + new Date(bill.created_at).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }) + LF;
+  r += 'Date     : ' + new Date(bill.created_at).toLocaleDateString('en-IN', { timeZone: tz }) + LF;
+  r += 'Time     : ' + new Date(bill.created_at).toLocaleTimeString('en-IN', { timeZone: tz }) + LF;
   r += SLINE + LF;
   // ── 2-column header grid ──
   r += pad('Token: ', 7) + BOLD_ON + pad(String(bill.token_prefix || 'DIN') + String(bill.token_number).padStart(3,'0'), 10) + BOLD_OFF +
@@ -330,8 +365,9 @@ async function buildCounterChecklist(bill, items, settings) {
   c += DLINE + LF;
 
   c += 'Bill No  : ' + bill.bill_number + LF;
-  const dateStr = 'Date: ' + new Date(bill.created_at).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' });
-  const timeStr = 'Time: ' + new Date(bill.created_at).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' });
+  const cTz = settings.timezone || 'Asia/Kolkata';
+  const dateStr = 'Date: ' + new Date(bill.created_at).toLocaleDateString('en-IN', { timeZone: cTz });
+  const timeStr = 'Time: ' + new Date(bill.created_at).toLocaleTimeString('en-IN', { timeZone: cTz });
   c += dateStr.padEnd(24).slice(0, 24) + timeStr.padEnd(24).slice(0, 24) + LF;
   c += DLINE + LF;
   // ── 2-column header grid (no Taken By on checklist) ──

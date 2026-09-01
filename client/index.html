@@ -45,7 +45,7 @@
   <div class="login-logo">
     <img src="assets/logo.png" alt="Restaurant POS">
     <h1 id="login-brand-name">Restaurant POS</h1>
-    <p>Restaurant Management System</p>
+    <p id="login-tagline">Restaurant Management System</p>
   </div>
   <form class="login-form" id="login-form" autocomplete="on">
     <div id="login-error" class="error-msg"></div>
@@ -144,11 +144,17 @@ if (token) {
 
 checkSetup();
 
-// Load restaurant name from server config
+// Load restaurant identity from public server settings
 fetch('/api/settings/public').then(r => r.json()).then(d => {
-  if (d && d.restaurant_name) {
-    const el = document.getElementById('login-brand-name');
-    if (el) el.textContent = d.restaurant_name;
+  if (d) {
+    if (d.restaurant_name) {
+      const el = document.getElementById('login-brand-name');
+      if (el) el.textContent = d.restaurant_name;
+    }
+    if (d.tagline) {
+      const tagEl = document.getElementById('login-tagline');
+      if (tagEl) tagEl.textContent = d.tagline;
+    }
   }
 }).catch(() => {});
 

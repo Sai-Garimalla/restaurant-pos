@@ -37,38 +37,31 @@ node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 
 ---
 
-## 2. Restaurant Identity (`config/restaurant.json`)
+## 2. Restaurant Identity & Settings (In-App Settings Page)
 
-This file controls how your restaurant appears in the app and on printed receipts.
+All restaurant identity, branding, printer configuration, and POS preferences are stored directly in your database and managed live through the **Settings** page (`/settings.html`) by an Admin.
 
-```json
-{
-  "name": "Your Restaurant Name",
-  "shortName": "Restaurant",
-  "tagline": "Good Food, Great Experience",
-  "address": "123 Example Street, City, State - 000000",
-  "phone": "+00 00000 00000",
-  "email": "",
-  "gstNumber": "",
-  "receiptFooter": "Thank you for dining with us! Please visit again.",
-  "currency": "₹",
-  "timezone": "Asia/Kolkata"
-}
-```
+No manual JSON config files are required.
+
+### Configurable Fields in Admin Settings
 
 | Field | Description |
 |-------|-------------|
-| `name` | Full restaurant name — shown in the sidebar, login page, and receipts |
-| `shortName` | Abbreviated name (optional) |
-| `tagline` | Shown on the login page below the name |
-| `address` | Address printed on customer receipts |
-| `phone` | Phone number printed on customer receipts |
-| `gstNumber` | GST/tax registration number (leave empty to hide) |
-| `receiptFooter` | Footer text at the bottom of every receipt |
-| `currency` | Currency symbol (default: `₹`) |
-| `timezone` | IANA timezone for receipt timestamps (default: `Asia/Kolkata`) |
-
-> **Note:** Restaurant name, address, phone, and footer can also be edited live through the **Settings** page in the app (stored in the database). The `restaurant.json` values serve as initial defaults for new installations.
+| **Restaurant Name** | Full restaurant name — displayed across the login page, sidebar navigation, and receipts |
+| **Tagline / Slogan** | Subtitle displayed on the login page below the restaurant name and on customer receipts |
+| **Address** | Physical address printed on customer receipts and checklists |
+| **Phone** | Contact phone number printed on customer receipts and checklists |
+| **Email** | Contact email address printed on customer receipts (optional) |
+| **GST / Tax Number** | GSTIN / Tax registration number printed on customer receipts (optional) |
+| **Currency Symbol** | Currency symbol displayed throughout the app (default: `₹`) |
+| **Timezone** | IANA timezone used for receipt and bill timestamps (default: `Asia/Kolkata`) |
+| **Receipt Footer Message** | Custom message printed at the bottom of customer receipts |
+| **Delivery Locations / Areas** | Comma-separated list of delivery zones displayed on the billing page |
+| **Token Reset** | Daily reset (`1, 2, 3...` each day) or Continuous numbering |
+| **Auto-print Options** | Auto-print Customer Receipts, KOT tickets, or Counter Checklists |
+| **Printer IPs & Ports** | ESC/POS network thermal printer IP and port settings for Customer & Kitchen printers |
+| **Paper Width** | ESC/POS thermal paper width (`80mm` / 48 chars or `58mm` / 32 chars) |
+| **Database Environment** | Live switcher between Production Database and Test Database |
 
 ---
 
