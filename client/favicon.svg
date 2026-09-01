@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF6B00"/>
+      <stop offset="50%" stop-color="#E65100"/>
+      <stop offset="100%" stop-color="#C62828"/>
+    </linearGradient>
+    <linearGradient id="flameGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#FFD54F"/>
+      <stop offset="50%" stop-color="#FF9800"/>
+      <stop offset="100%" stop-color="#FF3D00"/>
+    </linearGradient>
+    <linearGradient id="innerFlame" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#FFF9C4"/>
+      <stop offset="100%" stop-color="#FFE082"/>
+    </linearGradient>
+  </defs>
+  <rect width="100" height="100" rx="24" fill="url(#bgGrad)"/>
+  <path d="M50 15 C52 30, 68 38, 68 55 C68 70, 58 80, 50 80 C42 80, 32 70, 32 55 C32 40, 44 32, 44 26 C44 26, 42 35, 48 38 C52 35, 52 26, 50 15 Z" fill="url(#flameGrad)"/>
+  <path d="M50 42 C51 50, 59 55, 59 64 C59 71, 54 75, 50 75 C46 75, 41 71, 41 64 C41 57, 47 52, 47 48 C47 48, 46 52, 49 54 C51 52, 51 47, 50 42 Z" fill="url(#innerFlame)"/>
+</svg>

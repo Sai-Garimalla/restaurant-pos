@@ -1,0 +1,230 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🛵 My Dashboard — Restaurant POS</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" href="assets/logo.png">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .db-header { padding:16px; background:linear-gradient(135deg,#1a1a2e,#16213e); color:#fff; border-bottom:2px solid #E65100; }
+  .db-header h2 { margin:0; font-size:20px; color:#FF8F00; }
+  .db-header p  { margin:4px 0 0; font-size:12px; color:#aaa; }
+  .stats-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; padding:14px; }
+  .stat-card { background:#fff; border:1.5px solid #FFCC80; border-radius:14px; padding:16px; text-align:center; box-shadow:0 2px 8px rgba(230,81,0,.07); }
+  .stat-num { font-size:32px; font-weight:900; color:#E65100; }
+  .stat-lbl { font-size:11px; color:#8D6E63; font-weight:700; text-transform:uppercase; margin-top:4px; }
+  .money-card { background:linear-gradient(135deg,#1a1a2e,#16213e); border:none; }
+  .money-card .stat-num { color:#4CAF50; }
+  .money-card .stat-lbl { color:#aaa; }
+  .section-title { padding:0 14px 6px; font-size:12px; font-weight:800; color:#8D6E63; text-transform:uppercase; letter-spacing:.5px; }
+  .collection-row { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#fff; border-bottom:1px solid #FFE0B2; }
+  .collection-row:last-child { border-bottom:none; }
+  .col-label { font-size:13px; color:#3E2000; font-weight:600; }
+  .col-value { font-size:16px; font-weight:800; color:#2E7D32; }
+  .col-value.upi { color:#1565C0; }
+  .recent-section { margin:14px; background:#fff; border:1.5px solid #FFCC80; border-radius:14px; overflow:hidden; }
+  .recent-header { padding:10px 14px; background:linear-gradient(135deg,#FFF3E0,#FFE0B2); font-size:12px; font-weight:800; color:#E65100; border-bottom:1px solid #FFCC80; }
+  .order-row { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid #FFE0B2; cursor:pointer; }
+  .order-row:last-child { border-bottom:none; }
+  .order-row:hover { background:#FFF8F0; }
+  .ord-token { font-size:16px; font-weight:900; color:#E65100; }
+  .ord-customer { font-size:12px; color:#3E2000; font-weight:600; }
+  .ord-time { font-size:10px; color:#aaa; }
+  .ord-total { font-size:14px; font-weight:800; color:#2E7D32; }
+  .badge-sm { padding:2px 8px; border-radius:8px; font-size:9px; font-weight:700; }
+  .badge-delivered { background:#E8F5E9; color:#2E7D32; }
+  .badge-picked_up { background:#E3F2FD; color:#1565C0; }
+  .badge-ready     { background:#E8F5E9; color:#43A047; }
+  .badge-pending   { background:#ECEFF1; color:#546E7A; }
+  .no-data { text-align:center; padding:40px; color:#BCAAA4; font-size:14px; }
+  .refresh-btn { display:block; margin:0 14px 14px; padding:12px; background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; width:calc(100% - 28px); }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main-content">
+    <div class="db-header">
+      <h2>🛵 My Dashboard</h2>
+      <p id="db-greeting">Loading today's stats…</p>
+    </div>
+
+    <!-- Stats grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-assigned">—</div>
+        <div class="stat-lbl">📦 Assigned</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-delivered">—</div>
+        <div class="stat-lbl">🏁 Delivered</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-pending">—</div>
+        <div class="stat-lbl">⏳ Pending</div>
+      </div>
+      <div class="stat-card money-card">
+        <div class="stat-num" id="stat-total">₹0</div>
+        <div class="stat-lbl">💰 Total Collected</div>
+      </div>
+    </div>
+
+    <!-- Payment breakdown -->
+    <div class="section-title">💰 Today's Collection</div>
+    <div style="margin:0 14px 14px; background:#fff; border:1.5px solid #FFCC80; border-radius:14px; overflow:hidden;">
+      <div class="collection-row">
+        <span class="col-label">💵 Cash Collected</span>
+        <span class="col-value" id="stat-cash">₹0.00</span>
+      </div>
+      <div class="collection-row">
+        <span class="col-label">📱 UPI Collected</span>
+        <span class="col-value upi" id="stat-upi">₹0.00</span>
+      </div>
+    </div>
+
+    <!-- Recent deliveries -->
+    <div class="section-title">📋 Today's Orders</div>
+    <div class="recent-section">
+      <div class="recent-header">Tap an order to view delivery details</div>
+      <div id="recent-list"><div class="no-data">⏳ Loading…</div></div>
+    </div>
+
+    <!-- QR Code for Payment -->
+    <div style="margin:0 14px 14px; background:linear-gradient(135deg,#1a1a2e,#16213e); border-radius:14px; overflow:hidden; border:1.5px solid #FF8F00;">
+      <div style="padding:12px 14px; border-bottom:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-size:13px; font-weight:800; color:#FF8F00;">📱 Payment QR Code</div>
+          <div style="font-size:11px; color:#aaa; margin-top:2px;">Show to customer for UPI payment</div>
+        </div>
+        <button onclick="showQR()" style="background:linear-gradient(135deg,#FF8F00,#E65100); color:#fff; border:none; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:800; cursor:pointer; transition:all .15s;">
+          🔍 Show QR
+        </button>
+      </div>
+    </div>
+
+    <button class="refresh-btn" onclick="loadStats()">🔄 Refresh</button>
+  </div>
+</div>
+
+<!-- QR Modal -->
+<div id="qr-modal" onclick="hideQR()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:9999; justify-content:center; align-items:center; flex-direction:column; padding:20px;">
+  <div onclick="event.stopPropagation()" style="background:#fff; border-radius:24px; padding:24px 20px; max-width:340px; width:100%; text-align:center; box-shadow:0 24px 80px rgba(0,0,0,0.6);">
+    <div style="font-size:17px; font-weight:800; color:#E65100; margin-bottom:3px;">&#128241; Scan to Pay</div>
+    <div style="font-size:12px; color:#8D6E63; margin-bottom:14px;">Choose a payment QR to show customer</div>
+
+    <!-- QR Tab Switcher -->
+    <div style="display:flex; background:#FFF3E0; border-radius:14px; padding:4px; gap:4px; margin-bottom:16px;">
+      <button id="db-tab-gpay" onclick="switchQR('gpay')" style="flex:1; padding:8px 0; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; transition:.2s;">QR 1</button>
+      <button id="db-tab-paytm" onclick="switchQR('paytm')" style="flex:1; padding:8px 0; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; background:transparent; color:#8D6E63; transition:.2s;">QR 2</button>
+    </div>
+
+    <!-- GPay / PhonePe QR -->
+    <div id="db-qr-gpay">
+      <img src="assets/payment_qr.png" alt="GPay / PhonePe QR" style="width:100%; max-width:280px; border-radius:14px; border:2px solid #FFE0B2;" onerror="this.style.display='none'; document.getElementById('qr-fallback').style.display='block'">
+      <div id="qr-fallback" style="display:none; padding:30px; background:#FFF3E0; border-radius:12px; color:#E65100; font-size:13px; font-weight:700;">&#9888;&#65039; QR not found.<br><span style="font-size:11px; color:#8D6E63; font-weight:400;">Add payment_qr.png to client/assets/</span></div>
+      <div style="margin-top:8px; font-size:11px; color:#8D6E63;">GPay &bull; PhonePe &bull; All UPI Apps</div>
+    </div>
+
+    <!-- Paytm QR -->
+    <div id="db-qr-paytm" style="display:none;">
+      <img src="assets/paytm_qr.jpg" alt="Paytm QR" style="width:100%; max-width:280px; border-radius:14px; border:2px solid #80DEEA;" onerror="this.style.display='none'; document.getElementById('db-qr-paytm-fallback').style.display='block'">
+      <div id="db-qr-paytm-fallback" style="display:none; padding:30px; background:#E0F7FA; border-radius:12px; color:#00838F; font-size:13px; font-weight:700;">&#9888;&#65039; Paytm QR not found.</div>
+      <div style="margin-top:8px; font-size:11px; color:#00838F; font-weight:700;">Paytm &bull; UPI ID: paytm.s2uf1hd@pty</div>
+    </div>
+
+    <div style="margin-top:18px;">
+      <button onclick="hideQR()" style="background:#F5F5F5; border:none; border-radius:12px; padding:12px 36px; font-size:14px; font-weight:700; cursor:pointer; color:#555;">&#10005; Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+if (!authGuard(['delivery_boy','admin','staff'])) throw 0;
+const currentUser = getUser();
+initSidebar('delivery-dashboard');
+
+document.getElementById('db-greeting').textContent =
+  `Hello ${currentUser ? currentUser.full_name : 'Driver'}! Here's your today's summary.`;
+
+function fmt(n) { return '₹' + parseFloat(n||0).toFixed(2); }
+function tokenStr(pfx, num) {
+  const p = pfx === 'T' ? 'DIN' : (pfx || 'DIN');
+  return '#' + p + String(num).padStart(3,'0');
+}
+
+async function loadStats() {
+  try {
+    const data = await apiFetch('/dashboard/delivery-stats');
+    const s = data.stats || {};
+    document.getElementById('stat-assigned').textContent  = s.total_assigned || 0;
+    document.getElementById('stat-delivered').textContent = s.delivered || 0;
+    document.getElementById('stat-pending').textContent   = s.pending || 0;
+    document.getElementById('stat-total').textContent     = fmt(s.total_collected);
+    document.getElementById('stat-cash').textContent      = fmt(s.cash_collected);
+    document.getElementById('stat-upi').textContent       = fmt(s.upi_collected);
+
+    const list = document.getElementById('recent-list');
+    const orders = data.recent_deliveries || [];
+    if (!orders.length) {
+      list.innerHTML = '<div class="no-data">No deliveries assigned today yet.</div>';
+      return;
+    }
+    list.innerHTML = orders.map(o => `
+      <div class="order-row" onclick="window.location.href='delivery.html'">
+        <div>
+          <div class="ord-token">${tokenStr(o.token_prefix, o.token_number)}</div>
+          <div class="ord-customer">${escapeHtml(o.customer_name || 'Customer')} · ${escapeHtml(o.customer_phone || '—')}</div>
+          <div class="ord-time">${escapeHtml(o.delivery_address || o.order_type || '')}</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="ord-total">${fmt(o.grand_total)}</div>
+          <div style="margin-top:4px;"><span class="badge-sm badge-${o.delivery_status}">${o.delivery_status.replace('_',' ')}</span></div>
+          ${o.delivery_status === 'delivered' ? `<div style="font-size:10px;color:#2E7D32;margin-top:2px;">💵${fmt(o.cash_collected)} 📱${fmt(o.upi_collected)}</div>` : ''}
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    console.error('Delivery dashboard error:', e);
+    document.getElementById('recent-list').innerHTML = `<div class="no-data">❌ Couldn't load deliveries — please try again.</div>`;
+  }
+}
+
+loadStats();
+setInterval(loadStats, 30000);
+
+function showQR() {
+  const modal = document.getElementById('qr-modal');
+  modal.style.display = 'flex';
+  switchQR('gpay'); // always reset to GPay tab on open
+}
+function hideQR() {
+  document.getElementById('qr-modal').style.display = 'none';
+}
+function switchQR(which) {
+  const gpayPanel = document.getElementById('db-qr-gpay');
+  const paytmPanel = document.getElementById('db-qr-paytm');
+  const gpayTab = document.getElementById('db-tab-gpay');
+  const paytmTab = document.getElementById('db-tab-paytm');
+  if (which === 'gpay') {
+    gpayPanel.style.display = '';
+    paytmPanel.style.display = 'none';
+    gpayTab.style.background = 'linear-gradient(135deg,#E65100,#FF8F00)';
+    gpayTab.style.color = '#fff';
+    paytmTab.style.background = 'transparent';
+    paytmTab.style.color = '#8D6E63';
+  } else {
+    gpayPanel.style.display = 'none';
+    paytmPanel.style.display = '';
+    gpayTab.style.background = 'transparent';
+    gpayTab.style.color = '#8D6E63';
+    paytmTab.style.background = 'linear-gradient(135deg,#00BCD4,#0097A7)';
+    paytmTab.style.color = '#fff';
+  }
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') hideQR(); });
+</script>
+</body>
+</html>

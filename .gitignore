@@ -1,0 +1,12 @@
+node_modules/
+.DS_Store
+gh_2.42.1_linux_amd64/
+*.log
+logs/
+
+# Environment / secrets — NEVER commit these
+.env
+.env.local
+.env.production
+server/env-config.js
+config.json

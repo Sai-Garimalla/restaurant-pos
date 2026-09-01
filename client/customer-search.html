@@ -1,0 +1,584 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer History — Restaurant POS</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" href="assets/logo.png">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .search-hero {
+    background: linear-gradient(135deg,#E65100,#FF8F00);
+    border-radius: 14px; padding: 24px; margin-bottom: 20px;
+    color:#fff; text-align:center;
+  }
+  .search-hero h2 { font-size:20px; font-weight:800; }
+  .search-hero p  { font-size:13px; opacity:.9; margin-top:4px; }
+  .phone-input-wrap { position:relative; display:flex; gap:10px; max-width:500px; margin:16px auto 0; align-items:flex-start; }
+  .phone-input-wrap input {
+    flex:1; padding:12px 16px; border-radius:10px; border:none;
+    font-size:15px; background:#fff; color:#3E2000; outline:none;
+  }
+  .phone-input-wrap button {
+    padding:12px 20px; border-radius:10px; border:none;
+    background:rgba(255,255,255,0.25); color:#fff;
+    font-weight:700; cursor:pointer; font-size:14px; transition:.2s;
+    white-space:nowrap;
+  }
+  .phone-input-wrap button:hover { background:rgba(255,255,255,0.42); }
+
+  /* Autocomplete dropdown */
+  .phone-suggest-box {
+    position:absolute; top:calc(100% + 4px); left:0; right:0;
+    background:#fff; border-radius:10px; box-shadow:0 8px 28px rgba(0,0,0,0.18);
+    overflow:hidden; z-index:999; display:none;
+    border:1px solid #FFCC80; max-height:240px; overflow-y:auto;
+  }
+  .phone-suggest-box.show { display:block; }
+  .suggest-item {
+    padding:11px 16px; cursor:pointer; transition:.12s;
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:14px; color:#3E2000; border-bottom:1px solid #FFF3E0;
+  }
+  .suggest-item:last-child { border-bottom:none; }
+  .suggest-item:hover, .suggest-item.active-suggestion { background:#FFF3E0; }
+  .suggest-phone { font-weight:700; }
+  .suggest-name  { font-size:12px; color:#8D6E63; }
+
+  @media(max-width:600px) {
+    .cust-stat-grid { grid-template-columns:1fr 1fr; }
+    .phone-input-wrap { flex-direction:column; }
+    .item-hist-row { grid-template-columns:1fr 50px 70px; }
+    .item-hist-row .col-orders { display:none; }
+  }
+  .cust-profile {
+    background:#fff; border:1px solid #FFCC80;
+    border-radius:14px; padding:20px; margin-bottom:16px;
+  }
+  .cust-stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:16px; }
+  .cust-stat { background:linear-gradient(135deg,#FFF3E0,#FFE0B2); border-radius:10px; padding:14px; text-align:center; }
+  .cust-stat .val { font-size:20px; font-weight:800; color:#E65100; }
+  .cust-stat .lbl { font-size:11px; color:#8D6E63; margin-top:4px; }
+
+  /* Tabs */
+  .cs-tabs { display:flex; gap:0; border-bottom:2px solid #FFCC80; margin-bottom:16px; }
+  .cs-tab {
+    flex:1; padding:11px 10px; font-size:13px; font-weight:700;
+    border:none; background:none; color:#8D6E63; cursor:pointer;
+    border-bottom:2px solid transparent; margin-bottom:-2px; transition:.15s;
+  }
+  .cs-tab.active { color:#E65100; border-bottom-color:#E65100; }
+
+  /* Order card */
+  .order-card {
+    border:1px solid #FFE0B2; border-radius:10px; padding:14px;
+    margin-bottom:10px; background:#fff;
+    display:flex; justify-content:space-between; align-items:center;
+    transition:.15s; cursor:pointer;
+  }
+  .order-card:hover { background:#FFF8F0; border-color:#FFCC80; }
+  .order-token {
+    background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff;
+    border-radius:8px; padding:6px 12px; font-weight:800; font-size:16px; flex-shrink:0;
+  }
+
+  /* Item history table */
+  .item-hist-row {
+    display:grid; grid-template-columns:1fr 60px 80px 80px;
+    gap:8px; align-items:center;
+    padding:10px 14px; border-bottom:1px solid #FFE0B2; font-size:12px;
+  }
+  .item-hist-row:last-child { border-bottom:none; }
+  .item-hist-row:hover { background:#FFF8F0; }
+  .item-rank {
+    width:22px; height:22px; border-radius:50%;
+    background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:10px; flex-shrink:0; margin-right:8px;
+  }
+  .item-bar-wrap { height:6px; background:#FFE0B2; border-radius:3px; margin-top:3px; overflow:hidden; }
+  .item-bar { height:100%; background:linear-gradient(90deg,#E65100,#FF8F00); border-radius:3px; }
+
+  /* Order detail expand */
+  .order-items-expand { display:none; margin-top:8px; border-top:1px solid #FFE0B2; padding-top:8px; }
+  .order-items-expand.open { display:block; }
+
+  @media(max-width:600px) {
+    .cust-stat-grid { grid-template-columns:1fr 1fr; }
+    .phone-input-wrap { flex-direction:column; align-items:stretch !important; }
+    .phone-input-wrap > div, .phone-input-wrap > button { width:100% !important; }
+    .item-hist-row { grid-template-columns:1fr 50px 70px; }
+    .item-hist-row .col-orders { display:none; }
+  }
+  /* Customer picker for disambiguation */
+  .cust-picker-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:10px; padding:12px; }
+  .cust-pick-card { border:2px solid #FFE0B2; border-radius:12px; padding:14px 16px; cursor:pointer; transition:.15s; background:#fff; }
+  .cust-pick-card:hover { border-color:#E65100; background:#FFF8F0; transform:translateY(-1px); box-shadow:0 4px 12px rgba(230,81,0,.12); }
+  .cust-pick-avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; flex-shrink:0; }
+  .cust-pick-name { font-size:14px; font-weight:700; color:#3E2000; }
+  .cust-pick-phone { font-size:12px; color:#8D6E63; margin-top:2px; }
+  .cust-pick-stats { font-size:11px; color:#BCAAA4; margin-top:6px; }
+  /* Recent customers section */
+  .recent-section { margin-bottom:20px; }
+  .recent-header { font-size:14px; font-weight:800; color:#3E2000; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+  .recent-cust-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:8px; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main-content">
+    <div class="page-header">
+      <div><h2>🔍 Customer Search</h2><p>Look up full order history &amp; item preferences by mobile number</p></div>
+    </div>
+    <div class="page-body">
+
+      <!-- Search hero -->
+      <div class="search-hero">
+        <h2>📞 Customer Lookup</h2>
+        <p>Enter a mobile number to see all orders, items ordered, and spending analytics</p>
+        <div class="phone-input-wrap" style="max-width:700px; align-items:center;">
+          <div style="flex:1;position:relative;">
+            <input type="tel" id="phone-input" placeholder="Search by Phone Number..."
+                   oninput="onPhoneInput(this.value)"
+                   onkeydown="handlePhoneKey(event)"
+                   autocomplete="off">
+            <div class="phone-suggest-box" id="suggest-box"></div>
+          </div>
+          <span style="font-weight:bold;">OR</span>
+          <div style="flex:1;position:relative;">
+            <input type="text" id="name-input" placeholder="Search by Name..."
+                   oninput="onNameInput(this.value)"
+                   onkeydown="handleNameKey(event)"
+                   autocomplete="off">
+            <div class="phone-suggest-box" id="name-suggest-box"></div>
+          </div>
+          <button onclick="doSearch()">🔍 Search</button>
+        </div>
+      </div>
+
+      <!-- Recent customers (default view before search) -->
+      <div id="recent-section" class="recent-section">
+        <div class="recent-header">🕐 Recent Customers</div>
+        <div class="recent-cust-grid" id="recent-cust-grid">
+          <div style="grid-column:span 4;text-align:center;padding:20px;color:#BCAAA4"><div class="loader"></div></div>
+        </div>
+      </div>
+
+      <!-- Customer picker (disambiguation) -->
+      <div id="picker-section" style="display:none;">
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header">
+            <span class="card-title">Multiple matches — Select a customer</span>
+            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('picker-section').style.display='none';document.getElementById('recent-section').style.display=''">← Back</button>
+          </div>
+          <div class="cust-picker-grid" id="cust-picker-grid"></div>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div id="empty-section" style="display:none; text-align:center; padding:60px 20px; color:#8D6E63;">
+        <div style="font-size:48px">📵</div>
+        <p style="margin-top:12px; font-size:14px; font-weight:600;">No customer found with this number.</p>
+        <p style="font-size:12px; margin-top:6px;">This number hasn't placed any orders yet.</p>
+      </div>
+
+      <!-- Results -->
+      <div id="result-section" style="display:none;">
+
+        <!-- Profile card -->
+        <div class="cust-profile" id="cust-profile"></div>
+
+        <!-- Tabs -->
+        <div class="cs-tabs">
+          <button class="cs-tab active" onclick="switchTab('orders', this)">📋 Order History</button>
+          <button class="cs-tab"        onclick="switchTab('items',  this)">🍽️ Items Ordered</button>
+        </div>
+
+        <!-- Orders tab -->
+        <div id="tab-orders">
+          <div id="order-history-list"></div>
+        </div>
+
+        <!-- Items tab -->
+        <div id="tab-items" style="display:none;">
+          <div class="card" style="padding:0; overflow:hidden;">
+            <div style="padding:12px 16px; border-bottom:1px solid #FFE0B2; font-size:11px; font-weight:700; color:#8D6E63; display:grid; grid-template-columns:1fr 60px 80px 80px; gap:8px;">
+              <span>ITEM</span><span style="text-align:right">QTY</span><span style="text-align:right">SPENT</span><span style="text-align:right" class="col-orders">ORDERS</span>
+            </div>
+            <div id="item-history-list"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+if (!authGuard()) throw 0;
+initSidebar('customer-search');
+
+function switchTab(tab, btn) {
+  document.getElementById('tab-orders').style.display = tab === 'orders' ? 'block' : 'none';
+  document.getElementById('tab-items').style.display  = tab === 'items'  ? 'block' : 'none';
+  document.querySelectorAll('.cs-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── Load Recent Customers on page load ──
+async function loadRecentCustomers() {
+  const grid = document.getElementById('recent-cust-grid');
+  try {
+    const rows = await apiFetch('/bills/recent-customers');
+    if (!rows.length) {
+      grid.innerHTML = '<div style="grid-column:span 4;color:#8D6E63;font-size:13px;padding:16px;">No recent customer data available.</div>';
+      return;
+    }
+    grid.innerHTML = rows.map(r => `
+      <div class="cust-pick-card" onclick="selectCustomer('${r.customer_phone}')">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="cust-pick-avatar">${(r.customer_name||'?')[0].toUpperCase()}</div>
+          <div>
+            <div class="cust-pick-name">${r.customer_name || 'Unknown'}</div>
+            <div class="cust-pick-phone">📞 ${r.customer_phone}</div>
+          </div>
+        </div>
+        <div class="cust-pick-stats">${r.visit_count} orders · ${formatCurrency(r.total_spent)}</div>
+      </div>`).join('');
+  } catch(e) {
+    grid.innerHTML = '<div style="grid-column:span 4;color:#8D6E63;font-size:13px;padding:16px;">Could not load recent customers.</div>';
+  }
+}
+loadRecentCustomers();
+
+// ── Select customer directly by phone (from recent or picker) ──
+async function selectCustomer(phone) {
+  document.getElementById('phone-input').value = phone;
+  document.getElementById('name-input').value = '';
+  hideSuggestions();
+  document.getElementById('picker-section').style.display = 'none';
+  document.getElementById('recent-section').style.display = 'none';
+  await doSearch();
+}
+
+let suggestTimeout = null;
+let activeSuggestIdx = -1;
+
+function onPhoneInput(val) {
+  clearTimeout(suggestTimeout);
+  activeSuggestIdx = -1;
+  if (!val.trim()) { hideSuggestions(); return; }
+  suggestTimeout = setTimeout(() => fetchSuggestions(val.trim()), 220);
+}
+
+async function fetchSuggestions(q) {
+  try {
+    const query = q.trim();
+    if (!query) { hideSuggestions(); return; }
+    const rows = await apiFetch(`/bills/phone-suggest?q=${encodeURIComponent(query)}`);
+    const box = document.getElementById('suggest-box');
+    if (!rows.length) { hideSuggestions(); return; }
+    box.innerHTML = rows.map((r, i) => `
+      <div class="suggest-item" id="si-${i}" onclick="selectSuggestion('${r.customer_phone}')">
+        <span class="suggest-phone">${r.customer_phone}</span>
+        ${r.customer_name ? `<span class="suggest-name">${r.customer_name}</span>` : ''}
+      </div>`).join('');
+    box.classList.add('show');
+    box._rows = rows;
+  } catch(e) { hideSuggestions(); }
+}
+
+function selectSuggestion(phone) {
+  document.getElementById('phone-input').value = phone;
+  document.getElementById('name-input').value = '';
+  hideSuggestions();
+  doSearch();
+}
+
+function hideSuggestions() {
+  const box = document.getElementById('suggest-box');
+  const nameBox = document.getElementById('name-suggest-box');
+  if (box) box.classList.remove('show');
+  if (nameBox) nameBox.classList.remove('show');
+  activeSuggestIdx = -1;
+  activeNameIdx = -1;
+}
+
+let nameTimeout = null;
+let activeNameIdx = -1;
+
+function onNameInput(val) {
+  clearTimeout(nameTimeout);
+  activeNameIdx = -1;
+  if (!val.trim() || val.trim().length < 2) { hideSuggestions(); return; }
+  nameTimeout = setTimeout(() => fetchNameSuggestions(val.trim()), 220);
+}
+
+async function fetchNameSuggestions(q) {
+  try {
+    const rows = await apiFetch(`/bills/phone-suggest?q=${encodeURIComponent(q)}`);
+    const box = document.getElementById('name-suggest-box');
+    if (!rows.length) { hideSuggestions(); return; }
+    box.innerHTML = rows.map((r, i) => `
+      <div class="suggest-item" id="sni-${i}" onclick="selectNameSuggestion('${r.customer_name || ''}', '${r.customer_phone}')">
+        <span class="suggest-name" style="font-size:14px; color:#3E2000; font-weight:700;">${r.customer_name || 'Unknown'}</span>
+        <span class="suggest-phone" style="font-size:12px; color:#8D6E63; font-weight:normal;">📞 ${r.customer_phone}</span>
+      </div>`).join('');
+    box.classList.add('show');
+    box._rows = rows;
+  } catch(e) { hideSuggestions(); }
+}
+
+function selectNameSuggestion(name, phone) {
+  document.getElementById('name-input').value = name;
+  document.getElementById('phone-input').value = phone;
+  hideSuggestions();
+  doSearch(); // Will search by phone since phone-input is populated
+}
+
+function handlePhoneKey(e) {
+  const box = document.getElementById('suggest-box');
+  const rows = box._rows || [];
+  if (e.key === 'Enter') { hideSuggestions(); doSearch(); return; }
+  if (e.key === 'Escape') { hideSuggestions(); return; }
+  if (!box.classList.contains('show') || !rows.length) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    activeSuggestIdx = Math.min(activeSuggestIdx + 1, rows.length - 1);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    activeSuggestIdx = Math.max(activeSuggestIdx - 1, 0);
+  } else { return; }
+  rows.forEach((_, i) => {
+    const el = document.getElementById(`si-${i}`);
+    el && el.classList.toggle('active-suggestion', i === activeSuggestIdx);
+  });
+  if (activeSuggestIdx >= 0) document.getElementById('phone-input').value = rows[activeSuggestIdx].customer_phone;
+}
+
+function handleNameKey(e) {
+  const box = document.getElementById('name-suggest-box');
+  const rows = box._rows || [];
+  if (e.key === 'Enter') { 
+    if (activeNameIdx >= 0 && rows[activeNameIdx]) {
+      selectNameSuggestion(rows[activeNameIdx].customer_name, rows[activeNameIdx].customer_phone);
+    } else {
+      hideSuggestions(); doSearch('name'); 
+    }
+    return; 
+  }
+  if (e.key === 'Escape') { hideSuggestions(); return; }
+  if (!box.classList.contains('show') || !rows.length) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    activeNameIdx = Math.min(activeNameIdx + 1, rows.length - 1);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    activeNameIdx = Math.max(activeNameIdx - 1, 0);
+  } else { return; }
+  rows.forEach((_, i) => {
+    const el = document.getElementById(`sni-${i}`);
+    el && el.classList.toggle('active-suggestion', i === activeNameIdx);
+  });
+  if (activeNameIdx >= 0) document.getElementById('name-input').value = rows[activeNameIdx].customer_name || '';
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('.phone-input-wrap')) hideSuggestions();
+});
+
+async function doSearch(type) {
+  let url = '';
+  let displayPhone = '';
+  const phoneVal = document.getElementById('phone-input').value.trim();
+  const nameVal = document.getElementById('name-input').value.trim();
+
+  // Normalize: strip spaces, lowercase for matching
+  const normName  = nameVal.replace(/\s+/g, '');
+  const normPhone = phoneVal.replace(/\D/g, '');
+
+  if (type === 'name' || (!phoneVal && nameVal)) {
+    if (normName.length < 2) { showToast('Enter at least 2 characters to search by name', 'warning'); return; }
+    url = `/bills/customer-by-name/${encodeURIComponent(nameVal)}`;
+    displayPhone = '';
+  } else {
+    if (normPhone.length < 4) { showToast('Enter a valid phone number (at least 4 digits)', 'warning'); return; }
+    url = `/bills/customer/${normPhone}`;
+    displayPhone = normPhone;
+  }
+  
+  hideSuggestions();
+  document.getElementById('recent-section').style.display  = 'none';
+  document.getElementById('picker-section').style.display  = 'none';
+  document.getElementById('result-section').style.display  = 'none';
+  document.getElementById('empty-section').style.display   = 'none';
+
+  try {
+    const data = await apiFetch(url);
+
+    // Multiple matching customers — show picker
+    if (data.multiple_customers) {
+      const pickerGrid = document.getElementById('cust-picker-grid');
+      pickerGrid.innerHTML = data.multiple_customers.map(c => `
+        <div class="cust-pick-card" onclick="selectCustomer('${c.customer_phone}')">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="cust-pick-avatar">${(c.customer_name||'?')[0].toUpperCase()}</div>
+            <div>
+              <div class="cust-pick-name">${c.customer_name || 'Unknown'}</div>
+              <div class="cust-pick-phone">📞 ${c.customer_phone}</div>
+            </div>
+          </div>
+          <div class="cust-pick-stats">${c.visit_count} orders · ${formatCurrency(c.total_spent)}</div>
+        </div>`).join('');
+      document.getElementById('picker-section').style.display = '';
+      return;
+    }
+
+    if (data.visit_count === 0) {
+      document.getElementById('empty-section').style.display = 'block';
+      return;
+    }
+    
+    const finalPhone = data.customer_phone || displayPhone;
+
+    // ── Profile card ──
+    const profile = document.getElementById('cust-profile');
+    profile.innerHTML = `
+      <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#E65100,#FF8F00);
+                    display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;
+                    color:#fff;flex-shrink:0;">
+          ${data.customer_name ? data.customer_name[0].toUpperCase() : '👤'}
+        </div>
+        <div>
+          <div style="font-size:19px;font-weight:800;color:#3E2000">${data.customer_name || nameVal || 'Unknown Customer'}</div>
+          <div style="font-size:13px;color:#8D6E63;margin-top:3px">${finalPhone ? '📞 ' + finalPhone : 'No Phone Provided'}</div>
+        </div>
+      </div>
+      <div class="cust-stat-grid">
+        <div class="cust-stat">
+          <div class="val">${data.visit_count}</div><div class="lbl">Total Orders</div>
+        </div>
+        <div class="cust-stat">
+          <div class="val">${formatCurrency(data.total_spent)}</div><div class="lbl">Total Spent</div>
+        </div>
+        <div class="cust-stat">
+          <div class="val">${data.visit_count > 0 ? formatCurrency(data.total_spent / data.visit_count) : '₹0'}</div>
+          <div class="lbl">Avg Order Value</div>
+        </div>
+      </div>`;
+
+    // ── Order history ──
+    const histEl = document.getElementById('order-history-list');
+    if (!data.history.length) {
+      histEl.innerHTML = '<p style="color:#8D6E63;text-align:center;padding:24px;font-size:13px">No orders found.</p>';
+    } else {
+      histEl.innerHTML = data.history.map((h, i) => `
+        <div class="order-card" onclick="toggleOrderDetail('od-${i}')">
+          <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
+            <div class="order-token">#${h.token_number}</div>
+            <div style="min-width:0;">
+              <div style="font-size:13px;font-weight:700;color:#3E2000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.bill_number}</div>
+              <div style="font-size:11px;color:#8D6E63;margin-top:2px">${h.order_type || 'Dine-in'} · ${formatDateTime(h.created_at)}</div>
+            </div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;margin-left:10px;">
+            <div style="font-weight:800;font-size:16px;color:#E65100">${formatCurrency(h.grand_total)}</div>
+            <div style="font-size:10px;color:#BCAAA4;margin-top:2px">tap to expand</div>
+          </div>
+        </div>
+        <div class="order-items-expand" id="od-${i}">
+          <div id="od-items-${i}" style="padding:0 4px 8px;font-size:12px;color:#8D6E63">Loading…</div>
+        </div>
+      `).join('');
+
+      // Store history for expand
+      window._orderHistory = data.history;
+    }
+
+    // ── Item history ──
+    const itemEl = document.getElementById('item-history-list');
+    if (!data.item_history || !data.item_history.length) {
+      itemEl.innerHTML = '<p style="color:#8D6E63;padding:16px;font-size:12px">No item data available.</p>';
+    } else {
+      const maxQty = Math.max(...data.item_history.map(x => parseInt(x.total_qty)));
+      itemEl.innerHTML = data.item_history.map((item, i) => `
+        <div class="item-hist-row">
+          <div style="display:flex;align-items:flex-start;gap:0;flex-direction:column;min-width:0;">
+            <div style="display:flex;align-items:center;gap:0;">
+              <span class="item-rank">${i + 1}</span>
+              <span style="font-weight:600;color:#3E2000;font-size:13px">${item.item_name}</span>
+            </div>
+            <div class="item-bar-wrap" style="width:100%;margin-left:30px;margin-top:2px;">
+              <div class="item-bar" style="width:${Math.round((parseInt(item.total_qty) / maxQty) * 100)}%"></div>
+            </div>
+          </div>
+          <div style="text-align:right;font-weight:700;color:#E65100;font-size:13px">${item.total_qty}×</div>
+          <div style="text-align:right;font-weight:600;color:#3E2000;font-size:12px">${formatCurrency(item.total_spent)}</div>
+          <div style="text-align:right;color:#8D6E63;font-size:11px" class="col-orders">${item.order_count} order${item.order_count > 1 ? 's' : ''}</div>
+        </div>`).join('');
+    }
+
+    document.getElementById('result-section').style.display = 'block';
+  } catch(e) {
+    if (e.message && e.message.includes('404')) {
+      document.getElementById('empty-section').style.display = 'block';
+    } else {
+      showToast(e.message, 'error');
+    }
+  }
+}
+
+async function toggleOrderDetail(id) {
+  const el = document.getElementById(id);
+  const isOpen = el.classList.contains('open');
+  el.classList.toggle('open');
+
+  if (!isOpen) {
+    const idx = parseInt(id.replace('od-', ''));
+    const order = window._orderHistory[idx];
+    const itemsEl = document.getElementById(`od-items-${idx}`);
+    try {
+      const data = await apiFetch(`/bills/${order.bill_id}`);
+      if (!data.items.length) {
+        itemsEl.innerHTML = '<em>No items found.</em>';
+      } else {
+        itemsEl.innerHTML = `
+          <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:4px;">
+            <thead>
+              <tr style="background:#FFF3E0;">
+                <th style="text-align:left;padding:6px 10px;color:#8D6E63;font-weight:700;">Item</th>
+                <th style="text-align:center;padding:6px 6px;color:#8D6E63;font-weight:700;">Qty</th>
+                <th style="text-align:right;padding:6px 10px;color:#8D6E63;font-weight:700;">Price</th>
+                <th style="text-align:right;padding:6px 10px;color:#8D6E63;font-weight:700;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.items.map(i => `
+                <tr style="border-bottom:1px solid #FFE0B2;">
+                  <td style="padding:7px 10px;color:#3E2000;font-weight:500;">${i.item_name}</td>
+                  <td style="padding:7px 6px;text-align:center;color:#8D6E63;">${i.quantity}</td>
+                  <td style="padding:7px 10px;text-align:right;color:#8D6E63;">₹${parseFloat(i.unit_price).toFixed(2)}</td>
+                  <td style="padding:7px 10px;text-align:right;font-weight:700;color:#E65100;">₹${parseFloat(i.line_total).toFixed(2)}</td>
+                </tr>`).join('')}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3" style="padding:7px 10px;font-weight:700;color:#3E2000;text-align:right;">Grand Total</td>
+                <td style="padding:7px 10px;text-align:right;font-weight:800;color:#E65100;">${formatCurrency(order.grand_total)}</td>
+              </tr>
+            </tfoot>
+          </table>`;
+      }
+    } catch(e) {
+      itemsEl.innerHTML = `<em style="color:#C62828">Failed to load items: ${e.message}</em>`;
+    }
+  }
+}
+</script>
+</body>
+</html>

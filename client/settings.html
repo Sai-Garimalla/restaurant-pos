@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings — Restaurant POS</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" href="assets/logo.png">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .settings-section { margin-bottom: 20px; }
+  .settings-section h3 { font-size: 13px; font-weight: 700; color: var(--flame-light); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #FFE0B2; gap: 12px; }
+  .toggle-row-label { font-size: 13px; font-weight: 600; }
+  .toggle-row-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 768px) { .settings-grid { grid-template-columns: 1fr; } }
+  .export-db-card { background: linear-gradient(135deg,#FFF8F0,#FFF3E0); border: 2px solid #FFCC80; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .export-db-card h3 { font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+  .export-db-card p { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5; }
+  .export-db-sheets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .sheet-badge { background: #FFF; border: 1px solid #FFCC80; border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 700; color: var(--primary); }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main-content">
+    <div class="page-header">
+      <div><h2>⚙️ Settings</h2><p>Restaurant info, printer config, and system preferences</p></div>
+      <button class="btn btn-primary" id="save-btn" onclick="saveSettings()">💾 Save Settings</button>
+    </div>
+    <div class="page-body">
+      <div class="settings-grid">
+        <!-- Restaurant Info -->
+        <div class="card settings-section">
+          <h3>🏪 Restaurant Information</h3>
+          <div class="form-group">
+            <label class="form-label">Restaurant Name</label>
+            <input type="text" class="form-control" id="s-name" placeholder="Your Restaurant Name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Address</label>
+            <textarea class="form-control" id="s-address" rows="2" placeholder="Full address"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input type="text" class="form-control" id="s-phone" placeholder="+91 98765 43210">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Receipt Footer Message</label>
+            <input type="text" class="form-control" id="s-footer" placeholder="Thank you for dining with us!">
+          </div>
+        </div>
+
+        <!-- Token & Print Settings -->
+        <div>
+          <div class="card settings-section" style="margin-bottom:16px">
+            <h3>🎫 Token Number Settings</h3>
+            <div class="form-group">
+              <label class="form-label">Token Reset</label>
+              <select class="form-control" id="s-token-format">
+                <option value="daily">Reset daily (1, 2, 3… each day)</option>
+                <option value="continuous">Continuous (never reset)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="card settings-section">
+            <h3>🖨️ Auto-Print Settings</h3>
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-row-label">Auto-print Customer Receipt</div>
+                <div class="toggle-row-desc">Automatically print receipt after saving bill</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="s-auto-receipt"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-row-label">Auto-print Kitchen Order Ticket</div>
+                <div class="toggle-row-desc">Automatically print KOT after saving bill</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="s-auto-kot"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Printer Configuration -->
+      <div class="card settings-section">
+        <h3>🖨️ Printer Configuration (ESC/POS 80mm or 58mm Thermal)</h3>
+        <div class="grid-2">
+          <div>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Customer Receipt Printer</p>
+            <div class="form-group">
+              <label class="form-label">Printer IP Address</label>
+              <input type="text" class="form-control" id="s-cust-ip" placeholder="192.168.1.100">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Printer Port</label>
+              <input type="number" class="form-control" id="s-cust-port" placeholder="9100" min="1" max="65535">
+            </div>
+          </div>
+          <div>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Kitchen Order Ticket Printer</p>
+            <div class="form-group">
+              <label class="form-label">Printer IP Address</label>
+              <input type="text" class="form-control" id="s-kit-ip" placeholder="192.168.1.101">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Printer Port</label>
+              <input type="number" class="form-control" id="s-kit-port" placeholder="9100" min="1" max="65535">
+            </div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:8px;padding:10px;background:var(--surface2);border-radius:8px">
+          ℹ️ <strong>Setup:</strong> Connect any ESC/POS-compatible network thermal printer (80mm or 58mm paper). Configure the printer's IP address on the same local network subnet. Port 9100 is the standard RAW print port for most thermal printers.
+        </div>
+        <!-- Paper width selector -->
+        <div class="form-group" style="margin-top:14px;max-width:280px">
+          <label class="form-label" for="s-paper-width">Paper Width</label>
+          <select class="form-control" id="s-paper-width">
+            <option value="80">80mm (48 chars/line) — most common</option>
+            <option value="58">58mm (32 chars/line) — compact</option>
+          </select>
+        </div>
+        <!-- Test print buttons -->
+        <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+          <button class="btn btn-secondary" id="test-cust-btn" onclick="testPrint('customer')">🖨️ Test Customer Printer</button>
+          <button class="btn btn-secondary" id="test-kit-btn"  onclick="testPrint('kitchen')">🖨️ Test Kitchen Printer</button>
+        </div>
+        <div id="test-print-result" style="margin-top:10px"></div>
+      </div>
+
+      <!-- Database Environment Switcher -->
+      <div class="card settings-section" style="border:2px solid var(--primary,#E65100); background:linear-gradient(135deg,#FFF8F0,#FFFFFF)">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px">
+          <h3 style="margin:0; border:none; padding:0">🗄️ Database Environment Selection</h3>
+          <span id="db-status-badge" style="padding:4px 12px; border-radius:20px; font-weight:800; font-size:12px"></span>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px; line-height:1.5">
+          Select which database the POS system operates on. In <strong>Test Database</strong> mode, all billing, orders, and menu changes run in a separate test database and will <strong>NOT</strong> touch your live production data.
+        </p>
+        <div class="form-group" style="max-width:420px; margin-bottom:0">
+          <label class="form-label" for="s-db-mode">Active Database Connection</label>
+          <select class="form-control" id="s-db-mode" onchange="updateDbBadge()" style="font-weight:700">
+            <option value="main">🟢 Production Database</option>
+            <option value="test">🧪 Test Database</option>
+          </select>
+        </div>
+      </div>
+
+
+      <!-- Export Data -->
+      <div class="export-db-card" id="export-db-section">
+        <h3>&#128228; Export Data</h3>
+        <p>Use the <strong>Export</strong> button on the <a href="dashboard.html" style="color:#E65100;font-weight:700;">Dashboard</a> to selectively export any combination of database tables and reports to Excel. Choose exactly which schemas to include — orders, items, payments, delivery performance, users, menu, and more.</p>
+        <div class="export-db-sheets">
+          <span class="sheet-badge">&#x1F9BE; Orders Summary</span>
+          <span class="sheet-badge">&#x1F4CB; Order Items</span>
+          <span class="sheet-badge">&#x1F4CA; Item Sales</span>
+          <span class="sheet-badge">&#x1F4B0; Payment Summary</span>
+          <span class="sheet-badge">&#x1F6F5; Delivery Performance</span>
+          <span class="sheet-badge">&#x1F465; Users</span>
+          <span class="sheet-badge">&#x1F37D;&#xFE0F; Menu</span>
+          <span class="sheet-badge">&#x1F5C4;&#xFE0F; Raw Tables</span>
+        </div>
+        <a href="dashboard.html" class="btn btn-primary" style="min-width:220px;display:inline-block;text-align:center;text-decoration:none;">
+          &#128228; Go to Export on Dashboard
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+if (!authGuard()) throw 0;
+const _su = getUser();
+if (_su && _su.role !== 'admin') { window.location.href='/billing.html'; throw 0; }
+initSidebar('settings');
+
+async function loadSettings() {
+  try {
+    const s = await apiFetch('/settings');
+    document.getElementById('s-name').value = s.restaurant_name || '';
+    document.getElementById('s-address').value = s.address || '';
+    document.getElementById('s-phone').value = s.phone || '';
+    document.getElementById('s-footer').value = s.footer || '';
+    document.getElementById('s-token-format').value = s.token_format || 'daily';
+    document.getElementById('s-auto-receipt').checked = s.auto_print_receipt === '1';
+    document.getElementById('s-auto-kot').checked = s.auto_print_kot === '1';
+    document.getElementById('s-cust-ip').value = s.customer_printer_ip || '';
+    document.getElementById('s-cust-port').value = s.customer_printer_port || '9100';
+    document.getElementById('s-kit-ip').value = s.kitchen_printer_ip || '';
+    document.getElementById('s-kit-port').value = s.kitchen_printer_port || '9100';
+    document.getElementById('s-paper-width').value = s.paper_width || '80';
+    document.getElementById('s-db-mode').value = s.db_mode || 'main';
+    updateDbBadge();
+  } catch(e) { showToast('Failed to load settings: ' + e.message, 'error'); }
+}
+
+async function saveSettings() {
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true; btn.textContent = '⏳ Saving…';
+  try {
+    await apiFetch('/settings', {
+      method: 'POST',
+      body: JSON.stringify({
+        restaurant_name: document.getElementById('s-name').value,
+        address: document.getElementById('s-address').value,
+        phone: document.getElementById('s-phone').value,
+        footer: document.getElementById('s-footer').value,
+        token_format: document.getElementById('s-token-format').value,
+        auto_print_receipt: document.getElementById('s-auto-receipt').checked ? '1' : '0',
+        auto_print_kot: document.getElementById('s-auto-kot').checked ? '1' : '0',
+        customer_printer_ip: document.getElementById('s-cust-ip').value,
+        customer_printer_port: document.getElementById('s-cust-port').value,
+        kitchen_printer_ip: document.getElementById('s-kit-ip').value,
+        kitchen_printer_port: document.getElementById('s-kit-port').value,
+        paper_width: document.getElementById('s-paper-width').value,
+        db_mode: document.getElementById('s-db-mode').value,
+      })
+    });
+    showToast('Settings saved!', 'success');
+  } catch(e) { showToast(e.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = '💾 Save Settings'; }
+}
+
+async function testPrint(printer) {
+  const btnId = printer === 'kitchen' ? 'test-kit-btn' : 'test-cust-btn';
+  const btn = document.getElementById(btnId);
+  const resultEl = document.getElementById('test-print-result');
+  btn.disabled = true; btn.textContent = '⏳ Sending…';
+  resultEl.innerHTML = '';
+  try {
+    const data = await apiFetch('/delivery/test-print', {
+      method: 'POST', body: JSON.stringify({ printer })
+    });
+    if (data.printer_ip) {
+      resultEl.innerHTML = `<div style="background:#E8F5E9;border:1px solid #A5D6A7;border-radius:8px;padding:10px 14px;font-size:12px;color:#2E7D32;margin-top:6px">
+        ✅ Test print data ready for <strong>${printer === 'kitchen' ? 'Kitchen' : 'Customer'}</strong> printer (${data.printer_ip}:${data.printer_port}).
+        <br>The printer will receive the job via MQTT/ESP32 bridge.
+      </div>`;
+    } else {
+      resultEl.innerHTML = `<div style="background:#FFF3E0;border:1px solid #FFCC80;border-radius:8px;padding:10px 14px;font-size:12px;color:#E65100;margin-top:6px">
+        ⚠️ No printer IP configured for ${printer === 'kitchen' ? 'Kitchen' : 'Customer'} printer. Please add the IP above and save.
+      </div>`;
+    }
+  } catch(e) {
+    resultEl.innerHTML = `<div style="background:#FFEBEE;border:1px solid #EF9A9A;border-radius:8px;padding:10px 14px;font-size:12px;color:#C62828;margin-top:6px">❌ Error: ${e.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = printer === 'kitchen' ? '🖨️ Test Kitchen Printer' : '🖨️ Test Customer Printer';
+  }
+}
+
+
+function updateDbBadge() {
+  const mode = document.getElementById('s-db-mode').value;
+  const badge = document.getElementById('db-status-badge');
+  if (mode === 'test') {
+    badge.style.background = '#FFF3E0';
+    badge.style.color = '#E65100';
+    badge.style.border = '1px solid #FFCC80';
+    badge.innerHTML = '🧪 SAFE TEST DB MODE';
+  } else {
+    badge.style.background = '#E8F5E9';
+    badge.style.color = '#2E7D32';
+    badge.style.border = '1px solid #A5D6A7';
+    badge.innerHTML = '🟢 PRODUCTION LIVE DB';
+  }
+}
+
+loadSettings();
+</script>
+</body>
+</html>

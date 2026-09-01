@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Restaurant POS</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" href="assets/logo.png">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* Filter bar */
+  .dash-filters { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:18px; padding:12px 16px; background:#fff; border:1px solid #FFE0B2; border-radius:12px; }
+  .period-pills { display:flex; gap:6px; flex-wrap:wrap; }
+  .pp { padding:6px 14px; border-radius:20px; border:1px solid #FFCC80; background:#FFF3E0; color:#8D6E63; font-size:12px; font-weight:700; cursor:pointer; transition:.15s; }
+  .pp.active { background:var(--gradient); color:#fff; border-color:transparent; }
+  .date-range { display:none; gap:8px; align-items:center; }
+  .date-range.show { display:flex; }
+
+  /* KPIs */
+  .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:16px; }
+  .kpi { background:#fff; border:1px solid #FFE0B2; border-radius:12px; padding:14px 16px; transition:.15s; position:relative; overflow:hidden; }
+  .kpi:hover { border-color:#E65100; transform:translateY(-1px); box-shadow:0 4px 16px rgba(230,81,0,.12); }
+  .kpi-icon { font-size:22px; margin-bottom:4px; }
+  .kpi-val  { font-size:20px; font-weight:800; color:#E65100; }
+  .kpi-lbl  { font-size:10px; color:#8D6E63; margin-top:2px; text-transform:uppercase; letter-spacing:.5px; }
+  .kpi-sub  { font-size:11px; color:#BCAAA4; margin-top:4px; }
+  .kpi-trend { font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px; display:inline-flex; align-items:center; gap:3px; margin-top:5px; }
+  .trend-up   { background:#E8F5E9; color:#2E7D32; }
+  .trend-down { background:#FFEBEE; color:#C62828; }
+  .trend-flat { background:#F5F5F5; color:#757575; }
+  .kpi.actual-earn { border-color:#A5D6A7; }
+  .kpi.actual-earn .kpi-val { color:#2E7D32; }
+  .kpi.actual-earn:hover { border-color:#2E7D32; box-shadow:0 4px 16px rgba(46,125,50,.12); }
+  .kpi.cancelled-earn { border-color:#EF9A9A; }
+  .kpi.cancelled-earn .kpi-val { color:#C62828; }
+  .kpi.cancelled-earn:hover { border-color:#C62828; box-shadow:0 4px 16px rgba(198,40,40,.12); }
+
+  /* Type breakdown */
+  .type-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:16px; }
+  .type-card { border-radius:12px; padding:14px; color:#fff; text-align:center; }
+  .type-card.dinein  { background:linear-gradient(135deg,#E65100,#FF6D00); }
+  .type-card.takeaway{ background:linear-gradient(135deg,#1565C0,#1E88E5); }
+  .type-card.delivery{ background:linear-gradient(135deg,#2E7D32,#43A047); }
+  .type-val { font-size:20px; font-weight:800; }
+  .type-cnt { font-size:13px; font-weight:700; margin-top:4px; opacity:.9; }
+  .type-lbl { font-size:10px; opacity:.75; text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
+
+  /* Extra metrics row */
+  .metric-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:16px; }
+  .metric { background:linear-gradient(135deg,#FFF3E0,#FFE0B2); border-radius:10px; padding:12px 14px; }
+  .metric-val { font-size:16px; font-weight:800; color:#BF360C; }
+  .metric-lbl { font-size:10px; color:#8D6E63; margin-top:2px; text-transform:uppercase; letter-spacing:.4px; }
+
+  /* Line Chart */
+  .line-chart-wrap { position:relative; height:110px; margin-top:10px; padding:0 4px; }
+  .line-chart-canvas { width:100%; height:100%; display:block; }
+  .chart-labels { display:flex; gap:4px; margin-top:4px; font-size:9px; color:var(--text-muted); overflow:hidden; }
+  .chart-label { flex:1; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  /* Delivery scrollable table */
+  .delivery-table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .delivery-table { min-width:480px; width:100%; border-collapse:collapse; }
+  .delivery-table th { font-size:10px; color:#8D6E63; font-weight:700; border-bottom:1px solid #FFE0B2; padding:8px 14px; text-transform:uppercase; white-space:nowrap; }
+  .delivery-table td { font-size:12px; padding:9px 14px; border-bottom:1px solid #FFE0B2; white-space:nowrap; }
+  .delivery-table tr:last-child td { border-bottom:none; }
+  /* Highest bill KPI */
+  .kpi.highest-bill { border-color:#CE93D8; }
+  .kpi.highest-bill .kpi-val { color:#7B1FA2; }
+  .kpi.highest-bill:hover { border-color:#7B1FA2; box-shadow:0 4px 16px rgba(123,31,162,.12); }
+
+  /* Peak hours heatmap */
+  .hour-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:6px; }
+  .hour-cell { border-radius:8px; padding:8px 10px; text-align:center; font-size:11px; }
+  .hour-cell .h-time { font-weight:700; font-size:12px; }
+  .hour-cell .h-cnt  { font-size:10px; color:#8D6E63; margin-top:1px; }
+
+  /* Tables */
+  .top-item-row { display:grid; grid-template-columns:24px 1fr 50px 85px; align-items:center; gap:8px; padding:9px 14px; border-bottom:1px solid #FFE0B2; font-size:12px; }
+  .top-item-row:last-child { border-bottom:none; }
+  .rank-badge { background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:10px; flex-shrink:0; }
+  .recent-row { display:grid; grid-template-columns:50px 1fr 75px 75px; gap:8px; align-items:center; padding:9px 14px; border-bottom:1px solid #FFE0B2; font-size:12px; }
+  .recent-row:last-child { border-bottom:none; }
+  .tok { background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; border-radius:6px; text-align:center; padding:4px 6px; font-weight:800; font-size:13px; }
+  .badge-cancel { background:#FFEBEE; color:#C62828; border:1px solid #EF9A9A; padding:2px 6px; border-radius:8px; font-size:9px; font-weight:700; }
+  .badge-ok { background:#E8F5E9; color:#2E7D32; border:1px solid #A5D6A7; padding:2px 6px; border-radius:8px; font-size:9px; font-weight:700; }
+  .badge-draft { background:#FFF8E1; color:#F57F17; border:1px solid #FFE082; padding:2px 6px; border-radius:8px; font-size:9px; font-weight:700; }
+
+  /* Period title */
+  #period-label { font-size:12px; color:#8D6E63; font-style:italic; margin-left:auto; }
+
+  /* Export Modal */
+  .exp-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1200; justify-content:center; align-items:center; padding:16px; }
+  .exp-overlay.open { display:flex; }
+  .exp-modal { background:#fff; border-radius:18px; max-width:620px; width:100%; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 24px 64px rgba(0,0,0,.3); overflow:hidden; animation:slideIn .22s ease; }
+  @keyframes slideIn { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+  .exp-header { background:linear-gradient(135deg,#1565C0,#1E88E5); color:#fff; padding:20px 24px; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+  .exp-header h3 { margin:0; font-size:18px; }
+  .exp-body { padding:20px 24px; overflow-y:auto; flex:1; }
+  .exp-schema-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+  @media(max-width:580px){ .exp-schema-grid { grid-template-columns:1fr; } }
+  .exp-schema-card { border:2px solid #FFE0B2; border-radius:12px; padding:12px 14px; cursor:pointer; transition:.15s; user-select:none; }
+  .exp-schema-card:hover { border-color:#E65100; background:#FFF8F0; }
+  .exp-schema-card.selected { border-color:#1565C0; background:#E3F2FD; }
+  .exp-schema-card.admin-only { border-color:#CE93D8; }
+  .exp-schema-card.admin-only.selected { border-color:#7B1FA2; background:#F3E5F5; }
+  .exp-schema-top { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+  .exp-schema-icon { font-size:20px; }
+  .exp-schema-name { font-size:13px; font-weight:700; color:#3E2000; flex:1; }
+  .exp-schema-badge { font-size:9px; padding:2px 7px; border-radius:10px; font-weight:700; background:#F3E5F5; color:#7B1FA2; }
+  .exp-schema-desc { font-size:11px; color:#8D6E63; line-height:1.4; margin-bottom:6px; }
+  .exp-schema-cols { display:flex; flex-wrap:wrap; gap:3px; }
+  .exp-col-tag { font-size:9px; background:#FFF3E0; border:1px solid #FFCC80; border-radius:8px; padding:1px 6px; color:#E65100; font-weight:600; }
+  .exp-footer { padding:16px 24px; border-top:1px solid #FFE0B2; background:#FFF8F0; display:flex; gap:10px; align-items:center; flex-shrink:0; }
+  .exp-footer .exp-date-row { display:flex; align-items:center; gap:8px; font-size:13px; color:#5D4037; }
+  .exp-footer .exp-date-row input { padding:7px 10px; border:1px solid #FFCC80; border-radius:8px; font-size:12px; }
+  .exp-sel-all { font-size:12px; font-weight:700; color:#1565C0; cursor:pointer; white-space:nowrap; }
+
+  @media(max-width:1024px){
+    .date-range { flex-wrap:wrap; }
+    .top-item-row { grid-template-columns:24px 1fr 45px 75px; }
+  }
+  @media(max-width:580px) {
+    .exp-schema-grid { grid-template-columns:1fr !important; }
+    .exp-footer { flex-direction:column; align-items:stretch; gap:8px; }
+    .exp-footer .exp-date-row { flex-wrap:wrap; }
+    #exp-download-btn { width:100%; }
+  }
+  @media(max-width:400px){
+    .kpi-grid { grid-template-columns:1fr; }
+    .type-grid { grid-template-columns:1fr; }
+    .metric-grid { grid-template-columns:1fr 1fr; }
+    .hour-grid { grid-template-columns:1fr 1fr; }
+  }
+
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main-content">
+    <div class="page-header">
+      <div>
+        <h2>📊 Dashboard</h2>
+        <p>Hi! Here's your business overview.</p>
+      </div>
+    </div>
+    <div class="page-body">
+
+      <!-- Filter bar -->
+      <div class="dash-filters">
+        <div class="period-pills">
+          <button class="pp active" data-p="today">Today</button>
+          <button class="pp" data-p="yesterday">Yesterday</button>
+          <button class="pp" data-p="week">7 Days</button>
+          <button class="pp" data-p="month">This Month</button>
+          <button class="pp" data-p="year">This Year</button>
+          <button class="pp" data-p="custom">📅 Custom</button>
+        </div>
+        <div class="date-range" id="custom-range">
+          <input type="date" id="range-from" class="form-control" style="max-width:140px;padding:6px 10px;font-size:12px;">
+          <span style="font-size:12px;color:#8D6E63">to</span>
+          <input type="date" id="range-to" class="form-control" style="max-width:140px;padding:6px 10px;font-size:12px;">
+          <button class="btn btn-primary btn-sm" onclick="loadDashboard()">Go</button>
+        </div>
+        <div class="time-range" id="time-range" style="display:none; gap:8px; align-items:center;">
+          <span style="font-size:11px;color:#8D6E63;font-weight:600;">&#9200; Time:</span>
+          <input type="time" id="range-time-from" class="form-control" style="max-width:110px;padding:6px 10px;font-size:12px;" title="Start Time" onchange="loadDashboard()">
+          <span style="font-size:12px;color:#8D6E63">to</span>
+          <input type="time" id="range-time-to" class="form-control" style="max-width:110px;padding:6px 10px;font-size:12px;" title="End Time" onchange="loadDashboard()">
+        </div>
+        <span id="period-label"></span>
+        <div style="margin-left:auto; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <button onclick="openExportModal()" id="export-btn" style="background:linear-gradient(135deg,#1565C0,#1E88E5);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;">
+            📤 Export
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Row -->
+      <div class="kpi-grid">
+        <div class="kpi actual-earn">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-val" id="k-sales">—</div>
+          <div class="kpi-lbl">Actual Revenue (Completed)</div>
+          <div class="kpi-sub" id="k-sales-sub"></div>
+          <div class="kpi-trend" id="k-sales-trend"></div>
+        </div>
+        <div class="kpi cancelled-earn">
+          <div class="kpi-icon">🚫</div>
+          <div class="kpi-val" id="k-cancelled-earn">—</div>
+          <div class="kpi-lbl">Cancelled Orders Value</div>
+          <div class="kpi-sub" id="k-cancelled-earn-sub"></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-icon">📈</div>
+          <div class="kpi-val" id="k-avg">—</div>
+          <div class="kpi-lbl">Avg Bill Value</div>
+          <div class="kpi-sub" id="k-avg-sub"></div>
+        </div>
+        <div class="kpi highest-bill">
+          <div class="kpi-icon">🏆</div>
+          <div class="kpi-val" id="k-highest">—</div>
+          <div class="kpi-lbl">Highest Single Bill</div>
+          <div class="kpi-sub" id="k-highest-sub"></div>
+        </div>
+      </div>
+
+      <!-- Extra metrics -->
+      <div class="metric-grid" style="margin-bottom:16px">
+        <div class="metric"><div class="metric-val" id="m-bills">—</div><div class="metric-lbl">🧾 Completed Bills</div></div>
+        <div class="metric"><div class="metric-val" id="m-cancelled">—</div><div class="metric-lbl">🚫 Cancelled Bills</div></div>
+        <div class="metric"><div class="metric-val" id="m-delivery-fee">—</div><div class="metric-lbl">🛵 Delivery Fees</div></div>
+        <div class="metric"><div class="metric-val" id="m-discount">—</div><div class="metric-lbl">🏷️ Discounts Given</div></div>
+      </div>
+
+      <!-- Type breakdown -->
+      <div class="type-grid">
+        <div class="type-card dinein">
+          <div class="type-lbl">🍽 Dine-in</div>
+          <div class="type-val" id="t-dinein-s">—</div>
+          <div class="type-cnt" id="t-dinein-c">— orders</div>
+        </div>
+        <div class="type-card takeaway">
+          <div class="type-lbl">🛍 Takeaway</div>
+          <div class="type-val" id="t-take-s">—</div>
+          <div class="type-cnt" id="t-take-c">— orders</div>
+        </div>
+        <div class="type-card delivery">
+          <div class="type-lbl">🛵 Delivery</div>
+          <div class="type-val" id="t-del-s">—</div>
+          <div class="type-cnt" id="t-del-c">— orders</div>
+        </div>
+      </div>
+
+      <!-- Chart + Top Items -->
+      <div class="grid-2" style="margin-bottom:16px">
+        <div class="card">
+          <div class="card-header"><span class="card-title" id="chart-title">📅 Sales Chart</span></div>
+          <div class="line-chart-wrap">
+            <canvas class="line-chart-canvas" id="sales-chart-canvas"></canvas>
+          </div>
+          <div class="chart-labels" id="chart-labels"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">🔥 Top Items</span></div>
+          <div id="top-items-list"><div class="loader-full"><div class="loader"></div></div></div>
+        </div>
+      </div>
+
+      <!-- Peak hours -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header"><span class="card-title">⏰ Peak Hours</span></div>
+        <div class="hour-grid" id="peak-hours-grid" style="padding:12px"></div>
+      </div>
+
+      <!-- Staff performance -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header"><span class="card-title">👨‍🍳 Staff Performance</span></div>
+        <div id="staff-perf-list"><div class="loader-full"><div class="loader"></div></div></div>
+      </div>
+
+      <!-- Delivery Boy Collections -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header"><span class="card-title">🛵 Delivery Boy Collections</span></div>
+        <div id="delivery-perf-list"><div class="loader-full"><div class="loader"></div></div></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Export Modal -->
+<div class="exp-overlay" id="exp-overlay" onclick="if(event.target===this)closeExportModal()">
+  <div class="exp-modal">
+    <div class="exp-header">
+      <div>
+        <h3>📤 Export Data to Excel</h3>
+        <div style="font-size:11px;opacity:.8;margin-top:2px;">Select the tables/reports you want to export</div>
+      </div>
+      <button onclick="closeExportModal()" style="background:rgba(255,255,255,.2);border:none;color:#fff;font-size:18px;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>
+    </div>
+    <div class="exp-body">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:700;color:#5D4037;">Available Schemas &amp; Reports</div>
+        <span class="exp-sel-all" onclick="selectAllSchemas()">Select / Deselect All</span>
+      </div>
+      <div class="exp-schema-grid" id="exp-schema-container">
+        <div style="text-align:center;padding:30px;color:#8D6E63;grid-column:span 2">⏳ Loading…</div>
+      </div>
+    </div>
+    <div class="exp-footer">
+      <div class="exp-date-row">
+        📅 Date:
+        <input type="date" id="exp-date" title="For date-based reports (Orders Summary, Item Sales, etc.)">
+        <span style="font-size:10px;color:#8D6E63;">Used for DATE reports above</span>
+      </div>
+      <button id="exp-download-btn" onclick="doSelectiveExport()" disabled style="margin-left:auto;background:linear-gradient(135deg,#1565C0,#1E88E5);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;opacity:.5;">
+        📥 Export to Excel
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+const user = getUser();
+if (!user || (user.role !== 'admin' && user.role !== 'staff')) { window.location.href='/billing.html'; throw 0; }
+if (!authGuard()) throw 0;
+initSidebar('dashboard');
+
+// Greeting is now static 'Hi!' in HTML
+
+// Set default dates in IST
+const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }); // YYYY-MM-DD format
+document.getElementById('range-from').value = today;
+document.getElementById('range-to').value   = today;
+
+let currentPeriod = 'today';
+
+// Period pill click
+document.querySelectorAll('.pp').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.pp').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentPeriod = btn.dataset.p;
+    const isCustom = currentPeriod === 'custom';
+    document.getElementById('custom-range').classList.toggle('show', isCustom);
+    const timeRange = document.getElementById('time-range');
+    if (timeRange) timeRange.style.display = isCustom ? 'flex' : 'none';
+    if (!isCustom) {
+      // Clear time inputs so they don't silently filter
+      document.getElementById('range-time-from').value = '';
+      document.getElementById('range-time-to').value = '';
+      loadDashboard();
+    }
+  });
+});
+
+function updateTrendBadge(curr, prev) {
+  const el = document.getElementById('k-sales-trend');
+  if (!el) return;
+  if (!prev || prev === 0) {
+    el.innerHTML = '';
+    el.className = 'kpi-trend';
+    return;
+  }
+  const pct = ((curr - prev) / prev * 100).toFixed(1);
+  const up = curr >= prev;
+  const icon = up ? '▲' : '▼';
+  const cls = up ? 'trend-up' : 'trend-down';
+  el.innerHTML = `${icon} ${Math.abs(pct)}% vs prev`;
+  el.className = `kpi-trend ${cls}`;
+}
+
+function fmtHour(h) {
+  const ampm = h < 12 ? 'AM' : 'PM';
+  const hr = h % 12 || 12;
+  return `${hr}${ampm}`;
+}
+
+function periodLabel(p) {
+  const labels = { today:'Today', yesterday:'Yesterday', week:'Last 7 Days', month:'This Month', year:'This Year', custom:'Custom Range' };
+  return labels[p] || p;
+}
+
+async function loadDashboard() {
+  const period = currentPeriod;
+  let url = `/dashboard/stats?period=${period}`;
+  if (period === 'custom') {
+    url += `&from=${document.getElementById('range-from').value}&to=${document.getElementById('range-to').value}`;
+  }
+  
+  const fromTime = document.getElementById('range-time-from').value;
+  const toTime = document.getElementById('range-time-to').value;
+  if (fromTime) url += `&from_time=${fromTime}`;
+  if (toTime) url += `&to_time=${toTime}`;
+
+  document.getElementById('period-label').textContent = `Showing: ${periodLabel(period)}`;
+
+  try {
+    const d = await apiFetch(url);
+
+    // KPIs
+    document.getElementById('k-sales').textContent      = formatCurrency(d.total_sales);
+    document.getElementById('k-sales-sub').textContent  = `${d.bill_count} completed bills`;
+    updateTrendBadge(d.total_sales, d.prev_sales);
+    document.getElementById('k-cancelled-earn').textContent = formatCurrency(d.cancelled_earnings || 0);
+    document.getElementById('k-cancelled-earn-sub').textContent = `${d.cancelled_count} order${d.cancelled_count !== 1 ? 's' : ''} lost`;
+    document.getElementById('k-avg').textContent        = formatCurrency(d.avg_bill);
+    document.getElementById('k-avg-sub').textContent    = d.bill_count > 0 ? `From ${d.bill_count} bills` : '';
+    document.getElementById('k-highest').textContent    = formatCurrency(d.highest_bill || 0);
+    document.getElementById('k-highest-sub').textContent = d.bill_count > 0 ? 'Single highest bill' : 'No bills';
+
+    // Extra metrics
+    document.getElementById('m-bills').textContent       = d.bill_count + ' bills';
+    document.getElementById('m-cancelled').textContent   = d.cancelled_count + ' bills';
+    document.getElementById('m-delivery-fee').textContent= formatCurrency(d.total_delivery_charge);
+    document.getElementById('m-discount').textContent    = formatCurrency(d.total_discount);
+
+    // Type breakdown
+    document.getElementById('t-dinein-s').textContent  = formatCurrency(d.dinein_sales);
+    document.getElementById('t-dinein-c').textContent  = d.dinein_count + ' orders';
+    document.getElementById('t-take-s').textContent    = formatCurrency(d.takeaway_sales);
+    document.getElementById('t-take-c').textContent    = d.takeaway_count + ' orders';
+    document.getElementById('t-del-s').textContent     = formatCurrency(d.delivery_sales);
+    document.getElementById('t-del-c').textContent     = d.delivery_count + ' orders';
+
+    // Line Chart
+    const chartTitles = { today:'⏰ Hourly Sales', yesterday:'⏰ Hourly (Yesterday)', week:'📅 Last 7 Days', month:'📅 Daily This Month', year:'📅 Monthly This Year', custom:'📅 Sales Chart' };
+    document.getElementById('chart-title').textContent = chartTitles[period] || '📅 Sales Chart';
+    const labelWrap  = document.getElementById('chart-labels');
+    labelWrap.innerHTML = '';
+    _chartData = d.chart_data;
+    _chartLabelType = d.chart_label;
+    d.chart_data.forEach(row => {
+      const grpLabel = d.chart_label === 'hour' ? fmtHour(row.grp) :
+                       d.chart_label === 'month' ? new Date(2000, row.grp - 1).toLocaleString('en', {month:'short'}) :
+                       new Date(row.grp).toLocaleDateString('en-IN', {day:'2-digit', month:'short'});
+      const lbl = document.createElement('div');
+      lbl.className = 'chart-label';
+      lbl.textContent = grpLabel;
+      labelWrap.appendChild(lbl);
+    });
+    requestAnimationFrame(() => drawLineChart(salesCanvas, d.chart_data));
+
+    // Top items
+    const topEl = document.getElementById('top-items-list');
+    if (!d.top_items.length) {
+      topEl.innerHTML = '<p style="color:#8D6E63;padding:16px;font-size:12px">No orders in this period</p>';
+    } else {
+      topEl.innerHTML = d.top_items.map((item, i) => `
+        <div class="top-item-row">
+          <div class="rank-badge">${i+1}</div>
+          <div style="font-weight:600;color:#3E2000">${item.item_name}</div>
+          <div style="color:#8D6E63">${item.qty}×</div>
+          <div style="font-weight:700;color:#E65100;text-align:right">${formatCurrency(item.revenue)}</div>
+        </div>`).join('');
+    }
+
+    // Peak hours
+    const peakEl = document.getElementById('peak-hours-grid');
+    if (!d.peak_hours.length) {
+      peakEl.innerHTML = '<p style="color:#8D6E63;font-size:12px;grid-column:span 4">No data</p>';
+    } else {
+      const maxBills = Math.max(...d.peak_hours.map(x => x.bill_count));
+      peakEl.innerHTML = d.peak_hours.map(ph => {
+        const intensity = Math.round((ph.bill_count / maxBills) * 100);
+        const bg = `rgba(230,81,0,${0.1 + intensity / 120})`;
+        return `<div class="hour-cell" style="background:${bg}">
+          <div class="h-time">${fmtHour(ph.hour)}</div>
+          <div class="h-cnt">${ph.bill_count} bills</div>
+          <div class="h-cnt">${formatCurrency(ph.sales)}</div>
+        </div>`;
+      }).join('');
+    }
+
+    // Staff performance
+    const staffEl = document.getElementById('staff-perf-list');
+    if (!d.staff_perf.length) {
+      staffEl.innerHTML = '<p style="color:#8D6E63;padding:14px;font-size:12px">No staff data for this period</p>';
+    } else {
+      staffEl.innerHTML = `
+        <div style="display:grid;grid-template-columns:24px 1fr 70px 80px 90px;gap:8px;padding:8px 14px;font-size:10px;color:#8D6E63;font-weight:700;border-bottom:1px solid #FFE0B2;text-transform:uppercase">
+          <div>#</div><div>Name</div><div style="text-align:right">Bills</div><div style="text-align:right">Avg Bill</div><div style="text-align:right">Total</div>
+        </div>` +
+        d.staff_perf.map((s, i) => `
+        <div style="display:grid;grid-template-columns:24px 1fr 70px 80px 90px;gap:8px;padding:9px 14px;font-size:12px;border-bottom:1px solid #FFE0B2;align-items:center">
+          <div class="rank-badge">${i+1}</div>
+          <div style="font-weight:600;color:#3E2000">${s.full_name}</div>
+          <div style="text-align:right;color:#8D6E63">${s.bills_taken}</div>
+          <div style="text-align:right;color:#8D6E63">${formatCurrency(s.avg_bill)}</div>
+          <div style="text-align:right;font-weight:700;color:#E65100">${formatCurrency(s.sales)}</div>
+        </div>`).join('');
+    }
+
+    // Delivery boy collections — scrollable on mobile
+    const delPerfEl = document.getElementById('delivery-perf-list');
+    const dp = d.delivery_perf || [];
+    if (!dp.length) {
+      delPerfEl.innerHTML = '<p style="color:#8D6E63;padding:14px;font-size:12px">No delivery data for this period</p>';
+    } else {
+      delPerfEl.innerHTML = `
+        <div class="delivery-table-wrap">
+          <table class="delivery-table">
+            <thead><tr>
+              <th style="text-align:left">Driver</th>
+              <th style="text-align:right">Done</th>
+              <th style="text-align:right">Active</th>
+              <th style="text-align:right">💵 Cash</th>
+              <th style="text-align:right">📱 UPI</th>
+              <th style="text-align:right">Total</th>
+            </tr></thead>
+            <tbody>
+              ${dp.map(r => `<tr>
+                <td style="font-weight:700;color:#3E2000">🛵 ${r.full_name}</td>
+                <td style="text-align:right;color:#2E7D32;font-weight:700">${r.completed}</td>
+                <td style="text-align:right;color:#E65100;font-weight:700">${r.active}</td>
+                <td style="text-align:right;color:#1565C0">${formatCurrency(r.cash_collected)}</td>
+                <td style="text-align:right;color:#6A1B9A">${formatCurrency(r.upi_collected)}</td>
+                <td style="text-align:right;font-weight:800;color:#E65100">${formatCurrency(r.total_collected)}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>`;
+    }
+
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ── Line Chart ──────────────────────────────────
+let _chartData = [], _chartLabelType = 'hour';
+const salesCanvas = document.getElementById('sales-chart-canvas');
+function drawLineChart(canvasEl, data) {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvasEl.getBoundingClientRect();
+  const W = rect.width || 300;
+  const H = rect.height || 110;
+  canvasEl.width  = W * dpr;
+  canvasEl.height = H * dpr;
+  const ctx = canvasEl.getContext('2d');
+  ctx.scale(dpr, dpr);
+  if (!data.length) {
+    ctx.fillStyle = '#BCAAA4'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('No data for this period', W/2, H/2); return;
+  }
+  const vals = data.map(x => parseFloat(x.total));
+  const maxV = Math.max(...vals, 1);
+  const pad  = {top:10, right:8, bottom:4, left:8};
+  const cW   = W - pad.left - pad.right;
+  const cH   = H - pad.top  - pad.bottom;
+  const n    = data.length;
+  const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + cH);
+  grad.addColorStop(0, 'rgba(230,81,0,0.22)');
+  grad.addColorStop(1, 'rgba(230,81,0,0)');
+  const xOf = i => n === 1 ? pad.left + cW/2 : pad.left + (i / (n-1)) * cW;
+  const yOf = v => pad.top + cH - (v / maxV) * cH;
+  ctx.beginPath();
+  ctx.moveTo(xOf(0), pad.top + cH);
+  data.forEach((d, i) => ctx.lineTo(xOf(i), yOf(parseFloat(d.total))));
+  ctx.lineTo(xOf(n-1), pad.top + cH);
+  ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
+  ctx.beginPath();
+  data.forEach((d, i) => { const x=xOf(i), y=yOf(parseFloat(d.total)); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.strokeStyle = '#E65100'; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.stroke();
+  data.forEach((d, i) => {
+    const x=xOf(i), y=yOf(parseFloat(d.total));
+    ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI*2); ctx.fillStyle='#E65100'; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+  });
+}
+salesCanvas.addEventListener('mousemove', e => {
+  if (!_chartData.length) return;
+  const rect = salesCanvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const n  = _chartData.length;
+  const cW = rect.width - 16;
+  const idx = Math.min(Math.max(Math.round((mx - 8) / cW * (n-1)), 0), n-1);
+  const row = _chartData[idx];
+  const val = parseFloat(row.total);
+  const gl  = _chartLabelType === 'hour' ? fmtHour(row.grp) :
+               _chartLabelType === 'month' ? new Date(2000, row.grp-1).toLocaleString('en',{month:'short'}) :
+               new Date(row.grp).toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+  salesCanvas.title = gl + ' · ' + formatCurrency(val) + ' · ' + row.bill_count + ' bills';
+});
+window.addEventListener('resize', () => {
+  if (_chartData.length) requestAnimationFrame(() => drawLineChart(salesCanvas, _chartData));
+});
+
+// ── Export Modal ──────────────────────────────────
+const _expCurrentUser = getUser();
+const _isAdmin = _expCurrentUser && _expCurrentUser.role === 'admin';
+let _expSchemas = [];
+let _expSelectedSchemas = new Set();
+
+
+function closeExportModal() {
+  document.getElementById('exp-overlay').classList.remove('open');
+}
+
+function renderSchemaGrid() {
+  const container = document.getElementById('exp-schema-container');
+  container.innerHTML = _expSchemas.map(s => {
+    const isSelected = _expSelectedSchemas.has(s.id);
+    const isAdminOnly = !!s.adminOnly;
+    return `
+      <div class="exp-schema-card${isSelected?' selected':''}${isAdminOnly?' admin-only':''}" id="exp-card-${s.id}" onclick="toggleSchema('${s.id}')">
+        <div class="exp-schema-top">
+          <span class="exp-schema-icon">${s.icon}</span>
+          <span class="exp-schema-name">${s.name}</span>
+          ${s.requiresDate ? '<span style="font-size:9px;background:#FFF3E0;color:#E65100;border-radius:8px;padding:2px 6px;font-weight:700;">DATE</span>' : '<span style="font-size:9px;background:#E3F2FD;color:#1565C0;border-radius:8px;padding:2px 6px;font-weight:700;">ALL</span>'}
+          ${isAdminOnly ? '<span class="exp-schema-badge">ADMIN</span>' : ''}
+          <span style="margin-left:auto;font-size:18px;">${isSelected?'✅':'⬜'}</span>
+        </div>
+        <div class="exp-schema-desc">${s.description}</div>
+        <div class="exp-schema-cols">${(s.columns||[]).slice(0,6).map(c=>`<span class="exp-col-tag">${c}</span>`).join('')}${s.columns&&s.columns.length>6?`<span class="exp-col-tag">+${s.columns.length-6} more</span>`:''}</div>
+      </div>`;
+  }).join('');
+  updateExportCount();
+}
+
+function toggleSchema(id) {
+  if (_expSelectedSchemas.has(id)) { _expSelectedSchemas.delete(id); }
+  else { _expSelectedSchemas.add(id); }
+  renderSchemaGrid();
+}
+
+function selectAllSchemas() {
+  const allSelected = _expSchemas.every(s => _expSelectedSchemas.has(s.id));
+  if (allSelected) { _expSelectedSchemas.clear(); }
+  else { _expSchemas.forEach(s => _expSelectedSchemas.add(s.id)); }
+  renderSchemaGrid();
+}
+
+function updateExportCount() {
+  const cnt = _expSelectedSchemas.size;
+  const btn = document.getElementById('exp-download-btn');
+  btn.textContent = cnt > 0 ? `📥 Export ${cnt} Sheet${cnt>1?'s':''} to Excel` : '📥 Export to Excel';
+  btn.disabled = cnt === 0;
+  btn.style.opacity = cnt === 0 ? '0.5' : '1';
+}
+
+async function doSelectiveExport() {
+  if (_expSelectedSchemas.size === 0) { showToast('Please select at least one sheet to export.', 'warning'); return; }
+  const btn = document.getElementById('exp-download-btn');
+  const origText = btn.textContent;
+  btn.disabled = true; btn.textContent = '⏳ Generating…';
+  try {
+    const exportDate = document.getElementById('exp-date').value || new Date(Date.now()+5.5*60*60*1000).toISOString().split('T')[0];
+    const token = localStorage.getItem('pos_token') || sessionStorage.getItem('pos_token') || '';
+    const resp = await fetch('/api/export/selective', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({ sheets: [..._expSelectedSchemas], date: exportDate })
+    });
+    if (!resp.ok) { const e = await resp.json().catch(()=>({error:'Export failed'})); throw new Error(e.error||'Export failed'); }
+    const blob = await resp.blob();
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = resp.headers.get('Content-Disposition')?.match(/filename="([^"]+)"/)?.[1] || 'POS_Export.xlsx';
+    document.body.appendChild(link); link.click(); link.remove();
+    showToast(`✅ Exported ${_expSelectedSchemas.size} sheet(s) successfully!`, 'success');
+    closeExportModal();
+  } catch(e) {
+    showToast('❌ ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = origText;
+    updateExportCount();
+  }
+}
+
+function openExportModal() {
+  _openExportModal();
+}
+async function _openExportModal() {
+  document.getElementById('exp-overlay').classList.add('open');
+  if (!_expSchemas.length) {
+    document.getElementById('exp-schema-container').innerHTML = '<div style="text-align:center;padding:30px;color:#8D6E63;">⏳ Loading schemas…</div>';
+    try {
+      const data = await apiFetch('/export/schemas');
+      _expSchemas = data.schemas.filter(s => !s.adminOnly || _isAdmin);
+      renderSchemaGrid();
+    } catch(e) {
+      document.getElementById('exp-schema-container').innerHTML = `<div style="color:#C62828;padding:20px;">❌ ${e.message}</div>`;
+    }
+  } else { renderSchemaGrid(); }
+  const todayStr = new Date(Date.now()+5.5*60*60*1000).toISOString().split('T')[0];
+  if (!document.getElementById('exp-date').value) document.getElementById('exp-date').value = todayStr;
+}
+
+loadDashboard();
+</script>
+</body>
+</html>

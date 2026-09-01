@@ -1,0 +1,773 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery Orders — Restaurant POS</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" href="assets/logo.png">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .delivery-header { padding: 14px 16px; background: linear-gradient(135deg, #1a1a2e, #16213e); color: #fff; }
+  .delivery-header h2 { margin: 0; font-size: 18px; color: #FF8F00; }
+  .delivery-header p  { margin: 4px 0 0; font-size: 12px; color: #aaa; }
+
+  /* Date pills */
+  .del-dp { padding:5px 14px; border-radius:20px; font-size:11px; font-weight:700; border:1px solid #FFCC80; background:#fff; color:#8D6E63; cursor:pointer; white-space:nowrap; transition:all .15s; }
+  .del-dp.active { background:linear-gradient(135deg,#E65100,#FF8F00); border-color:transparent; color:#fff; }
+
+  /* Status filter tabs */
+  .status-tabs { display: flex; gap: 6px; padding: 10px 14px; background: #FFF8F0; border-bottom: 2px solid #FFCC80; overflow-x: auto; }
+  .status-tab { padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid #FFCC80; background: #fff; color: #8D6E63; cursor: pointer; white-space: nowrap; transition: all .15s; }
+  .status-tab.active { background: linear-gradient(135deg, #E65100, #FF8F00); border-color: transparent; color: #fff; }
+
+  /* Order cards */
+  .orders-list { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .order-card { background: #fff; border: 1.5px solid #FFCC80; border-radius: 14px; padding: 14px 16px; cursor: pointer; transition: all .15s; box-shadow: 0 2px 8px rgba(230,81,0,0.07); }
+  .order-card:hover { border-color: #E65100; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(230,81,0,0.13); }
+  .order-card.status-pending    { border-left: 4px solid #90A4AE; }
+  .order-card.status-preparing  { border-left: 4px solid #FFB300; }
+  .order-card.status-ready      { border-left: 4px solid #43A047; }
+  .order-card.status-picked_up  { border-left: 4px solid #1565C0; }
+  .order-card.status-delivered  { border-left: 4px solid #9E9E9E; opacity: .8; }
+
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .card-token { font-size: 22px; font-weight: 800; color: #E65100; min-width: 50px; }
+  .card-status-badge { padding: 3px 10px; border-radius: 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+  .badge-pending   { background: #ECEFF1; color: #546E7A; }
+  .badge-preparing { background: #FFF8E1; color: #F57F17; }
+  .badge-ready     { background: #E8F5E9; color: #2E7D32; }
+  .badge-picked_up { background: #E3F2FD; color: #1565C0; }
+  .badge-delivered { background: #F5F5F5; color: #616161; }
+
+  .card-customer { font-size: 14px; font-weight: 700; color: #3E2000; margin: 6px 0 2px; }
+  .card-phone    { font-size: 13px; font-weight: 600; color: #E65100; }
+  .card-address  { font-size: 12px; color: #8D6E63; margin-top: 4px; }
+  .card-meta     { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 8px; border-top: 1px solid #FFE0B2; }
+  .card-amount   { font-size: 16px; font-weight: 800; color: #2E7D32; }
+  .card-time     { font-size: 10px; color: #aaa; }
+
+  /* Order detail modal */
+  .order-detail-customer { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; padding: 14px; background: linear-gradient(135deg, #FFF8F0, #FFFDE7); border-radius: 10px; margin-bottom: 14px; }
+  .cust-field { display: flex; flex-direction: column; gap: 2px; }
+  .cust-label { font-size: 10px; font-weight: 700; color: #8D6E63; text-transform: uppercase; letter-spacing: .5px; }
+  .cust-value { font-size: 14px; font-weight: 700; color: #3E2000; }
+  .cust-value.highlight { font-size: 16px; color: #E65100; }
+  .cust-value.phone { font-size: 16px; color: #1565C0; text-decoration: none; }
+  .cust-addr-full { grid-column: span 2; background: #FFF3E0; border: 1px solid #FFCC80; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #3E2000; font-weight: 600; }
+
+  /* Status flow */
+  .status-flow { display: flex; align-items: center; justify-content: center; gap: 0; padding: 14px; overflow-x: auto; }
+  .sf-step { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 56px; }
+  .sf-circle { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #FFCC80; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all .2s; }
+  .sf-circle.done { background: linear-gradient(135deg, #43A047, #66BB6A); border-color: transparent; }
+  .sf-circle.active { background: linear-gradient(135deg, #E65100, #FF8F00); border-color: transparent; box-shadow: 0 0 0 3px rgba(230,81,0,0.2); }
+  .sf-label { font-size: 9px; font-weight: 700; color: #8D6E63; text-align: center; }
+  .sf-label.active { color: #E65100; }
+  .sf-connector { width: 24px; height: 2px; background: #FFCC80; flex-shrink: 0; }
+  .sf-connector.done { background: #43A047; }
+
+  /* Payment collection */
+  .payment-collect { background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 12px; padding: 16px; margin: 12px 0; color: #fff; }
+  .payment-collect h4 { margin: 0 0 12px; font-size: 14px; color: #FF8F00; }
+  .payment-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .payment-label { font-size: 12px; font-weight: 600; color: #ccc; min-width: 60px; }
+  .payment-input { flex: 1; padding: 8px 12px; border-radius: 8px; border: 1px solid #333; background: #0f3460; color: #fff; font-size: 15px; font-weight: 700; text-align: right; }
+  .payment-input::placeholder { color: #666; }
+  .payment-total { display: flex; justify-content: space-between; padding: 10px 0 0; border-top: 1px solid #333; margin-top: 6px; }
+  .payment-total-label { font-size: 12px; color: #ccc; }
+  .payment-total-val { font-size: 18px; font-weight: 800; color: #4CAF50; }
+  .payment-order-total { font-size: 12px; color: #FF8F00; text-align: right; margin-top: 2px; }
+
+  /* Action buttons */
+  .delivery-actions { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-top: 2px solid #FFCC80; background: #FFF8F0; }
+  .btn-pickup   { background: linear-gradient(135deg, #1565C0, #1976D2); color: #fff; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; transition: all .15s; }
+  .btn-pickup:hover  { opacity: .9; transform: translateY(-1px); }
+  .btn-deliver  { background: linear-gradient(135deg, #2E7D32, #43A047); color: #fff; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; transition: all .15s; }
+  .btn-deliver:hover { opacity: .9; transform: translateY(-1px); }
+  .btn-disabled { background: #ECEFF1; color: #90A4AE; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: not-allowed; }
+
+  .no-orders { text-align: center; padding: 60px 20px; color: #BCAAA4; }
+  .no-orders .icon { font-size: 52px; margin-bottom: 12px; }
+
+  /* Items list in modal */
+  .detail-items { border-radius: 10px; overflow: hidden; border: 1px solid #FFE0B2; }
+  .detail-item-row { display: flex; justify-content: space-between; padding: 9px 14px; border-bottom: 1px solid #FFE0B2; font-size: 13px; background: #fff; }
+  .detail-item-row:last-child { border-bottom: none; }
+  .detail-item-name { font-weight: 600; color: #3E2000; flex: 1; }
+  .detail-item-qty  { color: #E65100; font-weight: 700; padding: 0 10px; }
+  .detail-item-amt  { font-weight: 700; color: #2E7D32; min-width: 60px; text-align: right; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main-content" style="padding:0;">
+    <div class="delivery-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+      <div>
+        <h2>🛵 Delivery Orders</h2>
+        <p id="delivery-greeting">Loading your deliveries…</p>
+      </div>
+      <button onclick="showQR()" style="background:linear-gradient(135deg,#FF8F00,#E65100); color:#fff; border:none; border-radius:10px; padding:10px 16px; font-size:13px; font-weight:800; cursor:pointer; flex-shrink:0;">
+        📱 Show QR
+      </button>
+    </div>
+
+    <div class="filters" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:10px 14px; background:#FFF8F0; border-bottom:1px solid #FFE0B2;">
+      <div style="display:flex; gap:4px; flex:1 1 200px;">
+        <input type="text" class="form-control" id="delivery-search-input" placeholder="🔍 Find Token, Name, Phone, Address…" oninput="renderOrders()" style="flex:1; border-radius:8px; padding:6px 12px; border:1px solid #FFCC80;">
+        <button class="btn btn-primary" onclick="renderOrders()" style="padding:6px 14px; font-weight:700; border-radius:8px;">Find</button>
+      </div>
+      <select id="delivery-prefix-filter" class="form-control" onchange="renderOrders()" style="max-width:160px; border-radius:8px; padding:6px 10px; border:1px solid #FFCC80;">
+        <option value="">All Delivery Types</option>
+        <option value="DM">DM — Delivery (Morning)</option>
+        <option value="DE">DE — Delivery (Evening)</option>
+      </select>
+      <select id="delivery-location-filter" class="form-control" onchange="renderOrders()" style="max-width:180px; border-radius:8px; padding:6px 10px; border:1px solid #FFCC80;">
+        <option value="">📍 All Locations</option>
+      </select>
+    </div>
+
+    <!-- Date Filter Pills -->
+    <div style="display:flex; gap:6px; flex-wrap:wrap; padding:10px 14px; background:#FFF3E0; border-bottom:1px solid #FFCC80; align-items:center;">
+      <button class="del-dp active" data-period="all" onclick="setDeliveryPeriod('all', this)">📅 All Dates</button>
+      <button class="del-dp" data-period="today" onclick="setDeliveryPeriod('today', this)">Today</button>
+      <button class="del-dp" data-period="yesterday" onclick="setDeliveryPeriod('yesterday', this)">Yesterday</button>
+      <button class="del-dp" data-period="week" onclick="setDeliveryPeriod('week', this)">Last 7 Days</button>
+      <button class="del-dp" data-period="month" onclick="setDeliveryPeriod('month', this)">1 Month</button>
+      <button class="del-dp" data-period="year" onclick="setDeliveryPeriod('year', this)">1 Year</button>
+      <button class="del-dp" data-period="custom" onclick="setDeliveryPeriod('custom', this)">📅 Custom</button>
+      <div id="del-custom-dates" style="display:none; gap:6px; align-items:center;">
+        <input type="date" id="delivery-date-from" class="form-control" onchange="loadOrders()" style="max-width:140px; border-radius:8px; padding:6px 10px; border:1px solid #FFCC80; font-size:12px;">
+        <span style="font-size:12px;color:#8D6E63">to</span>
+        <input type="date" id="delivery-date-to" class="form-control" onchange="loadOrders()" style="max-width:140px; border-radius:8px; padding:6px 10px; border:1px solid #FFCC80; font-size:12px;">
+      </div>
+    </div>
+
+    <div class="status-tabs">
+      <button class="status-tab active" data-filter="active" onclick="filterOrders('active', this)">🔴 Active</button>
+      <button class="status-tab" data-filter="pending" onclick="filterOrders('pending', this)">⏳ Pending</button>
+      <button class="status-tab" data-filter="preparing" onclick="filterOrders('preparing', this)">🍳 Preparing</button>
+      <button class="status-tab" data-filter="ready" onclick="filterOrders('ready', this)">✅ Ready</button>
+      <button class="status-tab" data-filter="picked_up" onclick="filterOrders('picked_up', this)">📦 Picked Up</button>
+      <button class="status-tab" data-filter="delivered" onclick="filterOrders('delivered', this)">🏁 Delivered</button>
+    </div>
+
+    <div class="orders-list" id="orders-list">
+      <div class="no-orders"><div class="icon">⏳</div><p>Loading orders…</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- Order Detail Modal -->
+<div class="modal-overlay" id="order-modal">
+  <div class="modal" style="max-width:460px; padding:0; border-radius:16px; overflow:hidden; display:flex; flex-direction:column; max-height:92vh;">
+    <div class="modal-header" style="background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; border-radius:0;">
+      <span class="modal-title" id="modal-title" style="color:#fff;">Order Details</span>
+      <button class="modal-close" onclick="closeOrderModal()" style="color:#fff; background:rgba(255,255,255,0.2);">✕</button>
+    </div>
+
+    <!-- Status flow -->
+    <div style="padding: 12px 14px 0; background: #FFF8F0; border-bottom: 1px solid #FFE0B2;">
+      <div class="status-flow" id="modal-status-flow"></div>
+    </div>
+
+    <div style="overflow-y: auto; flex: 1; padding: 14px;">
+      <!-- Customer info -->
+      <div class="order-detail-customer" id="modal-customer"></div>
+
+      <!-- Items -->
+      <div style="font-size:11px; font-weight:700; color:#8D6E63; text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px;">🛒 Items</div>
+      <div class="detail-items" id="modal-items"></div>
+
+      <!-- Totals -->
+      <div id="modal-totals" style="margin-top:10px; padding:10px 14px; background:#FFFDE7; border-radius:10px; border:1px solid #FFCC80;"></div>
+
+      <!-- Payment collection (shown only when delivering) -->
+      <div id="payment-section" style="display:none;">
+
+        <!-- QR toggle button -->
+        <button id="modal-qr-toggle-btn" onclick="toggleModalQR()"
+          style="width:100%; margin-top:12px; padding:12px; border:2px solid #FFCC80; border-radius:12px; background:#FFF8F0; color:#E65100; font-size:14px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .15s;">
+          📱 View QR to Collect UPI Payment
+        </button>
+
+        <!-- Collapsible QR panel (hidden by default) -->
+        <div id="modal-qr-panel" style="display:none; background:#fff; border-radius:14px; border:1.5px solid #FFCC80; overflow:hidden; margin-top:8px;">
+          <div style="padding:10px 14px; background:linear-gradient(135deg,#FFF3E0,#FFE0B2); border-bottom:1px solid #FFE0B2; display:flex; align-items:center; justify-content:space-between;">
+            <span style="font-size:13px; font-weight:800; color:#E65100;">📱 Show QR to Customer</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div style="display:flex; background:#fff; border-radius:10px; padding:3px; gap:3px; border:1px solid #FFCC80;">
+                <button id="modal-tab-gpay" onclick="switchModalQR('gpay')"
+                  style="padding:5px 14px; border:none; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer; background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; transition:.15s;">QR 1</button>
+                <button id="modal-tab-paytm" onclick="switchModalQR('paytm')"
+                  style="padding:5px 14px; border:none; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer; background:transparent; color:#8D6E63; transition:.15s;">QR 2</button>
+              </div>
+              <button onclick="toggleModalQR()" style="border:none; background:rgba(0,0,0,0.08); border-radius:50%; width:28px; height:28px; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center;">✕</button>
+            </div>
+          </div>
+          <div id="modal-qr-gpay" style="padding:14px; text-align:center;">
+            <img src="assets/payment_qr.png" alt="GPay / PhonePe QR"
+              style="width:100%; max-width:260px; border-radius:12px; border:2px solid #FFE0B2;"
+              onerror="this.style.display='none'; document.getElementById('modal-qr-gpay-fb').style.display='block'">
+            <div id="modal-qr-gpay-fb" style="display:none; padding:20px; background:#FFF3E0; border-radius:10px; color:#E65100; font-size:12px; font-weight:700;">
+              ⚠️ QR not found.<br><span style="font-size:10px;font-weight:400;color:#8D6E63;">Add payment_qr.png to client/assets/</span>
+            </div>
+            <div style="font-size:10px; color:#8D6E63; margin-top:6px; font-weight:600;">GPay · PhonePe · All UPI Apps</div>
+          </div>
+          <div id="modal-qr-paytm" style="display:none; padding:14px; text-align:center;">
+            <img src="assets/paytm_qr.jpg" alt="Paytm QR"
+              style="width:100%; max-width:260px; border-radius:12px; border:2px solid #80DEEA;"
+              onerror="this.style.display='none'; document.getElementById('modal-qr-paytm-fb').style.display='block'">
+            <div id="modal-qr-paytm-fb" style="display:none; padding:20px; background:#E0F7FA; border-radius:10px; color:#00838F; font-size:12px; font-weight:700;">
+              ⚠️ Paytm QR not found.
+            </div>
+            <div style="font-size:10px; color:#00838F; font-weight:700; margin-top:6px;">Paytm · UPI ID: paytm.s2uf1hd@pty</div>
+          </div>
+        </div>
+
+        <!-- Enter amount collected -->
+        <div class="payment-collect" style="margin-top:10px;">
+          <h4>💰 Step 2 — Enter Amount Collected</h4>
+          <div class="payment-row">
+            <span class="payment-label">💵 Cash</span>
+            <input type="number" id="cash-input" class="payment-input" placeholder="0.00" min="0" step="0.01" oninput="updatePaymentTotal()">
+          </div>
+          <div class="payment-row">
+            <span class="payment-label">📱 UPI</span>
+            <input type="number" id="upi-input" class="payment-input" placeholder="0.00" min="0" step="0.01" oninput="updatePaymentTotal()">
+          </div>
+          <div class="payment-total">
+            <span class="payment-total-label">Total Collected</span>
+            <span class="payment-total-val" id="payment-total-display">₹0.00</span>
+          </div>
+          <div class="payment-order-total" id="payment-order-ref"></div>
+        </div>
+      </div>
+
+      <!-- Payment summary (for already-delivered orders) -->
+      <div id="payment-summary" style="display:none; padding:12px; background:#E8F5E9; border-radius:10px; border:1px solid #A5D6A7; margin-top:10px;"></div>
+    </div>
+
+    <div class="delivery-actions" id="delivery-actions"></div>
+  </div>
+</div>
+
+<!-- QR Modal -->
+<div id="qr-modal" onclick="hideQR()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:9999; justify-content:center; align-items:center; padding:20px;">
+  <div onclick="event.stopPropagation()" style="background:#fff; border-radius:24px; padding:24px 20px; max-width:340px; width:100%; text-align:center; box-shadow:0 24px 80px rgba(0,0,0,0.6);">
+    <div style="font-size:17px; font-weight:800; color:#E65100; margin-bottom:3px;">&#128241; Scan to Pay</div>
+    <div style="font-size:12px; color:#8D6E63; margin-bottom:14px;">Choose a payment QR to show customer</div>
+
+    <!-- QR Tab Switcher -->
+    <div style="display:flex; background:#FFF3E0; border-radius:14px; padding:4px; gap:4px; margin-bottom:16px;">
+      <button id="del-tab-gpay" onclick="switchDelQR('gpay')" style="flex:1; padding:8px 0; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; transition:.2s;">QR 1</button>
+      <button id="del-tab-paytm" onclick="switchDelQR('paytm')" style="flex:1; padding:8px 0; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; background:transparent; color:#8D6E63; transition:.2s;">QR 2</button>
+    </div>
+
+    <!-- GPay / PhonePe QR -->
+    <div id="del-qr-gpay" style="">
+      <img src="assets/payment_qr.png" alt="GPay / PhonePe QR" style="width:100%; max-width:280px; border-radius:14px; border:2px solid #FFE0B2;" onerror="this.style.display='none'; document.getElementById('del-qr-fallback').style.display='block'">
+      <div id="del-qr-fallback" style="display:none; padding:30px; background:#FFF3E0; border-radius:12px; color:#E65100; font-size:13px; font-weight:700;">&#9888;&#65039; QR not found.</div>
+      <div style="margin-top:8px; font-size:11px; color:#8D6E63;">GPay &bull; PhonePe &bull; All UPI Apps</div>
+    </div>
+
+    <!-- Paytm QR -->
+    <div id="del-qr-paytm" style="display:none;">
+      <img src="assets/paytm_qr.jpg" alt="Paytm QR" style="width:100%; max-width:280px; border-radius:14px; border:2px solid #80DEEA;" onerror="this.style.display='none'; document.getElementById('del-qr-paytm-fallback').style.display='block'">
+      <div id="del-qr-paytm-fallback" style="display:none; padding:30px; background:#E0F7FA; border-radius:12px; color:#00838F; font-size:13px; font-weight:700;">&#9888;&#65039; Paytm QR not found.</div>
+      <div style="margin-top:8px; font-size:11px; color:#00838F; font-weight:700;">Paytm &bull; UPI ID: paytm.s2uf1hd@pty</div>
+    </div>
+
+    <div style="margin-top:18px;">
+      <button onclick="hideQR()" style="background:#F5F5F5; border:none; border-radius:12px; padding:12px 36px; font-size:14px; font-weight:700; cursor:pointer; color:#555;">&#10005; Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+if (!authGuard(['delivery_boy', 'admin', 'staff'])) throw 0;
+const currentUser = getUser();
+initSidebar('delivery');
+
+document.getElementById('delivery-greeting').textContent =
+  `Hello, ${currentUser ? currentUser.full_name : 'Delivery Boy'}! Here are your orders.`;
+
+let allOrders = [];
+let currentFilter = 'active';
+let selectedOrder = null;
+let deliveryPeriod = 'all';
+
+const STATUS_FLOW = ['pending', 'preparing', 'ready', 'picked_up', 'delivered'];
+const STATUS_LABELS = {
+  pending: 'Pending',
+  preparing: 'Preparing',
+  ready: 'Ready',
+  picked_up: 'Picked Up',
+  delivered: 'Delivered'
+};
+const STATUS_ICONS = {
+  pending: '⏳',
+  preparing: '🍳',
+  ready: '✅',
+  picked_up: '📦',
+  delivered: '🏁'
+};
+
+function setDeliveryPeriod(period, btn) {
+  deliveryPeriod = period;
+  document.querySelectorAll('.del-dp').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const customDiv = document.getElementById('del-custom-dates');
+  if (period === 'custom') {
+    customDiv.style.display = 'flex';
+  } else {
+    customDiv.style.display = 'none';
+    loadOrders();
+  }
+}
+
+function toggleDeliveryCustomDates() {
+  // kept for compatibility, now handled by setDeliveryPeriod
+}
+
+async function loadOrders() {
+  try {
+    let url = `/delivery/orders?period=${deliveryPeriod}`;
+    if (deliveryPeriod === 'custom') {
+      const fDate = document.getElementById('delivery-date-from').value;
+      const tDate = document.getElementById('delivery-date-to').value;
+      if (fDate) url += `&from=${fDate}`;
+      if (tDate) url += `&to=${tDate}`;
+    }
+    const data = await apiFetch(url);
+    allOrders = data.orders || [];
+    renderOrders();
+  } catch (e) {
+    document.getElementById('orders-list').innerHTML =
+      `<div class="no-orders"><div class="icon">❌</div><p>Error: ${e.message}</p></div>`;
+  }
+}
+
+function filterOrders(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.status-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderOrders();
+}
+
+function renderOrders() {
+  const list = document.getElementById('orders-list');
+  const searchInput = document.getElementById('delivery-search-input');
+  const prefixFilter = document.getElementById('delivery-prefix-filter');
+  const locationFilter = document.getElementById('delivery-location-filter');
+  const q   = searchInput ? searchInput.value.trim().toLowerCase() : '';
+  const pfx = prefixFilter ? prefixFilter.value : '';
+  const loc = locationFilter ? locationFilter.value : '';
+
+  let orders = allOrders;
+
+  if (currentFilter === 'active') {
+    orders = orders.filter(o => ['pending','preparing','ready','picked_up'].includes(o.delivery_status));
+  } else if (currentFilter !== 'all') {
+    orders = orders.filter(o => o.delivery_status === currentFilter);
+  }
+
+  if (pfx) {
+    orders = orders.filter(o => o.token_prefix === pfx);
+  }
+
+  if (loc) {
+    orders = orders.filter(o => (o.delivery_address || '').toLowerCase() === loc.toLowerCase());
+  }
+
+  if (q) {
+    orders = orders.filter(o => {
+      const token = `#${o.token_prefix || ''}${o.token_number}`.toLowerCase();
+      const name  = (o.customer_name || '').toLowerCase();
+      const phone = (o.customer_phone || '').toLowerCase();
+      const addr  = (o.delivery_address || '').toLowerCase();
+      const bill  = (o.bill_number || '').toLowerCase();
+      return token.includes(q) || name.includes(q) || phone.includes(q) || addr.includes(q) || bill.includes(q);
+    });
+  }
+
+  if (!orders.length) {
+    list.innerHTML = `<div class="no-orders"><div class="icon">${currentFilter === 'delivered' ? '🏁' : '🛵'}</div><p>No orders matching your filters</p></div>`;
+    return;
+  }
+
+  list.innerHTML = orders.map(o => `
+    <div class="order-card status-${o.delivery_status}" onclick="openOrder(${o.bill_id})">
+      <div class="card-top">
+        <div class="card-token">#${o.token_prefix === 'T' ? 'DIN' : (o.token_prefix || 'DIN')}${String(o.token_number).padStart(3,'0')}</div>
+        <span class="card-status-badge badge-${o.delivery_status}">${STATUS_ICONS[o.delivery_status]} ${STATUS_LABELS[o.delivery_status]}</span>
+      </div>
+      <div class="card-customer">${escapeHtml(o.customer_name || 'Customer')}</div>
+      <div class="card-phone">📞 ${escapeHtml(o.customer_phone || '—')}</div>
+      <div class="card-address">📍 ${escapeHtml(o.delivery_address || o.order_type || 'Delivery')}</div>
+      <div class="card-meta">
+        <span class="card-amount">₹${parseFloat(o.grand_total).toFixed(2)}</span>
+        <span class="card-time">${formatDateTime(o.created_at)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function openOrder(billId) {
+  selectedOrder = allOrders.find(o => o.bill_id === billId);
+  if (!selectedOrder) return;
+
+  document.getElementById('modal-title').textContent = `#${selectedOrder.token_prefix === 'T' ? 'DIN' : (selectedOrder.token_prefix || 'DIN')}${String(selectedOrder.token_number).padStart(3,'0')} — Order Details`;
+
+  // Status flow
+  renderStatusFlow(selectedOrder.delivery_status);
+
+  // Customer info
+  renderCustomerInfo(selectedOrder);
+
+  // Items
+  try {
+    const data = await apiFetch(`/delivery/orders/${billId}`);
+    renderItems(data.items);
+    renderTotals(data.bill);
+  } catch(e) {
+    console.error('Failed to load order items:', e);
+    document.getElementById('modal-items').innerHTML = `<p style="padding:10px;color:red;">Couldn't load items — please try again.</p>`;
+  }
+
+  // Payment section
+  const paySection = document.getElementById('payment-section');
+  const paySummary = document.getElementById('payment-summary');
+  paySection.style.display = 'none';
+  paySummary.style.display = 'none';
+
+  if (selectedOrder.delivery_status === 'delivered') {
+    const cash = parseFloat(selectedOrder.cash_collected || 0);
+    const upi  = parseFloat(selectedOrder.upi_collected || 0);
+    paySummary.style.display = 'block';
+    paySummary.innerHTML = `
+      <div style="font-weight:700; color:#2E7D32; margin-bottom:8px;">✅ Payment Collected</div>
+      <div style="display:flex; justify-content:space-between; font-size:13px;"><span>💵 Cash</span><span style="font-weight:700;">₹${cash.toFixed(2)}</span></div>
+      <div style="display:flex; justify-content:space-between; font-size:13px; margin:4px 0;"><span>📱 UPI</span><span style="font-weight:700;">₹${upi.toFixed(2)}</span></div>
+      <div style="display:flex; justify-content:space-between; font-size:14px; border-top:1px solid #A5D6A7; padding-top:6px; margin-top:4px;"><span style="font-weight:700;">Total</span><span style="font-weight:800; color:#1565C0;">₹${(cash + upi).toFixed(2)}</span></div>
+      ${selectedOrder.delivered_by ? `<div style="font-size:11px; color:#8D6E63; margin-top:4px;">By: ${selectedOrder.delivery_boy_name || 'Delivery Boy'}</div>` : ''}
+    `;
+  }
+
+  // Action buttons
+  renderActionButtons(selectedOrder.delivery_status, billId);
+
+  document.getElementById('order-modal').classList.add('open');
+  switchModalQR('gpay'); // always reset to QR 1 on open
+}
+
+function renderStatusFlow(currentStatus) {
+  const idx = STATUS_FLOW.indexOf(currentStatus);
+  const el = document.getElementById('modal-status-flow');
+  el.innerHTML = STATUS_FLOW.map((s, i) => {
+    const isDone   = i < idx;
+    const isActive = i === idx;
+    const connector = i < STATUS_FLOW.length - 1
+      ? `<div class="sf-connector ${isDone || isActive ? 'done' : ''}"></div>` : '';
+    return `
+      <div class="sf-step">
+        <div class="sf-circle ${isDone ? 'done' : (isActive ? 'active' : '')}">${STATUS_ICONS[s]}</div>
+        <div class="sf-label ${isActive ? 'active' : ''}">${STATUS_LABELS[s]}</div>
+      </div>${connector}`;
+  }).join('');
+}
+
+function renderCustomerInfo(order) {
+  const el = document.getElementById('modal-customer');
+  const phone = escapeHtml(order.customer_phone || '—');
+  el.innerHTML = `
+    <div class="cust-field">
+      <span class="cust-label">Customer</span>
+      <span class="cust-value highlight">${escapeHtml(order.customer_name || 'Walk-in')}</span>
+    </div>
+    <div class="cust-field">
+      <span class="cust-label">Phone</span>
+      <a href="tel:${phone}" class="cust-value phone">📞 ${phone}</a>
+    </div>
+    <div class="cust-field" style="grid-column:span 2;">
+      <span class="cust-label">Delivery Address</span>
+      <div class="cust-addr-full">📍 ${escapeHtml(order.delivery_address || order.order_type || 'Delivery')}</div>
+    </div>
+  `;
+}
+
+function renderItems(items) {
+  const el = document.getElementById('modal-items');
+  if (!items || !items.length) { el.innerHTML = '<div class="detail-item-row">No items</div>'; return; }
+  el.innerHTML = items.map(i => `
+    <div class="detail-item-row">
+      <span class="detail-item-name">${escapeHtml(i.item_name)}${i.item_note ? `<br><span style="font-size:10px;color:#E65100;font-weight:400;">↳ ${escapeHtml(i.item_note)}</span>` : ''}</span>
+      <span class="detail-item-qty">×${i.quantity}</span>
+      <span class="detail-item-amt">₹${parseFloat(i.line_total).toFixed(2)}</span>
+    </div>
+  `).join('');
+}
+
+function renderTotals(bill) {
+  const el = document.getElementById('modal-totals');
+  const sub = parseFloat(bill.subtotal || 0);
+  const del = bill.delivery_enabled ? parseFloat(bill.delivery_charge || 0) : 0;
+  const disc = bill.discount_enabled ? parseFloat(bill.discount_amount || 0) : 0;
+  const grand = parseFloat(bill.grand_total || 0);
+  el.innerHTML = `
+    ${del > 0 ? `<div style="display:flex;justify-content:space-between;font-size:12px;color:#8D6E63;"><span>Subtotal</span><span>₹${sub.toFixed(2)}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:#8D6E63;"><span>Delivery</span><span>₹${del.toFixed(2)}</span></div>` : ''}
+    ${disc > 0 ? `<div style="display:flex;justify-content:space-between;font-size:12px;color:#EF9A9A;"><span>Discount</span><span>-₹${disc.toFixed(2)}</span></div>` : ''}
+    <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;color:#E65100;${del > 0 || disc > 0 ? 'border-top:1px solid #FFCC80;padding-top:8px;margin-top:6px;' : ''}">
+      <span>TOTAL</span><span>₹${grand.toFixed(2)}</span>
+    </div>
+  `;
+}
+
+function updatePaymentTotal() {
+  const cash  = parseFloat(document.getElementById('cash-input').value) || 0;
+  const upi   = parseFloat(document.getElementById('upi-input').value) || 0;
+  const total = cash + upi;
+  document.getElementById('payment-total-display').textContent = `₹${total.toFixed(2)}`;
+
+  const grand = parseFloat(selectedOrder ? selectedOrder.grand_total : 0);
+  let changeBox = document.getElementById('cash-change-box');
+  if (!changeBox) {
+    changeBox = document.createElement('div');
+    changeBox.id = 'cash-change-box';
+    changeBox.style.cssText = 'margin-top:10px; padding:10px 12px; border-radius:8px; font-weight:800; font-size:14px; text-align:center; transition:all .2s;';
+    const parent = document.getElementById('payment-order-ref').parentNode;
+    parent.appendChild(changeBox);
+  }
+
+  if (total > grand + 0.005) {
+    const change = total - grand;
+    changeBox.style.display = 'block';
+    changeBox.style.background = '#E8F5E9';
+    changeBox.style.color = '#2E7D32';
+    changeBox.style.border = '1.5px solid #A5D6A7';
+    changeBox.innerHTML = `💵 Change to Return to Customer: <span style="font-size:16px;">₹${change.toFixed(2)}</span>`;
+  } else if (total > 0 && total < grand - 0.005) {
+    const due = grand - total;
+    changeBox.style.display = 'block';
+    changeBox.style.background = '#FFF3E0';
+    changeBox.style.color = '#E65100';
+    changeBox.style.border = '1.5px solid #FFCC80';
+    changeBox.innerHTML = `⚠️ Remaining Due: ₹${due.toFixed(2)}`;
+  } else {
+    changeBox.style.display = 'none';
+  }
+}
+
+function renderActionButtons(status, billId) {
+  const el = document.getElementById('delivery-actions');
+
+  if (status === 'delivered') {
+    el.innerHTML = `<button class="btn-disabled" disabled>🏁 Delivered</button>`;
+    return;
+  }
+
+  if (status === 'picked_up') {
+    // Show payment collection + deliver button
+    document.getElementById('payment-section').style.display = 'block';
+    const grand = parseFloat(selectedOrder.grand_total || 0);
+    document.getElementById('payment-order-ref').textContent = `Order Total: ₹${grand.toFixed(2)}`;
+    el.innerHTML = `
+      <button class="btn-deliver" onclick="markDelivered(${billId})">🏁 Mark as Delivered & Record Payment</button>
+    `;
+    return;
+  }
+
+  if (status === 'pending' || status === 'preparing' || status === 'ready') {
+    const isUnassigned = !selectedOrder.assigned_delivery_boy;
+    const isAssignedToMe = selectedOrder.assigned_delivery_boy === currentUser.id;
+
+    if (isUnassigned) {
+      el.innerHTML = `
+        <button class="btn-pickup" style="background: linear-gradient(135deg, #E65100, #FF8F00);" onclick="assignSelf(${billId})">✋ Accept Order (Assign to Me)</button>
+      `;
+    } else if (isAssignedToMe) {
+      el.innerHTML = `
+        <button class="btn-pickup" onclick="markPickedUp(${billId})">📦 Mark as Picked Up</button>
+      `;
+    } else {
+      el.innerHTML = `<button class="btn-disabled" disabled>🔒 Assigned to another driver</button>`;
+    }
+    return;
+  }
+
+  el.innerHTML = `<button class="btn-disabled" disabled>—</button>`;
+}
+
+async function assignSelf(billId) {
+  const btn = document.querySelector('.btn-pickup');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Assigning…'; }
+  try {
+    await apiFetch(`/delivery/orders/${billId}/assign-self`, { method: 'POST' });
+    showToast('✅ Order assigned to you!', 'success');
+    if (selectedOrder) selectedOrder.assigned_delivery_boy = currentUser.id;
+    // Re-render action buttons
+    renderActionButtons(selectedOrder.delivery_status, billId);
+    await loadOrders();
+  } catch(e) {
+    showToast('❌ ' + e.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = '✋ Accept Order (Assign to Me)'; }
+  }
+}
+
+async function markPickedUp(billId) {
+  const btn = document.querySelector('.btn-pickup');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Updating…'; }
+  try {
+    await apiFetch(`/delivery/orders/${billId}/pickup`, { method: 'POST' });
+    showToast('✅ Order marked as Picked Up!', 'success');
+    closeOrderModal();
+    await loadOrders();
+  } catch(e) {
+    showToast('❌ ' + e.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = '📦 Mark as Picked Up'; }
+  }
+}
+
+async function markDelivered(billId) {
+  const cash  = parseFloat(document.getElementById('cash-input').value) || 0;
+  const upi   = parseFloat(document.getElementById('upi-input').value)  || 0;
+  const grand = parseFloat(selectedOrder.grand_total || 0);
+
+  if (cash + upi <= 0) {
+    showToast(`⚠️ Enter the amount collected (Cash or UPI) before marking delivered. Order total: ₹${grand.toFixed(2)}`, 'warning');
+    document.getElementById('cash-input').focus();
+    return;
+  }
+
+  const btn = document.querySelector('.btn-deliver');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Recording…'; }
+  try {
+    await apiFetch(`/delivery/orders/${billId}/deliver`, {
+      method: 'POST',
+      body: JSON.stringify({ cash_collected: cash, upi_collected: upi })
+    });
+    showToast(`✅ Delivered! Cash: ₹${cash.toFixed(2)} | UPI: ₹${upi.toFixed(2)}`, 'success');
+    closeOrderModal();
+    await loadOrders();
+  } catch(e) {
+    showToast('❌ ' + e.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = '🏁 Mark as Delivered & Record Payment'; }
+  }
+}
+
+function toggleModalQR() {
+  const panel = document.getElementById('modal-qr-panel');
+  const btn   = document.getElementById('modal-qr-toggle-btn');
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : '';
+  if (!isOpen) {
+    switchModalQR('gpay'); // reset to QR 1 each time it opens
+    btn.style.background = '#E65100';
+    btn.style.color      = '#fff';
+    btn.style.borderColor = '#E65100';
+    btn.innerHTML = '✕ Close QR';
+  } else {
+    btn.style.background  = '#FFF8F0';
+    btn.style.color       = '#E65100';
+    btn.style.borderColor = '#FFCC80';
+    btn.innerHTML = '📱 View QR to Collect UPI Payment';
+  }
+}
+
+function switchModalQR(which) {
+  const gpayPanel  = document.getElementById('modal-qr-gpay');
+  const paytmPanel = document.getElementById('modal-qr-paytm');
+  const gpayTab    = document.getElementById('modal-tab-gpay');
+  const paytmTab   = document.getElementById('modal-tab-paytm');
+  if (!gpayPanel) return;
+  if (which === 'gpay') {
+    gpayPanel.style.display  = '';
+    paytmPanel.style.display = 'none';
+    gpayTab.style.background  = 'linear-gradient(135deg,#E65100,#FF8F00)';
+    gpayTab.style.color       = '#fff';
+    paytmTab.style.background = 'transparent';
+    paytmTab.style.color      = '#8D6E63';
+  } else {
+    gpayPanel.style.display  = 'none';
+    paytmPanel.style.display = '';
+    gpayTab.style.background  = 'transparent';
+    gpayTab.style.color       = '#8D6E63';
+    paytmTab.style.background = 'linear-gradient(135deg,#00BCD4,#0097A7)';
+    paytmTab.style.color      = '#fff';
+  }
+}
+
+function closeOrderModal() {
+  document.getElementById('order-modal').classList.remove('open');
+  document.getElementById('cash-input').value = '';
+  document.getElementById('upi-input').value = '';
+  document.getElementById('payment-total-display').textContent = '₹0.00';
+  // Reset QR panel
+  const panel = document.getElementById('modal-qr-panel');
+  const btn   = document.getElementById('modal-qr-toggle-btn');
+  if (panel) panel.style.display = 'none';
+  if (btn)   { btn.style.background = '#FFF8F0'; btn.style.color = '#E65100'; btn.style.borderColor = '#FFCC80'; btn.innerHTML = '📱 View QR to Collect UPI Payment'; }
+}
+
+// Load location dropdown from API
+async function loadLocationFilter() {
+  try {
+    const data = await apiFetch('/delivery/locations');
+    const sel = document.getElementById('delivery-location-filter');
+    (data.locations || []).forEach(loc => {
+      const opt = document.createElement('option');
+      opt.value = loc;
+      opt.textContent = '📍 ' + loc;
+      sel.appendChild(opt);
+    });
+  } catch(e) { console.warn('Could not load locations:', e.message); }
+}
+
+// Auto-refresh every 30 seconds
+setInterval(loadOrders, 30000);
+loadLocationFilter();
+loadOrders();
+
+function showQR() {
+  const modal = document.getElementById('qr-modal');
+  modal.style.display = 'flex';
+  switchDelQR('gpay'); // always start on GPay tab
+}
+function hideQR() {
+  document.getElementById('qr-modal').style.display = 'none';
+}
+function switchDelQR(which) {
+  const gpayPanel = document.getElementById('del-qr-gpay');
+  const paytmPanel = document.getElementById('del-qr-paytm');
+  const gpayTab = document.getElementById('del-tab-gpay');
+  const paytmTab = document.getElementById('del-tab-paytm');
+
+  const activeStyle = 'background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff;';
+  const inactiveStyle = 'background:transparent; color:#8D6E63;';
+  const paytmActiveStyle = 'background:linear-gradient(135deg,#00BCD4,#0097A7); color:#fff;';
+
+  if (which === 'gpay') {
+    gpayPanel.style.display = '';
+    paytmPanel.style.display = 'none';
+    gpayTab.style.cssText += activeStyle;
+    paytmTab.style.cssText = paytmTab.style.cssText.replace(/background:[^;]+;/g, '') + inactiveStyle;
+    gpayTab.style.background = 'linear-gradient(135deg,#E65100,#FF8F00)';
+    gpayTab.style.color = '#fff';
+    paytmTab.style.background = 'transparent';
+    paytmTab.style.color = '#8D6E63';
+  } else {
+    gpayPanel.style.display = 'none';
+    paytmPanel.style.display = '';
+    gpayTab.style.background = 'transparent';
+    gpayTab.style.color = '#8D6E63';
+    paytmTab.style.background = 'linear-gradient(135deg,#00BCD4,#0097A7)';
+    paytmTab.style.color = '#fff';
+  }
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { hideQR(); closeOrderModal(); } });
+</script>
+</body>
+</html>

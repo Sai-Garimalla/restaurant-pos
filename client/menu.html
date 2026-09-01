@@ -1,0 +1,307 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu Management — Restaurant POS</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" href="assets/logo.png">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .upload-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 30px; text-align: center; cursor: pointer; transition: all .2s; margin-bottom: 16px; }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--flame); background: rgba(245,124,0,0.05); }
+  .upload-zone .upload-icon { font-size: 32px; margin-bottom: 8px; }
+  .upload-zone p { font-size: 13px; color: var(--text-muted); }
+  .upload-zone strong { color: var(--flame-light); }
+  #menu-file { display: none; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main-content">
+    <div class="page-header">
+      <div><h2>🍽️ Menu Management</h2><p>Upload Excel or manage items individually</p></div>
+      <div style="display:flex;gap:8px">
+        <a href="/api/menu/template" target="_blank" class="btn btn-secondary">⬇ Download CSV Template</a>
+        <button class="btn btn-primary" onclick="openAddModal()">+ Add Item</button>
+      </div>
+    </div>
+    <div class="page-body">
+      <div class="grid-2" style="margin-bottom:16px">
+        <!-- Upload Card -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">📤 Upload Menu (Excel)</span></div>
+          <div class="upload-zone" id="upload-zone" onclick="document.getElementById('menu-file').click()">
+            <div class="upload-icon">📊</div>
+            <p>Click or drag & drop your <strong>.xlsx</strong> file here</p>
+            <p style="font-size:11px;margin-top:6px">Columns: item_name | category | default_price</p>
+            <p style="font-size:11px;color:var(--danger);margin-top:4px">⚠️ This will replace the entire menu</p>
+          </div>
+          <input type="file" id="menu-file" accept=".xlsx,.xls,.csv">
+          <div id="upload-status"></div>
+        </div>
+        <!-- Stats -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">📊 Menu Stats</span></div>
+          <div id="menu-stats" style="font-size:13px;color:var(--text-muted)">Loading…</div>
+        </div>
+      </div>
+
+      <!-- Menu Table -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Menu Items</span>
+          <div style="display:flex;gap:8px">
+            <input type="text" class="form-control" id="menu-search" placeholder="🔍 Search…" style="max-width:200px" oninput="filterTable(this.value)">
+            <select class="form-control" id="cat-filter" style="max-width:140px" onchange="filterTable()">
+              <option value="">All Categories</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Code</th><th>Name</th><th>Category</th><th>Price</th><th>Actions</th></tr></thead>
+            <tbody id="menu-tbody">
+              <tr><td colspan="5" style="text-align:center;padding:40px"><div class="loader"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="menu-count" style="padding:10px 14px;font-size:12px;color:var(--text-muted)"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="item-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="item-modal-title">Add Menu Item</span>
+      <button class="modal-close" onclick="closeItemModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+
+      <div class="form-group">
+        <label class="form-label">Item Name *</label>
+        <input type="text" class="form-control" id="item-name" placeholder="e.g. Chicken Biryani" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-control" id="item-category-select" onchange="toggleNewCategory()"></select>
+        <input type="text" class="form-control" id="item-category-new" placeholder="Enter new category name" style="display:none; margin-top:8px;">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Default Price (₹) *</label>
+        <input type="number" class="form-control" id="item-price" placeholder="0.00" min="0" step="0.01" required>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeItemModal()">Cancel</button>
+      <button class="btn btn-primary" id="save-item-btn" onclick="saveItem()">Save Item</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+if (!authGuard()) throw 0;
+initSidebar('menu');
+
+let allItems = [];
+let editingId = null;
+
+async function loadMenu() {
+  try {
+    allItems = await apiFetch('/menu');
+    const cats = [...new Set(allItems.map(i => i.category).filter(Boolean))].sort();
+    const catFilter = document.getElementById('cat-filter');
+    catFilter.innerHTML = '<option value="">All Categories</option>' + cats.map(c => `<option value="${c}">${c}</option>`).join('');
+    
+    // Update Add/Edit modal select
+    const modalCatSelect = document.getElementById('item-category-select');
+    modalCatSelect.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('') + '<option value="--new--">+ Add New Category</option>';
+    renderTable(allItems);
+    // Stats
+    const stats = {};
+    allItems.forEach(i => { stats[i.category] = (stats[i.category] || 0) + 1; });
+    document.getElementById('menu-stats').innerHTML = `
+      <div style="font-size:24px;font-weight:800;color:var(--flame-light);margin-bottom:8px">${allItems.length} Items</div>
+      <div>${Object.entries(stats).map(([c,n]) => `<span class="badge badge-info" style="margin:2px">${c}: ${n}</span>`).join('')}</div>`;
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+function renderTable(items) {
+  const tbody = document.getElementById('menu-tbody');
+  
+  if (!items.length) {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">🍽️</div><p>No menu items. Upload an Excel file to get started.</p></div></td></tr>';
+    document.getElementById('menu-count').textContent = `Showing 0 item(s)`;
+    return;
+  }
+
+  // Group items by category
+  const grouped = {};
+  items.forEach(i => {
+    const cat = i.category || 'Uncategorized';
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(i);
+  });
+
+  let html = '';
+  Object.keys(grouped).sort().forEach(cat => {
+    html += `
+      <tr style="background:#FFF8F0;">
+        <td colspan="5" style="font-weight:800; color:#E65100; font-size:13px; text-transform:uppercase; padding-top:16px;">
+          ${escapeHtml(cat)} <span style="color:#8D6E63; font-size:11px; font-weight:600; margin-left:6px;">(${grouped[cat].length} items)</span>
+        </td>
+      </tr>
+    `;
+    grouped[cat].forEach(i => {
+      html += `
+        <tr>
+          <td><code style="font-size:11px">${escapeHtml(i.item_code || '—')}</code></td>
+          <td style="font-weight:600; color:#3E2000;">${escapeHtml(i.item_name)}</td>
+          <td><span class="badge badge-info">${escapeHtml(i.category || '—')}</span></td>
+          <td style="font-weight:700;color:var(--flame-light)">${formatCurrency(i.default_price)}</td>
+          <td style="display:flex;gap:6px">
+            <button class="btn btn-secondary btn-sm" onclick="editItem(${i.id})">✏️ Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteItem(${i.id}, '${(i.item_name || '').replace(/'/g,"\\'")}')">🗑</button>
+          </td>
+        </tr>`;
+    });
+  });
+
+  tbody.innerHTML = html;
+  document.getElementById('menu-count').textContent = `Showing ${items.length} item(s)`;
+}
+
+function filterTable() {
+  const search = document.getElementById('menu-search').value.toLowerCase();
+  const cat = document.getElementById('cat-filter').value;
+  let filtered = allItems;
+  if (search) filtered = filtered.filter(i => i.item_name.toLowerCase().includes(search) || i.item_code.toLowerCase().includes(search));
+  if (cat) filtered = filtered.filter(i => i.category === cat);
+  renderTable(filtered);
+}
+
+// File upload
+const zone = document.getElementById('upload-zone');
+const fileInput = document.getElementById('menu-file');
+
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag'); if (e.dataTransfer.files[0]) uploadFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change', e => { if (e.target.files[0]) uploadFile(e.target.files[0]); });
+
+async function uploadFile(file) {
+  const status = document.getElementById('upload-status');
+  status.innerHTML = '<div style="text-align:center;padding:10px"><div class="loader"></div><p style="margin-top:6px;font-size:12px;color:var(--text-muted)">Uploading…</p></div>';
+  try {
+    const token = getToken();
+    const formData = new FormData();
+    formData.append('menu_file', file);
+    const res = await fetch('/api/menu/upload', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    status.innerHTML = `<div style="background:rgba(67,160,71,0.15);border:1px solid rgba(67,160,71,0.3);border-radius:8px;padding:10px;text-align:center;font-size:13px;color:#66BB6A">✅ Uploaded! ${data.inserted} items added, ${data.skipped} skipped.</div>`;
+    showToast(`Menu updated: ${data.inserted} items`, 'success');
+    loadMenu();
+    fileInput.value = '';
+  } catch(e) {
+    status.innerHTML = `<div style="background:rgba(229,57,53,0.15);border:1px solid rgba(229,57,53,0.3);border-radius:8px;padding:10px;text-align:center;font-size:13px;color:#EF9A9A">❌ ${e.message}</div>`;
+  }
+}
+
+function openAddModal() {
+  editingId = null;
+  document.getElementById('item-modal-title').textContent = 'Add Menu Item';
+  document.getElementById('item-name').value = '';
+  document.getElementById('item-category-select').value = document.getElementById('item-category-select').options[0]?.value || '--new--';
+  document.getElementById('item-category-new').value = '';
+  toggleNewCategory();
+  document.getElementById('item-price').value = '';
+
+  document.getElementById('item-modal').classList.add('open');
+}
+
+function editItem(id) {
+  const item = allItems.find(i => i.id === id);
+  if (!item) return;
+  editingId = id;
+  document.getElementById('item-modal-title').textContent = 'Edit Menu Item';
+
+  document.getElementById('item-name').value = item.item_name;
+  
+  const catSelect = document.getElementById('item-category-select');
+  const catNew = document.getElementById('item-category-new');
+  if ([...catSelect.options].some(o => o.value === item.category)) {
+    catSelect.value = item.category || '';
+    catNew.style.display = 'none';
+  } else {
+    catSelect.value = '--new--';
+    catNew.value = item.category || '';
+    catNew.style.display = 'block';
+  }
+  
+  document.getElementById('item-price').value = item.default_price;
+  document.getElementById('item-modal').classList.add('open');
+}
+
+async function deleteItem(id, name) {
+  confirmModal(
+    `Delete "${name}" from the menu? This cannot be undone.`,
+    async () => {
+      try {
+        await apiFetch('/menu/' + id, { method: 'DELETE' });
+        showToast('Item deleted', 'success');
+        loadMenu();
+      } catch(e) {
+        showToast('Couldn\'t delete item — please try again.', 'error');
+        console.error(e);
+      }
+    },
+    { confirmLabel: 'Delete Item', confirmClass: 'btn-danger' }
+  );
+}
+
+function toggleNewCategory() {
+  const sel = document.getElementById('item-category-select');
+  const input = document.getElementById('item-category-new');
+  if (sel.value === '--new--') {
+    input.style.display = 'block';
+    input.focus();
+  } else {
+    input.style.display = 'none';
+  }
+}
+
+async function saveItem() {
+  const name = document.getElementById('item-name').value.trim();
+  let cat = document.getElementById('item-category-select').value;
+  if (cat === '--new--') cat = document.getElementById('item-category-new').value.trim();
+  
+  const price = document.getElementById('item-price').value;
+  if (!name || !price) { showToast('All required fields must be filled', 'warning'); return; }
+  const btn = document.getElementById('save-item-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    if (editingId) {
+      await apiFetch('/menu/' + editingId, { method: 'PUT', body: JSON.stringify({ item_name: name, category: cat, default_price: price }) });
+    } else {
+      await apiFetch('/menu', { method: 'POST', body: JSON.stringify({ item_name: name, category: cat, default_price: price }) });
+    }
+    showToast('Item saved!', 'success');
+    closeItemModal();
+    loadMenu();
+  } catch(e) { showToast(e.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'Save Item'; }
+}
+
+function closeItemModal() { document.getElementById('item-modal').classList.remove('open'); }
+
+loadMenu();
+</script>
+</body>
+</html>

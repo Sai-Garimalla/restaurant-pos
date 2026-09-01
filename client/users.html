@@ -1,0 +1,570 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff Users — Fire &amp; Flavour</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" href="assets/logo.png">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* Card grid — 2 cols desktop, 1 col mobile */
+  .user-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:16px; }
+
+  /* User card — bigger, shows full details */
+  .user-card {
+    background:#fff; border:1px solid #FFCC80; border-radius:16px;
+    padding:20px; cursor:pointer; transition:.2s;
+  }
+  .user-card:hover { border-color:#E65100; background:#FFF8F0; box-shadow:0 4px 16px rgba(230,81,0,.1); transform:translateY(-2px); }
+  .user-card.disabled-card { opacity:.65; border-color:#EF9A9A; background:#FFF8F8; }
+  .user-card.disabled-card:hover { background:#FFF0F0; }
+
+  .card-top { display:flex; align-items:center; gap:14px; margin-bottom:12px; }
+  .user-av { width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:800; flex-shrink:0; }
+  .user-av.av-disabled { background:linear-gradient(135deg,#B0BEC5,#90A4AE); }
+  .card-header { flex:1; min-width:0; }
+  .user-name { font-size:17px; font-weight:700; color:#3E2000; }
+  .user-username { font-size:13px; color:#8D6E63; margin-top:2px; }
+
+  .card-details { display:flex; flex-wrap:wrap; gap:6px 20px; font-size:13px; color:#5D4037; padding:10px 14px; background:#FFF8F0; border-radius:10px; margin-bottom:12px; }
+  .card-detail { display:flex; align-items:center; gap:5px; }
+  .card-detail .dl { color:#8D6E63; font-size:11px; }
+
+  .card-badges { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  .badge-admin    { background:#FFF3E0; color:#E65100; border:1px solid #FFCC80; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; }
+  .badge-staff    { background:#E8F5E9; color:#2E7D32; border:1px solid #A5D6A7; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; }
+  .badge-delivery { background:#E3F2FD; color:#1565C0; border:1px solid #90CAF9; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; }
+  .badge-kitchen  { background:#F3E5F5; color:#7B1FA2; border:1px solid #CE93D8; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; }
+  .badge-inactive { background:#FFEBEE; color:#C62828; border:1px solid #EF9A9A; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; }
+  .badge-active   { background:#E8F5E9; color:#2E7D32; border:1px solid #A5D6A7; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; }
+
+  .card-actions { display:flex; gap:8px; margin-top:12px; }
+  .card-actions .btn { font-size:12px; padding:6px 14px; }
+
+  /* Tabs */
+  .tab-bar { display:flex; gap:4px; margin-bottom:20px; border-bottom:2px solid #FFCC80; }
+  .tab-btn {
+    padding:9px 20px; border:none; border-radius:8px 8px 0 0;
+    background:transparent; font-size:13px; font-weight:600;
+    color:#8D6E63; cursor:pointer; transition:.15s;
+    display:flex; align-items:center; gap:7px;
+    border-bottom:3px solid transparent; margin-bottom:-2px;
+  }
+  .tab-btn:hover { color:#E65100; background:#FFF3E0; }
+  .tab-btn.active { color:#E65100; border-bottom:3px solid #E65100; background:#FFF8F0; }
+  .tab-count { background:#E65100; color:#fff; border-radius:10px; padding:1px 7px; font-size:10px; font-weight:800; min-width:18px; text-align:center; }
+  .tab-count.grey { background:#90A4AE; }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+  .empty-state { text-align:center; padding:48px 20px; color:#8D6E63; }
+  .empty-state .empty-icon { font-size:48px; margin-bottom:12px; }
+  .empty-state p { font-size:14px; }
+
+  /* Preview Modal */
+  .preview-overlay {
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,.45);
+    z-index:1000; justify-content:center; align-items:center; padding:20px;
+  }
+  .preview-overlay.open { display:flex; }
+  .preview-card {
+    background:#fff; border-radius:20px; max-width:420px; width:100%;
+    box-shadow:0 20px 60px rgba(0,0,0,.25); overflow:hidden; animation:prevSlide .25s ease;
+  }
+  @keyframes prevSlide { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+  .preview-header {
+    background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; padding:28px 24px;
+    text-align:center; position:relative;
+  }
+  .preview-close {
+    position:absolute; top:12px; right:14px; background:rgba(255,255,255,.2);
+    border:none; color:#fff; font-size:18px; width:32px; height:32px; border-radius:50%;
+    cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.15s;
+  }
+  .preview-close:hover { background:rgba(255,255,255,.4); }
+  .preview-av {
+    width:76px; height:76px; border-radius:50%; background:rgba(255,255,255,.2); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:34px; font-weight:800;
+    margin:0 auto 12px; border:3px solid rgba(255,255,255,.3);
+  }
+  .preview-name { font-size:22px; font-weight:700; }
+  .preview-username { font-size:14px; opacity:.85; margin-top:4px; }
+  .preview-body { padding:20px 24px; }
+  .preview-row { display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid #FFF3E0; font-size:14px; }
+  .preview-row:last-child { border-bottom:none; }
+  .preview-icon { font-size:18px; width:28px; text-align:center; flex-shrink:0; }
+  .preview-label { color:#8D6E63; font-size:12px; min-width:80px; }
+  .preview-value { color:#3E2000; font-weight:600; flex:1; word-break:break-all; }
+  .preview-actions { padding:0 24px 20px; display:flex; gap:10px; }
+  .preview-actions .btn { flex:1; font-size:13px; }
+
+  @media (max-width:700px) {
+    .user-grid { grid-template-columns:1fr; }
+    /* Preview card as mobile bottom-sheet */
+    .preview-overlay { align-items:flex-end; padding:0; }
+    .preview-card {
+      border-radius:20px 20px 0 0;
+      max-width:100%; width:100%;
+      max-height:92dvh;
+      overflow-y:auto;
+    }
+    .preview-actions { flex-wrap:wrap; gap:8px; }
+    .preview-actions .btn { flex:1 1 calc(50% - 4px); min-height:44px; font-size:12px; }
+  }
+
+  /* Change Password Modal */
+  .pw-modal-overlay {
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,.5);
+    z-index:1200; justify-content:center; align-items:center; padding:20px;
+  }
+  .pw-modal-overlay.open { display:flex; }
+  .pw-modal {
+    background:#fff; border-radius:18px; max-width:380px; width:100%;
+    box-shadow:0 24px 64px rgba(0,0,0,.3); overflow:hidden; animation:prevSlide .22s ease;
+  }
+  .pw-modal-header {
+    background:linear-gradient(135deg,#1565C0,#1E88E5); color:#fff;
+    padding:22px 24px; display:flex; align-items:center; justify-content:space-between;
+  }
+  .pw-modal-header h3 { margin:0; font-size:17px; }
+  .pw-modal-body { padding:20px 24px; }
+  .pw-modal-footer { padding:0 24px 20px; display:flex; gap:10px; }
+  .pw-modal-footer .btn { flex:1; }
+  .pw-strength { height:4px; border-radius:4px; margin-top:6px; transition:.3s; }
+  .pw-strength.weak   { background:#EF9A9A; width:33%; }
+  .pw-strength.medium { background:#FFB300; width:66%; }
+  .pw-strength.strong { background:#43A047; width:100%; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main-content">
+    <div class="page-header">
+      <div><h2>&#128101; Staff Users</h2><p>Manage team members and access levels</p></div>
+      <button class="btn btn-primary" id="btn-add-staff" style="display:none" onclick="openAddModal()">+ Add Staff</button>
+    </div>
+    <div class="page-body">
+
+      <!-- Tabs -->
+      <div class="tab-bar" id="user-tab-bar">
+        <button class="tab-btn active" id="tab-active-btn" onclick="switchTab('active')">
+          &#9989; Active <span class="tab-count" id="count-active">0</span>
+        </button>
+        <button class="tab-btn" id="tab-disabled-btn" onclick="switchTab('disabled')">
+          &#128683; Disabled / Previous <span class="tab-count grey" id="count-disabled">0</span>
+        </button>
+      </div>
+
+      <!-- Active Users Panel -->
+      <div class="tab-panel active" id="panel-active">
+        <div class="user-grid" id="user-grid-active">
+          <div class="loader-full"><div class="loader"></div></div>
+        </div>
+      </div>
+
+      <!-- Disabled Users Panel -->
+      <div class="tab-panel" id="panel-disabled">
+        <div class="user-grid" id="user-grid-disabled">
+          <div class="loader-full"><div class="loader"></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="preview-overlay" id="preview-modal" onclick="if(event.target===this)closePreview()">
+  <div class="preview-card">
+    <div class="preview-header" id="preview-header">
+      <button class="preview-close" onclick="closePreview()">&#10005;</button>
+      <div class="preview-av" id="preview-av"></div>
+      <div class="preview-name" id="preview-name"></div>
+      <div class="preview-username" id="preview-username"></div>
+    </div>
+    <div class="preview-body" id="preview-body"></div>
+    <div class="preview-actions" id="preview-actions"></div>
+  </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="pw-modal-overlay" id="pw-modal" onclick="if(event.target===this)closePwModal()">
+  <div class="pw-modal">
+    <div class="pw-modal-header">
+      <h3 id="pw-modal-title">🔑 Change Password</h3>
+      <button style="background:rgba(255,255,255,.2);border:none;color:#fff;font-size:18px;width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;" onclick="closePwModal()">✕</button>
+    </div>
+    <div class="pw-modal-body">
+      <div id="pw-modal-error" style="display:none;background:#FFEBEE;border:1px solid #EF9A9A;color:#C62828;padding:10px 12px;border-radius:8px;font-size:12px;margin-bottom:14px;"></div>
+      <div class="form-group">
+        <label class="form-label">New Password *</label>
+        <input type="password" id="pw-new" class="form-control" placeholder="Min 6 characters" oninput="checkPwStrength()">
+        <div class="pw-strength" id="pw-strength-bar"></div>
+        <div style="font-size:10px;color:#8D6E63;margin-top:3px;" id="pw-strength-label"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm Password *</label>
+        <input type="password" id="pw-confirm" class="form-control" placeholder="Re-enter password">
+      </div>
+    </div>
+    <div class="pw-modal-footer">
+      <button class="btn btn-secondary" onclick="closePwModal()">Cancel</button>
+      <button class="btn" style="background:linear-gradient(135deg,#1565C0,#1E88E5);color:#fff;" id="pw-save-btn" onclick="savePassword()">🔑 Set Password</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="user-modal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Add Staff User</span>
+      <button class="modal-close" onclick="closeModal()">&#10005;</button>
+    </div>
+    <div class="modal-body" style="padding:20px">
+      <div id="modal-error" style="display:none; background:#FFEBEE; border:1px solid #EF9A9A; color:#C62828; padding:10px 12px; border-radius:8px; font-size:12px; margin-bottom:14px;"></div>
+      <div class="form-group">
+        <label class="form-label">Full Name *</label>
+        <input type="text" id="m-name" class="form-control" placeholder="e.g. Ravi Kumar">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Username *</label>
+        <input type="text" id="m-username" class="form-control" placeholder="e.g. ravi123">
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="phone-label">Phone</label>
+        <input type="tel" id="m-phone" class="form-control" placeholder="10-digit mobile">
+      </div>
+      <div class="form-group" id="pw-group">
+        <label class="form-label">Password *</label>
+        <input type="password" id="m-password" class="form-control" placeholder="Min 6 characters">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Role</label>
+        <select id="m-role" class="form-control">
+          <option value="staff">&#128104;&#8205;&#127859; Staff (Order &amp; Bill)</option>
+          <option value="kitchen">&#127859; Kitchen (KOT &amp; Packing)</option>
+          <option value="delivery_boy">&#128757; Delivery Boy (Mobile)</option>
+          <option value="admin">&#128273; Admin (Full Access)</option>
+        </select>
+      </div>
+      <div class="form-group" id="status-group" style="display:none">
+        <label class="form-label">Status</label>
+        <select id="m-status" class="form-control">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive / Disabled</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="modal-save-btn" onclick="saveUser()">Save User</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+if (!authGuard()) throw 0;
+const user = getUser();
+const isAdmin = user && user.role === 'admin';
+const isStaff = user && user.role === 'staff';
+if (!isAdmin && !isStaff) { window.location.href='/billing.html'; throw 0; }
+initSidebar('users');
+
+if (isAdmin) {
+  document.getElementById('btn-add-staff').style.display = 'block';
+} else {
+  document.getElementById('user-tab-bar').style.display = 'none';
+}
+
+let editingId = null;
+let allUsers = []; // store for preview
+
+function switchTab(tab) {
+  const isActive = tab === 'active';
+  document.getElementById('tab-active-btn').classList.toggle('active', isActive);
+  document.getElementById('tab-disabled-btn').classList.toggle('active', !isActive);
+  document.getElementById('panel-active').classList.toggle('active', isActive);
+  document.getElementById('panel-disabled').classList.toggle('active', !isActive);
+}
+
+function roleBadge(role) {
+  if (role === 'admin')        return '<span class="badge-admin">&#128273; Admin</span>';
+  if (role === 'delivery_boy') return '<span class="badge-delivery">&#128757; Delivery Boy</span>';
+  if (role === 'kitchen')      return '<span class="badge-kitchen">&#127859; Kitchen</span>';
+  return '<span class="badge-staff">&#128104;&#8205;&#127859; Staff</span>';
+}
+
+function roleLabel(role) {
+  if (role === 'admin') return '🔑 Admin';
+  if (role === 'delivery_boy') return '🛵 Delivery Boy';
+  if (role === 'kitchen') return '🍳 Kitchen';
+  return '👨‍🍳 Staff';
+}
+
+function userCardHTML(u, isDisabled) {
+  const safeName  = escapeHtml(u.full_name);
+  const safeUser  = escapeHtml(u.username);
+  const safePhone = escapeHtml(u.phone || '');
+  const safeEmail = escapeHtml(u.email || '');
+
+  return `
+    <div class="user-card${isDisabled ? ' disabled-card' : ''}" onclick="openPreview(${u.id})">
+      <div class="card-top">
+        <div class="user-av${isDisabled ? ' av-disabled' : ''}">${safeName[0].toUpperCase()}</div>
+        <div class="card-header">
+          <div class="user-name">${safeName}</div>
+          <div class="user-username">@${safeUser}</div>
+        </div>
+      </div>
+      <div class="card-details">
+        ${safePhone ? `<div class="card-detail">📞 ${safePhone}</div>` : ''}
+        ${safeEmail ? `<div class="card-detail">📧 ${safeEmail}</div>` : ''}
+        <div class="card-detail">📅 Joined ${formatDate(u.created_at)}</div>
+      </div>
+      <div class="card-badges">
+        ${roleBadge(u.role)}
+        ${isDisabled
+          ? '<span class="badge-inactive">⛔ Disabled</span>'
+          : '<span class="badge-active">✅ Active</span>'}
+      </div>
+    </div>`;
+}
+
+// ─── Preview Modal ───
+function openPreview(userId) {
+  const u = allUsers.find(x => x.id === userId);
+  if (!u) return;
+  const safeName = escapeHtml(u.full_name);
+  const safeUser = escapeHtml(u.username);
+  const isDis = u.status !== 'active';
+
+  document.getElementById('preview-header').style.background =
+    isDis ? 'linear-gradient(135deg,#78909C,#90A4AE)' : 'linear-gradient(135deg,#E65100,#FF8F00)';
+  document.getElementById('preview-av').textContent = safeName[0].toUpperCase();
+  document.getElementById('preview-name').textContent = u.full_name;
+  document.getElementById('preview-username').textContent = '@' + u.username;
+
+  let rows = `
+    <div class="preview-row"><div class="preview-icon">👤</div><div class="preview-label">Role</div><div class="preview-value">${roleLabel(u.role)}</div></div>
+    <div class="preview-row"><div class="preview-icon">${isDis ? '⛔' : '✅'}</div><div class="preview-label">Status</div><div class="preview-value">${isDis ? 'Disabled' : 'Active'}</div></div>`;
+  if (u.phone) rows += `<div class="preview-row"><div class="preview-icon">📞</div><div class="preview-label">Phone</div><div class="preview-value">${escapeHtml(u.phone)}</div></div>`;
+  if (u.email) rows += `<div class="preview-row"><div class="preview-icon">📧</div><div class="preview-label">Email</div><div class="preview-value">${escapeHtml(u.email)}</div></div>`;
+  rows += `<div class="preview-row"><div class="preview-icon">📅</div><div class="preview-label">Joined</div><div class="preview-value">${formatDate(u.created_at)}</div></div>`;
+  document.getElementById('preview-body').innerHTML = rows;
+
+  // Admin actions
+  let actions = '';
+  if (isAdmin) {
+    const nameJS  = u.full_name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    const userJS  = u.username.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    const phoneJS = (u.phone||'').replace(/'/g,"\\'");
+    actions += `<button class="btn btn-secondary" onclick="closePreview();openEditModal(${u.id},'${nameJS}','${userJS}','${phoneJS}','${u.role}','${u.status}')">✏️ Edit</button>`;
+    actions += `<button class="btn" style="background:#E3F2FD;color:#1565C0;border:1px solid #90CAF9" onclick="closePreview();openChangePwModal(${u.id},'${nameJS}')">🔑 Change Password</button>`;
+    if (!isDis && u.id !== user.id) {
+      actions += `<button class="btn" style="background:#FFEBEE;color:#C62828;border:1px solid #EF9A9A" onclick="closePreview();deactivateUser(${u.id})">⛔ Disable</button>`;
+    }
+    if (isDis) {
+      actions += `<button class="btn btn-primary" onclick="closePreview();reactivateUser(${u.id})">✅ Re-enable</button>`;
+    }
+  }
+  document.getElementById('preview-actions').innerHTML = actions;
+
+  document.getElementById('preview-modal').classList.add('open');
+}
+
+function closePreview() {
+  document.getElementById('preview-modal').classList.remove('open');
+}
+
+// ─── Load Users ───
+async function loadUsers() {
+  ['active','disabled'].forEach(t => {
+    document.getElementById('user-grid-'+t).innerHTML = '<div class="loader-full"><div class="loader"></div></div>';
+  });
+  try {
+    const data     = await apiFetch('/users');
+    allUsers       = data.users;
+    const active   = data.users.filter(u => u.status === 'active');
+    const disabled = data.users.filter(u => u.status !== 'active');
+
+    document.getElementById('count-active').textContent   = active.length;
+    document.getElementById('count-disabled').textContent = disabled.length;
+
+    document.getElementById('user-grid-active').innerHTML = active.length
+      ? active.map(u => userCardHTML(u, false)).join('')
+      : '<div class="empty-state"><div class="empty-icon">&#128101;</div><p>No active staff yet.<br>Click <b>+ Add Staff</b> to get started.</p></div>';
+
+    document.getElementById('user-grid-disabled').innerHTML = disabled.length
+      ? disabled.map(u => userCardHTML(u, true)).join('')
+      : '<div class="empty-state"><div class="empty-icon">&#9989;</div><p>No disabled accounts.</p></div>';
+
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ─── Add / Edit Modal ───
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = 'Add Staff User';
+  document.getElementById('modal-error').style.display = 'none';
+  ['m-name','m-username','m-phone','m-password'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('m-role').value   = 'staff';
+  document.getElementById('m-status').value = 'active';
+  document.getElementById('pw-group').style.display     = 'block';
+  document.getElementById('status-group').style.display = 'none';
+  document.getElementById('m-username').disabled = false;
+  togglePhoneLabel();
+  document.getElementById('user-modal').classList.add('open');
+}
+
+function openEditModal(id, name, username, phone, role, status) {
+  editingId = id;
+  document.getElementById('modal-title').textContent = 'Edit Staff User';
+  document.getElementById('modal-error').style.display = 'none';
+  document.getElementById('m-name').value     = name;
+  document.getElementById('m-username').value = username;
+  document.getElementById('m-phone').value    = phone;
+  document.getElementById('m-role').value     = role;
+  document.getElementById('m-status').value   = status;
+  document.getElementById('pw-group').style.display     = 'none';
+  document.getElementById('status-group').style.display = 'block';
+  togglePhoneLabel();
+  document.getElementById('user-modal').classList.add('open');
+}
+
+function togglePhoneLabel() {
+  document.getElementById('phone-label').textContent =
+    document.getElementById('m-role').value === 'delivery_boy' ? 'Phone *' : 'Phone';
+}
+document.getElementById('m-role').addEventListener('change', togglePhoneLabel);
+
+function closeModal() { document.getElementById('user-modal').classList.remove('open'); }
+
+// ─── Change Password Modal ───
+let changePwUserId = null;
+function openChangePwModal(userId, name) {
+  changePwUserId = userId;
+  document.getElementById('pw-modal-title').textContent = `🔑 Change Password — ${name}`;
+  document.getElementById('pw-modal-error').style.display = 'none';
+  document.getElementById('pw-new').value = '';
+  document.getElementById('pw-confirm').value = '';
+  document.getElementById('pw-strength-bar').className = 'pw-strength';
+  document.getElementById('pw-strength-label').textContent = '';
+  document.getElementById('pw-modal').classList.add('open');
+}
+
+function closePwModal() {
+  document.getElementById('pw-modal').classList.remove('open');
+  changePwUserId = null;
+}
+
+function checkPwStrength() {
+  const val = document.getElementById('pw-new').value;
+  const bar = document.getElementById('pw-strength-bar');
+  const lbl = document.getElementById('pw-strength-label');
+  if (!val) { bar.className = 'pw-strength'; lbl.textContent = ''; return; }
+  if (val.length < 6) { bar.className = 'pw-strength weak'; lbl.textContent = '⚠️ Too short'; return; }
+  const hasUpper = /[A-Z]/.test(val);
+  const hasNum   = /[0-9]/.test(val);
+  const hasSpec  = /[^A-Za-z0-9]/.test(val);
+  const score = (hasUpper ? 1 : 0) + (hasNum ? 1 : 0) + (hasSpec ? 1 : 0);
+  if (score === 0) { bar.className = 'pw-strength weak'; lbl.textContent = '🟡 Weak password'; }
+  else if (score === 1) { bar.className = 'pw-strength medium'; lbl.textContent = '🟠 Medium password'; }
+  else { bar.className = 'pw-strength strong'; lbl.textContent = '🟢 Strong password'; }
+}
+
+async function savePassword() {
+  const errEl = document.getElementById('pw-modal-error');
+  errEl.style.display = 'none';
+  const newPw  = document.getElementById('pw-new').value;
+  const confPw = document.getElementById('pw-confirm').value;
+  if (newPw.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.style.display = 'block'; return; }
+  if (newPw !== confPw) { errEl.textContent = 'Passwords do not match.'; errEl.style.display = 'block'; return; }
+  const btn = document.getElementById('pw-save-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    await apiFetch(`/users/${changePwUserId}/password`, { method: 'PATCH', body: JSON.stringify({ new_password: newPw }) });
+    showToast('✅ Password changed successfully!', 'success');
+    closePwModal();
+  } catch(e) {
+    errEl.textContent = e.message; errEl.style.display = 'block';
+  } finally { btn.disabled = false; btn.textContent = '🔑 Set Password'; }
+}
+
+async function saveUser() {
+  const errEl = document.getElementById('modal-error');
+  errEl.style.display = 'none';
+  const btn = document.getElementById('modal-save-btn');
+  btn.disabled = true; btn.textContent = 'Saving\u2026';
+  try {
+    const role  = document.getElementById('m-role').value;
+    const phone = document.getElementById('m-phone').value.trim();
+    if (role === 'delivery_boy' && !phone) throw new Error('Phone number is required for Delivery Boys.');
+
+    if (editingId) {
+      await apiFetch(`/users/${editingId}`, { method:'PATCH', body: JSON.stringify({
+        full_name: document.getElementById('m-name').value.trim(),
+        username:  document.getElementById('m-username').value.trim(),
+        phone, role,
+        status: document.getElementById('m-status').value,
+      })});
+      if (editingId === user.id) {
+        const u = getUser();
+        u.full_name = document.getElementById('m-name').value.trim();
+        u.username  = document.getElementById('m-username').value.trim();
+        localStorage.setItem('pos_user', JSON.stringify(u));
+        initSidebar('users');
+      }
+    } else {
+      const pw = document.getElementById('m-password').value;
+      if (pw.length < 6) throw new Error('Password must be at least 6 characters.');
+      await apiFetch('/users', { method:'POST', body: JSON.stringify({
+        full_name: document.getElementById('m-name').value.trim(),
+        username:  document.getElementById('m-username').value.trim(),
+        password: pw, phone, role,
+      })});
+    }
+    closeModal();
+    showToast('User saved successfully', 'success');
+    loadUsers();
+  } catch(e) {
+    errEl.textContent = e.message; errEl.style.display = 'block';
+  } finally { btn.disabled = false; btn.textContent = 'Save User'; }
+}
+
+async function deactivateUser(id) {
+  confirmModal(
+    'Disable this staff account? They will no longer be able to log in.',
+    async () => {
+      try {
+        await apiFetch(`/users/${id}`, { method:'DELETE' });
+        showToast('Account disabled', 'success');
+        loadUsers();
+        switchTab('disabled');
+      } catch(e) { showToast('Could not disable account.', 'error'); }
+    },
+    { confirmLabel: 'Disable Account', confirmClass: 'btn-danger' }
+  );
+}
+
+async function reactivateUser(id) {
+  confirmModal(
+    'Re-enable this account? They will be able to log in again.',
+    async () => {
+      try {
+        await apiFetch(`/users/${id}`, { method:'PATCH', body: JSON.stringify({ status:'active' }) });
+        showToast('Account re-enabled', 'success');
+        loadUsers();
+        switchTab('active');
+      } catch(e) { showToast('Could not re-enable account.', 'error'); }
+    },
+    { confirmLabel: 'Re-enable', confirmClass: 'btn-primary' }
+  );
+}
+
+loadUsers();
+</script>
+</body>
+</html>

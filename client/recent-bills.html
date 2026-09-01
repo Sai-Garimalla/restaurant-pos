@@ -1,0 +1,1031 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recent Bills — Restaurant POS</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="alternate icon" href="assets/logo.png">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .filters {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .filters input,
+    .filters select {
+      flex: 1 1 120px;
+      min-width: 0;
+    }
+
+    .bill-detail-items table {
+      font-size: 12px;
+    }
+
+    /* Mobile card list */
+    .bills-card-list {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .bill-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .bill-card:active {
+      background: var(--surface2);
+    }
+
+    .bill-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .bill-card-left {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .bill-token {
+      background: var(--gradient);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 16px;
+      color: #fff;
+      min-width: 44px;
+      text-align: center;
+    }
+
+    .bill-card-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .bill-card-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #3E2000;
+    }
+
+    .bill-card-phone {
+      font-size: 13px;
+      font-weight: 600;
+      color: #E65100;
+    }
+
+    .bill-card-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .bill-card-right {
+      text-align: right;
+    }
+
+    .bill-card-amount {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--flame-light);
+    }
+
+    .bill-card-type {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Delivery status badge */
+    .ds-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .ds-pending {
+      background: #ECEFF1;
+      color: #546E7A;
+    }
+
+    .ds-preparing {
+      background: #FFF8E1;
+      color: #F57F17;
+    }
+
+    .ds-ready {
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+
+    .ds-picked_up {
+      background: #E3F2FD;
+      color: #1565C0;
+    }
+
+    .ds-delivered {
+      background: #F5F5F5;
+      color: #616161;
+    }
+
+    /* Payment status badges */
+    .pay-paid {
+      background: #E8F5E9;
+      color: #2E7D32;
+      border: 1px solid #A5D6A7;
+      padding: 2px 7px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .pay-partial {
+      background: #FFF8E1;
+      color: #F57F17;
+      border: 1px solid #FFD54F;
+      padding: 2px 7px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .pay-unpaid {
+      background: #FFEBEE;
+      color: #C62828;
+      border: 1px solid #EF9A9A;
+      padding: 2px 7px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .pay-na {
+      background: #F5F5F5;
+      color: #9E9E9E;
+      padding: 2px 7px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .pending-bal {
+      color: #C62828;
+      font-size: 10px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    /* Customer hero in modal */
+    .cust-hero {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      padding: 14px;
+      background: linear-gradient(135deg, #FFF8F0, #FFFDE7);
+      border-radius: 12px;
+      margin-bottom: 14px;
+      border: 1px solid #FFCC80;
+    }
+
+    .cust-hero-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .cust-hero-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #8D6E63;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .cust-hero-val {
+      font-size: 15px;
+      font-weight: 700;
+      color: #3E2000;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .cust-hero-val.big {
+      font-size: 18px;
+      color: #E65100;
+    }
+
+    .cust-hero-val.phone {
+      color: #1565C0;
+    }
+
+    .cust-hero-addr {
+      grid-column: 1 / -1;
+      background: #FFF3E0;
+      border: 1px solid #FFCC80;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: #3E2000;
+      font-weight: 600;
+    }
+
+    /* Delivery status selector in modal */
+    .delivery-status-bar {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      padding: 10px 14px;
+      background: #FFF8F0;
+      border-top: 1px solid #FFCC80;
+      flex-wrap: wrap;
+    }
+
+    .ds-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #8D6E63;
+    }
+
+    .ds-btn {
+      padding: 5px 12px;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid #FFCC80;
+      background: #fff;
+      color: #8D6E63;
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .ds-btn.active {
+      background: linear-gradient(135deg, #E65100, #FF8F00);
+      border-color: transparent;
+      color: #fff;
+    }
+
+    .ds-btn:hover:not(.active) {
+      border-color: #E65100;
+      color: #E65100;
+    }
+
+    /* Payment summary in modal */
+    .payment-summary {
+      background: #E8F5E9;
+      border: 1px solid #A5D6A7;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-top: 10px;
+    }
+
+    .payment-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 2px 0;
+    }
+
+    .payment-total-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 15px;
+      font-weight: 800;
+      color: #1565C0;
+      border-top: 1px solid #A5D6A7;
+      padding-top: 8px;
+      margin-top: 6px;
+    }
+
+    @media (max-width:1024px) {
+
+      .table-wrap,
+      #bills-table {
+        display: none;
+      }
+
+      .bills-card-list {
+        display: flex;
+      }
+
+      .filters input,
+      .filters select {
+        max-width: 100%;
+        flex: 1 1 140px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-shell">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="main-content">
+      <div class="page-header">
+        <div>
+          <h2>📋 Recent Bills</h2>
+          <p>Full billing history with reprint options</p>
+        </div>
+        <a href="/billing.html" class="btn btn-primary">+ New Bill</a>
+      </div>
+      <div class="page-body">
+        <div class="card">
+          <div class="filters" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+            <div style="display:flex; gap:4px; flex:1 1 200px;">
+              <input type="text" class="form-control" id="search-input"
+                placeholder="🔍 Find Name, bill no, phone, token…" onkeydown="if(e.key==='Enter') loadBills(1)"
+                oninput="debounceFilter()">
+              <button class="btn btn-primary" onclick="loadBills(1)"
+                style="padding:6px 14px; font-weight:700;">Find</button>
+            </div>
+            <select id="prefix-filter" class="form-control" onchange="loadBills(1)">
+              <option value="">All Order Types</option>
+              <option value="DIN">DIN — Dine-in</option>
+              <option value="Delivery">All Delivery</option>
+              <option value="Takeaway">All Takeaway</option>
+              <option value="DM">DM — Delivery (Morning)</option>
+              <option value="DE">DE — Delivery (Evening)</option>
+              <option value="TM">TM — Takeaway (Morning)</option>
+              <option value="TE">TE — Takeaway (Evening)</option>
+            </select>
+            <select id="payment-filter" class="form-control" onchange="loadBills(1)">
+              <option value="">All Payment Statuses</option>
+              <option value="paid">✅ Fully Paid</option>
+              <option value="partial">⚠️ Partial Paid</option>
+              <option value="unpaid">⚠️ Unpaid</option>
+              <option value="overpaid">💰 Overpaid (Change Due)</option>
+              <option value="change_unsettled">⏳ Unsettled Change</option>
+              <option value="change_settled">✅ Settled Change</option>
+            </select>
+            <div style="display:flex; align-items:center; gap:4px">
+              <input type="date" class="form-control" id="date-from" placeholder="From Date" onchange="loadBills(1)">
+              <span style="color:#8D6E63; font-weight:600;">to</span>
+              <input type="date" class="form-control" id="date-to" placeholder="To Date" onchange="loadBills(1)">
+            </div>
+            <select id="status-filter" class="form-control" onchange="loadBills(1)">
+              <option value="completed">✅ Completed</option>
+              <option value="cancelled">🚫 Cancelled</option>
+            </select>
+            <button class="btn btn-secondary" onclick="clearFilters()">Clear</button>
+            <button id="btn-mark-dinein" class="btn btn-success" style="display:none; font-weight:700;" onclick="markAllDineinPaid()">✅ Mark Dine-in Paid</button>
+            <span id="summary-text" style="font-size:12px;color:var(--text-muted);margin-left:auto"></span>
+          </div>
+          <div class="table-wrap">
+            <table id="bills-table">
+              <thead>
+                <tr>
+                  <th>Token</th>
+                  <th>Customer</th>
+                  <th>Phone</th>
+                  <th>Type</th>
+                  <th>Bill No</th>
+                  <th>Date &amp; Time</th>
+                  <th>Total</th>
+                  <th>Payment</th>
+                  <th>Status</th>
+                  <th>Cashier</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="bills-tbody">
+                <tr>
+                  <td colspan="11" style="text-align:center;padding:40px">
+                    <div class="loader"></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- Mobile card list (shown instead of table on small screens) -->
+          <div class="bills-card-list" id="bills-card-list"></div>
+          <div id="pagination" style="display:flex;justify-content:center;gap:8px;margin-top:14px;align-items:center">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bill Detail Modal -->
+  <div class="modal-overlay" id="bill-modal">
+    <div class="modal" style="max-width:640px">
+      <div class="modal-header">
+        <span class="modal-title" id="modal-bill-title">Bill Details</span>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body" id="bill-detail-content"></div>
+      <!-- Delivery Status Bar (admin/staff only, for delivery orders) -->
+      <div id="delivery-status-bar" style="display:none;" class="delivery-status-bar">
+        <span class="ds-label">Delivery Status:</span>
+        <button class="ds-btn" data-status="pending" onclick="setDeliveryStatus('pending', this)">⏳ Pending</button>
+        <button class="ds-btn" data-status="preparing" onclick="setDeliveryStatus('preparing', this)">🍳
+          Preparing</button>
+        <button class="ds-btn" data-status="ready" onclick="setDeliveryStatus('ready', this)">✅ Ready</button>
+        <button class="ds-btn" data-status="picked_up" onclick="setDeliveryStatus('picked_up', this)">📦 Picked
+          Up</button>
+        <button class="ds-btn" data-status="delivered" onclick="setDeliveryStatus('delivered', this)">🏁
+          Delivered</button>
+      </div>
+      <div id="modal-print-status" style="padding:0 10px 8px"></div>
+      <div class="modal-footer" style="flex-wrap: wrap; justify-content: center; padding: 14px 10px;">
+        <button class="btn btn-secondary"
+          style="flex:1; min-width: 100px; background:#FFEbee; color:#C62828; border-color:#EF9A9A" id="cancel-bill-btn"
+          onclick="cancelBill()">🚫 Cancel</button>
+        <button class="btn btn-secondary" style="flex:1; min-width: 100px;" onclick="closeModal()">✕ Close</button>
+        <button class="btn btn-secondary" style="flex:1; min-width: 100px;" id="edit-bill-btn">✏️ Edit</button>
+        <button class="btn btn-secondary" style="flex:1; min-width: 100px;" id="reprint-receipt-btn">🖨 Invoice</button>
+        <button class="btn btn-primary" style="flex:1 1 100%;" id="reprint-checklist-btn">🍳 Print KOT</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    if (!authGuard()) throw 0;
+    initSidebar('bills');
+
+    let currentPage = 1;
+    let currentBillId = null;
+    let currentBillData = null;
+    const currentUser = getUser();
+    const canManage = currentUser && (currentUser.role === 'admin' || currentUser.role === 'staff');
+
+    // Set default date range to today
+    const _today = new Date().toISOString().split('T')[0];
+    document.getElementById('date-from').value = _today;
+    document.getElementById('date-to').value = _today;
+
+    const DS_LABELS = { pending: '⏳ Pending', preparing: '🍳 Preparing', ready: '✅ Ready', picked_up: '📦 Picked Up', delivered: '🏁 Delivered' };
+    const PS_LABELS = { pending: '', packing: '🔥 Packing', packed: '✅ Packed' };
+
+    function paymentBadge(b) {
+      // Only show payment status for completed bills
+      if (b.status === 'cancelled') return '<span class="pay-na">Cancelled</span>';
+      const grand = parseFloat(b.grand_total || 0);
+      const cash = parseFloat(b.cash_collected || 0);
+      const upi = parseFloat(b.upi_collected || 0);
+      const collected = cash + upi;
+      if (grand <= 0) return '';
+      const diff = collected - grand;
+
+      if (collected <= 0) {
+        return `<span class="pay-unpaid">⚠️ Unpaid</span>`;
+      } else if (diff < -0.005) {
+        return `<span class="pay-partial">Partial</span><div class="pending-bal">-₹${Math.abs(diff).toFixed(2)} due</div>`;
+      } else if (diff > 0.005) {
+        if (b.change_settled) {
+          return `<span class="pay-paid" style="background:#E8F5E9;color:#2E7D32;border:1px solid #A5D6A7">✅ Settled (+₹${diff.toFixed(2)})</span>`;
+        } else {
+          const btn = canManage ? `<button onclick="event.stopPropagation(); toggleSettleChange(${b.bill_id})" style="margin-left:4px;padding:2px 6px;font-size:10px;font-weight:700;border-radius:6px;background:#00838F;color:#fff;border:none;cursor:pointer">Settle</button>` : '';
+          return `<span class="pay-partial" style="background:#E0F7FA;color:#006064;border:1px solid #80DEEA">💰 Change: ₹${diff.toFixed(2)}</span>${btn}`;
+        }
+      } else {
+        return `<span class="pay-paid">✅ Paid ₹${collected.toFixed(2)}</span>`;
+      }
+    }
+
+    function tokenStr(b) {
+      const pfx = b.token_prefix === 'T' ? 'DIN' : (b.token_prefix || 'DIN');
+      return '#' + pfx + b.token_number;
+    }
+    function dsbadge(status) {
+      if (!status) return '';
+      return `<span class="ds-badge ds-${status}">${DS_LABELS[status] || status}</span>`;
+    }
+    function psbadge(status) {
+      if (!status || status === 'pending') return '';
+      const bg = status === 'packed' ? '#E8F5E9' : '#FFF8E1';
+      const cl = status === 'packed' ? '#2E7D32' : '#F57F17';
+      const br = status === 'packed' ? '#A5D6A7' : '#FFD54F';
+      return `<span class="ds-badge" style="background:${bg};color:${cl};border:1px solid ${br}">${PS_LABELS[status]}</span>`;
+    }
+
+    async function loadBills(page = 1) {
+      currentPage = page;
+      const search = document.getElementById('search-input').value.trim();
+      const tokenPrefix = document.getElementById('prefix-filter').value;
+      const paymentStatus = document.getElementById('payment-filter').value;
+      const startDate = document.getElementById('date-from').value;
+      const endDate = document.getElementById('date-to').value;
+      const status = document.getElementById('status-filter').value;
+      const tbody = document.getElementById('bills-tbody');
+      tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:30px"><div class="loader"></div></td></tr>';
+
+      try {
+        const params = new URLSearchParams({ page, limit: 20 });
+        if (search) params.set('search', search);
+        if (tokenPrefix) params.set('token_prefix', tokenPrefix);
+        if (paymentStatus) params.set('payment_status', paymentStatus);
+        if (startDate) params.set('startDate', startDate);
+        if (endDate) params.set('endDate', endDate);
+        if (status) params.set('status', status);
+
+        const data = await apiFetch('/bills?' + params);
+        const { bills, pagination } = data;
+
+        if (!bills.length) {
+          tbody.innerHTML = '<tr><td colspan="11"><div class="empty-state"><div class="empty-icon">📋</div><p>No bills found matching filters</p></div></td></tr>';
+          document.getElementById('pagination').innerHTML = '';
+          document.getElementById('summary-text').textContent = '0 bills';
+          return;
+        }
+
+        document.getElementById('summary-text').textContent = `${pagination.total} bill(s) found`;
+
+        tbody.innerHTML = bills.map(b => {
+          const ot = (b.order_type || '').toLowerCase();
+          const isDelivery = ot.includes('delivery') || ot.includes('takeaway');
+          const payHtml = paymentBadge(b);
+          return `
+      <tr>
+        <td><span style="background:var(--gradient);padding:3px 10px;border-radius:6px;font-weight:800;font-size:13px">${tokenStr(b)}</span></td>
+        <td style="font-size:13px;font-weight:700;color:#3E2000">${b.customer_name ? escapeHtml(b.customer_name) : '<span style="color:var(--text-muted)">Walk-in</span>'}</td>
+        <td style="font-size:13px;font-weight:600;color:#E65100">${b.customer_phone ? escapeHtml(b.customer_phone) : '<span style="color:var(--text-muted)">—</span>'}</td>
+        <td style="font-size:12px;font-weight:600;color:var(--flame-light)">${escapeHtml(b.order_type || 'Dine-in')}</td>
+        <td style="font-size:11px;font-family:monospace">${escapeHtml(b.bill_number)}</td>
+        <td style="font-size:11px">${formatDateTime(b.created_at)}</td>
+        <td style="font-weight:700;color:var(--flame-light)">${formatCurrency(b.grand_total)}</td>
+        <td style="white-space:nowrap">${payHtml}</td>
+        <td style="white-space:nowrap">${isDelivery ? dsbadge(b.delivery_status) + ' ' + psbadge(b.packing_status) : ''}</td>
+        <td style="font-size:11px;color:var(--text-muted)">${escapeHtml(b.cashier_name || '—')}</td>
+        <td><button class="btn btn-secondary btn-sm" onclick="viewBill(${b.bill_id})">👁 View</button></td>
+      </tr>`}).join('');
+
+        const cardList = document.getElementById('bills-card-list');
+        cardList.innerHTML = bills.map(b => {
+          const ot = (b.order_type || '').toLowerCase();
+          const isDelivery = ot.includes('delivery') || ot.includes('takeaway');
+          const payHtml = paymentBadge(b);
+          return `
+      <div class="bill-card" onclick="viewBill(${b.bill_id})">
+        <div class="bill-card-top">
+          <div class="bill-card-left">
+            <div class="bill-token">${tokenStr(b)}</div>
+            <div class="bill-card-info">
+              <div class="bill-card-name">${escapeHtml(b.customer_name || 'Walk-in')}</div>
+              <div class="bill-card-phone">${b.customer_phone ? '📞 ' + escapeHtml(b.customer_phone) : ''}</div>
+              <div class="bill-card-meta">${formatDateTime(b.created_at)} · ${escapeHtml(b.order_type || 'Dine-in')}</div>
+            </div>
+          </div>
+          <div class="bill-card-right">
+            <div class="bill-card-amount">${formatCurrency(b.grand_total)}</div>
+            <div style="margin-top:4px">${payHtml}</div>
+            ${isDelivery ? `<div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">${dsbadge(b.delivery_status)} ${psbadge(b.packing_status)}</div>` : ''}
+            <div class="bill-card-type">${escapeHtml(b.cashier_name || '')}</div>
+          </div>
+        </div>
+      </div>`}).join('');
+
+        // Pagination
+        const pag = document.getElementById('pagination');
+        pag.innerHTML = '';
+        if (pagination.pages > 1) {
+          for (let i = 1; i <= pagination.pages; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-sm ' + (i === page ? 'btn-primary' : 'btn-secondary');
+            btn.textContent = i;
+            btn.onclick = () => loadBills(i);
+            pag.appendChild(btn);
+          }
+        }
+      } catch (e) { showToast(e.message, 'error'); }
+    }
+
+    async function viewBill(billId) {
+      currentBillId = billId;
+      currentBillData = null;
+      const content = document.getElementById('bill-detail-content');
+      content.innerHTML = '<div class="loader-full"><div class="loader"></div></div>';
+      document.getElementById('bill-modal').classList.add('open');
+      document.getElementById('delivery-status-bar').style.display = 'none';
+
+      try {
+        const { bill, items } = await apiFetch('/bills/' + billId);
+        currentBillData = bill;
+        document.getElementById('modal-bill-title').textContent = `Bill #${bill.bill_number}`;
+
+        const subtotal = parseFloat(bill.subtotal);
+        const delivery = parseFloat(bill.delivery_charge);
+        const discAmt = parseFloat(bill.discount_amount);
+        const grand = parseFloat(bill.grand_total);
+        const ot2 = (bill.order_type || '').toLowerCase();
+        const isDelivery = ot2.includes('delivery') || ot2.includes('takeaway');
+        const billPfx = bill.token_prefix === 'T' ? 'DIN' : (bill.token_prefix || 'DIN');
+        const billToken = '#' + billPfx + bill.token_number;
+
+        // Customer hero section
+        const customerHero = `
+      <div class="cust-hero">
+        <div class="cust-hero-field">
+          <span class="cust-hero-label">Token</span>
+          <span class="cust-hero-val big">${billToken}</span>
+        </div>
+        <div class="cust-hero-field" style="text-align:right;">
+          <span class="cust-hero-label">Total</span>
+          <span class="cust-hero-val big">₹${grand.toFixed(2)}</span>
+        </div>
+        <div class="cust-hero-field">
+          <span class="cust-hero-label">Customer Name</span>
+          <span class="cust-hero-val">${escapeHtml(bill.customer_name || '— Walk-in')}</span>
+        </div>
+        <div class="cust-hero-field">
+          <span class="cust-hero-label">Phone</span>
+          <a href="tel:${escapeHtml(bill.customer_phone || '')}" class="cust-hero-val phone" style="text-decoration:none;">${bill.customer_phone ? '📞 ' + escapeHtml(bill.customer_phone) : '—'}</a>
+        </div>
+        <div class="cust-hero-field">
+          <span class="cust-hero-label">Order Type</span>
+          <span class="cust-hero-val">${escapeHtml(bill.order_type || 'Dine-in')}</span>
+        </div>
+        <div class="cust-hero-field">
+          <span class="cust-hero-label">Date & Time</span>
+          <span class="cust-hero-val" style="font-size:12px;">${formatDateTime(bill.created_at)}</span>
+        </div>
+        ${bill.delivery_address ? `<div class="cust-hero-addr">📍 ${escapeHtml(bill.delivery_address)}</div>` : ''}
+        ${bill.custom_note ? `<div class="cust-hero-addr" style="background:#FFF8E1;border-color:#FFD54F;">📝 ${escapeHtml(bill.custom_note)}</div>` : ''}
+        ${isDelivery ? `
+        <div class="cust-hero-field">
+          <span class="cust-hero-label">Delivery Status</span>
+          <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">${dsbadge(bill.delivery_status)} ${psbadge(bill.packing_status)}</div>
+        </div>
+        <div class="cust-hero-field">
+          <span class="cust-hero-label">Assigned Driver</span>
+          <span class="cust-hero-val" style="font-size:13px">${escapeHtml(bill.assigned_to_name || '— Unassigned')}</span>
+        </div>` : ''}
+      </div>`;
+
+        // Items table
+        const itemsTable = `
+      <div style="font-size:11px;font-weight:700;color:#8D6E63;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">🛒 Items</div>
+      <div class="bill-detail-items table-wrap">
+        <table>
+          <thead><tr><th>Item</th><th>Code</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
+          <tbody>${items.map(i => `
+            <tr>
+              <td>
+                ${escapeHtml(i.item_name)}${i.is_manual ? ' <span class="badge badge-info">Manual</span>' : ''}
+                ${i.item_note ? `<div style="font-size:10px; color:#E65100; margin-top:2px;">↳ ${escapeHtml(i.item_note)}</div>` : ''}
+              </td>
+              <td style="font-size:10px">${i.item_code || '—'}</td>
+              <td>${i.quantity}</td>
+              <td>${formatCurrency(i.unit_price)}</td>
+              <td style="font-weight:600">${formatCurrency(i.line_total)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+
+        // Totals
+        const totalsBlock = `
+      <div style="margin-top:12px;padding:10px;background:var(--surface2);border-radius:8px;font-size:13px">
+        <div style="display:flex;justify-content:space-between;padding:3px 0"><span>Subtotal</span><span>${formatCurrency(subtotal)}</span></div>
+        ${bill.delivery_enabled ? `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>Delivery</span><span>${formatCurrency(delivery)}</span></div>` : ''}
+        ${bill.discount_enabled ? `<div style="display:flex;justify-content:space-between;padding:3px 0"><span>Discount</span><span style="color:#EF9A9A">-${formatCurrency(discAmt)}</span></div>` : ''}
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--border);margin-top:4px;font-size:15px;font-weight:800;color:var(--flame-light)"><span>GRAND TOTAL</span><span>${formatCurrency(grand)}</span></div>
+      </div>`;
+
+        // Payment status block (for all completed bills)
+        const cash = parseFloat(bill.cash_collected || 0);
+        const upi = parseFloat(bill.upi_collected || 0);
+        const collected = cash + upi;
+        const diff = collected - grand;
+
+        let paymentBlock = '';
+        if (bill.status === 'completed') {
+          let balHtml = '';
+          if (diff < -0.005) {
+            const markPaidHtml = canManage
+              ? `<div style="margin-top:8px; display:flex; gap:6px;">
+               <button onclick="markPaid(${billId}, ${grand}, 'cash')" style="flex:1; padding:6px; font-size:12px; font-weight:700; background:#E8F5E9; color:#2E7D32; border:1px solid #A5D6A7; border-radius:6px; cursor:pointer;">Mark Paid (Cash)</button>
+               <button onclick="markPaid(${billId}, ${grand}, 'upi')" style="flex:1; padding:6px; font-size:12px; font-weight:700; background:#E3F2FD; color:#1565C0; border:1px solid #90CAF9; border-radius:6px; cursor:pointer;">Mark Paid (UPI)</button>
+               <button onclick="showQR()" style="background:linear-gradient(135deg,#FF8F00,#E65100); color:#fff; border:none; border-radius:6px; padding:6px; font-size:12px; font-weight:800; cursor:pointer; flex-shrink:0;">📱 QR</button>
+             </div>`
+              : '';
+
+            balHtml = `<div style="background:#FFEBEE;border:1px solid #EF9A9A;border-radius:8px;padding:8px 12px;margin-top:8px;font-size:14px;font-weight:800;color:#C62828;">
+             <div style="display:flex;justify-content:space-between;"><span>⚠️ Pending Balance</span><span>-₹${Math.abs(diff).toFixed(2)}</span></div>
+             ${markPaidHtml}
+           </div>`;
+          } else if (diff > 0.005) {
+            const isSettled = bill.change_settled;
+            const settleBtnHtml = canManage
+              ? `<button onclick="toggleSettleChange(${billId})" style="margin-top:8px;width:100%;padding:8px;border-radius:8px;font-weight:800;font-size:13px;border:none;cursor:pointer;background:${isSettled ? '#FFF3E0;color:#E65100;border:1px solid #FFE0B2' : '#00838F;color:#fff'}">
+               ${isSettled ? '↩️ Unmark Change Settled' : '✅ Settle Extra Change (₹' + diff.toFixed(2) + ')'}
+             </button>`
+              : '';
+
+            balHtml = `<div style="background:${isSettled ? '#E8F5E9' : '#E0F7FA'};border:1px solid ${isSettled ? '#A5D6A7' : '#80DEEA'};border-radius:8px;padding:10px 12px;margin-top:8px;color:${isSettled ? '#2E7D32' : '#006064'};">
+             <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:800;">
+               <span>💰 Extra Cash Received</span><span>+₹${diff.toFixed(2)}</span>
+             </div>
+             <div style="font-size:11px;margin-top:4px;font-weight:600;">
+               Status: ${isSettled ? '✅ Change Settled with Customer/Admin' : '⏳ Change Unsettled (Due to customer)'}
+             </div>
+             ${settleBtnHtml}
+           </div>`;
+          }
+
+          paymentBlock = `
+        <div class="payment-summary" style="margin-top:12px;">
+          <div style="font-weight:700;color:#2E7D32;margin-bottom:8px;">💰 Payment Details</div>
+          <div class="payment-row"><span>💵 Cash</span><span style="font-weight:700;">₹${cash.toFixed(2)}</span></div>
+          <div class="payment-row"><span>📱 UPI</span><span style="font-weight:700;">₹${upi.toFixed(2)}</span></div>
+          <div class="payment-total-row"><span>Total Collected</span><span>₹${collected.toFixed(2)}</span></div>
+          ${balHtml}
+          ${bill.delivery_boy_name ? `<div style="font-size:11px;color:#8D6E63;margin-top:4px;">Delivered by: ${escapeHtml(bill.delivery_boy_name)}</div>` : ''}
+        </div>`;
+        }
+
+        content.innerHTML = customerHero + itemsTable + totalsBlock + paymentBlock;
+
+        // Delivery status bar + assignment for admin/staff
+        if (isDelivery && canManage) {
+          const bar = document.getElementById('delivery-status-bar');
+          bar.style.display = 'flex';
+          bar.querySelectorAll('.ds-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.status === bill.delivery_status);
+          });
+          // Load delivery boys for assignment dropdown
+          loadDeliveryBoyDropdown(billId, bill.assigned_delivery_boy);
+        }
+
+        // Wire up buttons
+        document.getElementById('reprint-receipt-btn').onclick = () => reprint(billId, 'receipt');
+        document.getElementById('reprint-checklist-btn').onclick = () => reprint(billId, 'checklist');
+        document.getElementById('edit-bill-btn').onclick = () => window.location.href = `/billing.html?edit_bill=${billId}`;
+        document.getElementById('cancel-bill-btn').style.display = bill.status === 'cancelled' ? 'none' : '';
+
+      } catch (e) {
+        console.error('Failed to load bill:', e);
+        content.innerHTML = `<p style="color:var(--danger)">Couldn't load bill details — please try again.</p>`;
+      }
+    }
+
+    async function toggleSettleChange(billId) {
+      try {
+        const res = await apiFetch(`/bills/${billId}/settle-change`, { method: 'POST' });
+        showToast(res.change_settled ? '✅ Extra change marked as settled' : '↩️ Change marked as unsettled');
+        if (currentBillId === billId) {
+          viewBill(billId);
+        }
+        loadBills(currentPage);
+      } catch (err) {
+        showToast('❌ ' + err.message, 'danger');
+      }
+    }
+
+    async function markPaid(billId, grandTotal, method) {
+      confirmModal(
+        `Mark bill as fully paid via ${method.toUpperCase()}?`,
+        async () => {
+          try {
+            await apiFetch(`/bills/${billId}/mark-paid`, {
+              method: 'POST',
+              body: JSON.stringify({ payment_method: method, grand_total: grandTotal })
+            });
+            showToast('✅ Bill marked as paid', 'success');
+            viewBill(billId);
+            loadBills(currentPage);
+          } catch (e) {
+            showToast('Couldn\'t mark as paid — please try again.', 'error');
+            console.error(e);
+          }
+        },
+        { confirmLabel: 'Mark Paid', confirmClass: 'btn-primary' }
+      );
+    }
+
+    async function setDeliveryStatus(status, btn) {
+      if (!currentBillId) return;
+      try {
+        await apiFetch(`/delivery/orders/${currentBillId}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ delivery_status: status })
+        });
+        document.querySelectorAll('#delivery-status-bar .ds-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.status === status);
+        });
+        showToast(`✅ Status updated to: ${DS_LABELS[status]}`, 'success');
+        loadBills(currentPage);
+      } catch (e) { showToast('❌ ' + e.message, 'error'); }
+    }
+
+    async function loadDeliveryBoyDropdown(billId, currentAssigned) {
+      const bar = document.getElementById('delivery-status-bar');
+      // Remove existing dropdown if any
+      const existing = document.getElementById('assign-row');
+      if (existing) existing.remove();
+      try {
+        const data = await apiFetch('/delivery/boys');
+        const boys = data.boys || [];
+        if (!boys.length) return;
+        const row = document.createElement('div');
+        row.id = 'assign-row';
+        row.style.cssText = 'width:100%;padding:8px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-top:1px solid #FFE0B2;margin-top:4px';
+        row.innerHTML = `
+      <span style="font-size:11px;font-weight:700;color:#8D6E63;flex-shrink:0">🛵 Assign:</span>
+      <select id="assign-select" style="flex:1;padding:6px 10px;border-radius:8px;border:1px solid #FFCC80;font-size:12px;min-width:120px;" onchange="">
+        <option value="">— Unassigned —</option>
+        ${boys.map(b => `<option value="${b.id}" ${currentAssigned == b.id ? 'selected' : ''}>${b.full_name}${b.phone ? ' (' + b.phone + ')' : ''}</option>`).join('')}
+      </select>
+      <button class="btn btn-primary btn-sm" onclick="assignDeliveryBoy(${billId})">✔ Assign</button>`;
+        bar.after(row);
+      } catch (e) { }
+    }
+
+    async function assignDeliveryBoy(billId) {
+      const sel = document.getElementById('assign-select');
+      if (!sel) return;
+      const boyId = sel.value || null;
+      try {
+        await apiFetch(`/delivery/orders/${billId}/assign`, {
+          method: 'PATCH', body: JSON.stringify({ delivery_boy_id: boyId })
+        });
+        showToast(boyId ? '✅ Delivery boy assigned!' : '✅ Assignment cleared.', 'success');
+        loadBills(currentPage);
+      } catch (e) { showToast('❌ ' + e.message, 'error'); }
+    }
+
+
+    async function reprint(billId, type) {
+      const statusEl = document.getElementById('modal-print-status');
+      statusEl.innerHTML = `<div style="padding:8px 12px;font-size:12px;color:#8D6E63;background:#FFF8F0;border-radius:8px;">⏳ Sending to printer…</div>`;
+      try {
+        const data = await apiFetch(`/billing/${billId}/reprint`, { method: 'POST', body: JSON.stringify({ type }) });
+        const pr = data.print_results || [];
+        if (!pr.length) {
+          statusEl.innerHTML = `<div style="background:#FFF3E0;border:1px solid #FFCC80;border-radius:8px;padding:8px 12px;font-size:12px;color:#8D6E63">⚠️ No printer configured. Go to Settings to add printer IP.</div>`;
+        } else {
+          statusEl.innerHTML = pr.map(p => {
+            const t = (p.type || '').toUpperCase();
+            if (p.queued) return `<div style="background:#E3F2FD;border:1px solid #90CAF9;border-radius:8px;padding:8px 12px;font-size:12px;color:#1565C0;margin-bottom:4px">🖨️ ${t}: Queued — ESP32 will print when connected</div>`;
+            if (p.success) return `<div style="background:#E8F5E9;border:1px solid #A5D6A7;border-radius:8px;padding:8px 12px;font-size:12px;color:#2E7D32;margin-bottom:4px">✅ ${t}: Printed successfully</div>`;
+            if (p.skipped) return `<div style="background:#FFF8DC;border:1px solid #F9A825;border-radius:8px;padding:8px 12px;font-size:12px;color:#F57F17;margin-bottom:4px">⚠️ ${t}: ${p.reason || 'Printer IP not configured in Settings'}</div>`;
+            return `<div style="background:#FFF3E0;border:1px solid #FFCC80;border-radius:8px;padding:8px 12px;font-size:12px;color:#8D6E63;margin-bottom:4px">📡 ${t}: Direct TCP failed — ESP32 may be off. Will retry via MQTT.</div>`;
+          }).join('');
+        }
+      } catch (e) {
+        statusEl.innerHTML = `<div style="background:#FFEBEE;border:1px solid #EF9A9A;border-radius:8px;padding:8px 12px;font-size:12px;color:#C62828">❌ Error: ${e.message}</div>`;
+      }
+    }
+
+    async function cancelBill() {
+      if (!currentBillId) return;
+      confirmModal(
+        'Are you sure you want to cancel this bill? This cannot be undone.',
+        async () => {
+          try {
+            await apiFetch(`/bills/${currentBillId}/cancel`, { method: 'POST' });
+            showToast('Bill cancelled', 'success');
+            closeModal();
+            loadBills(currentPage);
+          } catch (e) {
+            showToast('Couldn\'t cancel bill — please try again.', 'error');
+            console.error(e);
+          }
+        },
+        { confirmLabel: 'Cancel Bill', confirmClass: 'btn-danger', cancelLabel: 'Keep Bill' }
+      );
+    }
+
+    function closeModal() { document.getElementById('bill-modal').classList.remove('open'); }
+    function clearFilters() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('date-from').value = '';
+      document.getElementById('date-to').value = '';
+      document.getElementById('prefix-filter').value = '';
+      document.getElementById('payment-filter').value = '';
+      document.getElementById('status-filter').value = 'completed';
+      loadBills();
+    }
+
+    let _filterTimer = null;
+    function debounceFilter() { clearTimeout(_filterTimer); _filterTimer = setTimeout(() => loadBills(), 350); }
+    
+    async function markAllDineinPaid() {
+      confirmModal(
+        'Are you sure you want to mark ALL unpaid Dine-in orders as paid (Cash)?',
+        async () => {
+          try {
+            const res = await apiFetch('/bills/mark-all-dinein-paid', { method: 'POST' });
+            showToast(`✅ ${res.updatedCount} Dine-in order(s) marked as paid!`, 'success');
+            loadBills(currentPage);
+          } catch(e) {
+            showToast('❌ ' + e.message, 'error');
+          }
+        }
+      );
+    }
+    
+    if (canManage) {
+      document.getElementById('btn-mark-dinein').style.display = 'inline-block';
+    }
+    
+    loadBills();
+  </script>
+  <!-- QR Modal -->
+  <div id="qr-modal" onclick="hideQR()"
+    style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:9999; justify-content:center; align-items:center; flex-direction:column; padding:20px;">
+    <div onclick="event.stopPropagation()"
+      style="background:#fff; border-radius:24px; padding:24px 20px; max-width:340px; width:100%; text-align:center; box-shadow:0 24px 80px rgba(0,0,0,0.6);">
+      <div style="font-size:17px; font-weight:800; color:#E65100; margin-bottom:3px;">&#128241; Scan to Pay</div>
+      <div style="font-size:12px; color:#8D6E63; margin-bottom:14px;">Choose a payment QR to show customer</div>
+
+      <!-- QR Tab Switcher -->
+      <div style="display:flex; background:#FFF3E0; border-radius:14px; padding:4px; gap:4px; margin-bottom:16px;">
+        <button id="db-tab-gpay" onclick="switchQR('gpay')"
+          style="flex:1; padding:8px 0; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; transition:.2s;">QR
+          1</button>
+        <button id="db-tab-paytm" onclick="switchQR('paytm')"
+          style="flex:1; padding:8px 0; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; background:transparent; color:#8D6E63; transition:.2s;">QR
+          2</button>
+      </div>
+
+      <!-- GPay / PhonePe QR -->
+      <div id="db-qr-gpay">
+        <img src="assets/payment_qr.png" alt="GPay / PhonePe QR"
+          style="width:100%; max-width:280px; border-radius:14px; border:2px solid #FFE0B2;"
+          onerror="this.style.display='none'; document.getElementById('qr-fallback').style.display='block'">
+        <div id="qr-fallback"
+          style="display:none; padding:30px; background:#FFF3E0; border-radius:12px; color:#E65100; font-size:13px; font-weight:700;">
+          &#9888;&#65039; QR not found.<br><span style="font-size:11px; color:#8D6E63; font-weight:400;">Add
+            payment_qr.png to client/assets/</span></div>
+      </div>
+
+      <!-- Paytm QR -->
+      <div id="db-qr-paytm" style="display:none;">
+        <img src="assets/paytm_qr.jpg" alt="Paytm QR"
+          style="width:100%; max-width:280px; border-radius:14px; border:2px solid #80DEEA;"
+          onerror="this.style.display='none'; document.getElementById('db-qr-paytm-fallback').style.display='block'">
+        <div id="db-qr-paytm-fallback"
+          style="display:none; padding:30px; background:#E0F7FA; border-radius:12px; color:#00838F; font-size:13px; font-weight:700;">
+          &#9888;&#65039; Paytm QR not found.</div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <button onclick="hideQR()"
+          style="background:#F5F5F5; border:none; border-radius:12px; padding:12px 36px; font-size:14px; font-weight:700; cursor:pointer; color:#555;">&#10005;
+          Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showQR() {
+      const modal = document.getElementById('qr-modal');
+      modal.style.display = 'flex';
+      switchQR('gpay'); // always reset to GPay tab on open
+    }
+
+    function hideQR() {
+      document.getElementById('qr-modal').style.display = 'none';
+    }
+
+    function switchQR(which) {
+      const gpayPanel = document.getElementById('db-qr-gpay');
+      const paytmPanel = document.getElementById('db-qr-paytm');
+      const btnGpay = document.getElementById('db-tab-gpay');
+      const btnPaytm = document.getElementById('db-tab-paytm');
+
+      if (which === 'gpay') {
+        gpayPanel.style.display = 'block';
+        paytmPanel.style.display = 'none';
+        btnGpay.style.background = 'linear-gradient(135deg,#E65100,#FF8F00)';
+        btnGpay.style.color = '#fff';
+        btnPaytm.style.background = 'transparent';
+        btnPaytm.style.color = '#8D6E63';
+      } else {
+        gpayPanel.style.display = 'none';
+        paytmPanel.style.display = 'block';
+        btnPaytm.style.background = 'linear-gradient(135deg,#E65100,#FF8F00)';
+        btnPaytm.style.color = '#fff';
+        btnGpay.style.background = 'transparent';
+        btnGpay.style.color = '#8D6E63';
+      }
+    }
+    // Close on Escape key
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') hideQR(); });
+  </script>
+</body>
+
+</html>

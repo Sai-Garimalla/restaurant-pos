@@ -1,0 +1,445 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kitchen Display System — Restaurant POS</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" href="assets/logo.png">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* Standard App Theme for Kitchen */
+  .kitchen-header { padding: 14px 16px; background: #fff; border-bottom: 1px solid #FFE0B2; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .kitchen-header h2 { margin: 0; font-size: 18px; color: #E65100; }
+  .kitchen-header p  { margin: 3px 0 0; font-size: 11px; color: #8D6E63; }
+  .kitchen-clock { font-size: 22px; font-weight: 800; color: #3E2000; font-family: monospace; }
+  .kitchen-date  { font-size: 11px; color: #8D6E63; text-align: right; }
+
+  /* Tabs */
+  .type-tabs, .pack-tabs { display: flex; gap: 6px; padding: 10px 14px; overflow-x: auto; border-bottom: 1px solid #FFE0B2; background: #FFF8F0; }
+  .type-tabs { background: #fff; }
+  .pack-tab, .type-tab { padding: 6px 16px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid #FFCC80; background: #FFF3E0; color: #8D6E63; cursor: pointer; white-space: nowrap; transition: all .15s; }
+  .pack-tab.active, .type-tab.active { background: linear-gradient(135deg, #E65100, #FF8F00); border-color: transparent; color: #fff; }
+
+  /* Summary bar */
+  .summary-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px 14px; background: #FFF8F0; }
+  .sum-box { background: #fff; border-radius: 10px; padding: 10px; text-align: center; border: 1px solid #FFE0B2; }
+  .sum-num { font-size: 24px; font-weight: 800; color: #E65100; }
+  .sum-lbl { font-size: 10px; color: #8D6E63; margin-top: 2px; text-transform: uppercase; font-weight: 700; }
+
+  /* Order cards */
+  .kot-list { padding: 12px; display: flex; flex-direction: column; gap: 10px; background: #FFF8F0; min-height: 100vh; }
+  .kot-card { border-radius: 14px; overflow: hidden; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.05); transition: transform .15s; border: 1px solid #FFE0B2; }
+  .kot-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(230,81,0,0.1); }
+  .kot-card.pack-pending  { border: 2px solid #90A4AE; }
+  .kot-card.pack-packing  { border: 2px solid #FFB300; }
+  .kot-card.pack-packed   { border: 2px solid #43A047; opacity: .9; }
+
+  .kot-head { padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px; border-bottom: 1px solid #FFE0B2; }
+  .kot-head.pack-pending  { background: #ECEFF1; }
+  .kot-head.pack-packing  { background: #FFF8E1; }
+  .kot-head.pack-packed   { background: #E8F5E9; }
+
+  .kot-chk-wrap { display: flex; align-items: center; justify-content: center; padding-right: 8px; }
+  .kot-checkbox { width: 22px; height: 22px; cursor: pointer; accent-color: #E65100; }
+
+  .kot-token { font-size: 24px; font-weight: 900; color: #E65100; min-width: 60px; }
+  .kot-info  { flex: 1; }
+  .kot-name  { font-size: 15px; font-weight: 800; color: #3E2000; }
+  .kot-phone { font-size: 12px; color: #E65100; margin-top: 2px; font-weight: 600; }
+  .kot-type  { font-size: 11px; color: #8D6E63; margin-top: 2px; font-weight: 600; }
+  .kot-time  { font-size: 11px; color: #8D6E63; text-align: right; font-weight: 600; }
+  .pack-badge { padding: 4px 12px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
+  .pb-pending { background: #607D8B; color: #fff; }
+  .pb-packing { background: #FFB300; color: #fff; }
+  .pb-packed  { background: #43A047; color: #fff; }
+
+  /* Items */
+  .kot-items { background: #fff; }
+  .kot-item  { display: flex; align-items: center; padding: 10px 14px; border-bottom: 1px dashed #FFE0B2; gap: 12px; }
+  .kot-item:last-child { border-bottom: none; }
+  .item-name { flex: 1; font-size: 14px; font-weight: 700; color: #3E2000; }
+  .item-note-text { font-size: 11px; color: #E65100; margin-top: 2px; font-weight: 600; }
+  .item-qty  { font-size: 20px; font-weight: 900; color: #E65100; min-width: 32px; text-align: right; }
+
+  /* Note / address bar */
+  .kot-note  { background: #FFF3E0; padding: 8px 14px; font-size: 12px; color: #E65100; border-bottom: 1px solid #FFE0B2; font-weight: 600; }
+
+  /* Action buttons */
+  .kot-actions { display: flex; gap: 8px; padding: 12px 14px; background: #FAFAFA; border-top: 1px solid #FFE0B2; }
+  .btn-packing { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer; transition: all .15s; }
+  .btn-start  { background: linear-gradient(135deg, #FFB300, #FF8F00); color: #fff; }
+  .btn-done   { background: linear-gradient(135deg, #43A047, #2E7D32); color: #fff; }
+  .btn-start:hover, .btn-done:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+  .no-orders { text-align: center; padding: 80px 20px; color: #8D6E63; }
+  .no-orders .icon { font-size: 56px; margin-bottom: 14px; }
+  .no-orders p { font-size: 15px; font-weight: 600; }
+
+  /* Date filter pills */
+  .date-pills { display:flex; gap:6px; flex-wrap:wrap; padding:10px 14px; background:#fff; border-bottom:1px solid #FFE0B2; align-items:center; }
+  .dp { padding:5px 13px; border-radius:20px; font-size:11px; font-weight:700; border:1px solid #FFCC80; background:#FFF3E0; color:#8D6E63; cursor:pointer; white-space:nowrap; transition:all .15s; }
+  .dp.active { background:linear-gradient(135deg,#E65100,#FF8F00); border-color:transparent; color:#fff; }
+  .dp-custom-inputs { display:none; gap:6px; align-items:center; }
+  .dp-custom-inputs.show { display:flex; }
+  .dp-custom-inputs input { background:#fff; border:1px solid #FFCC80; color:#3E2000; border-radius:8px; padding:5px 10px; font-size:11px; font-weight:600; }
+
+  /* Bulk Actions */
+  .bulk-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: #fff; border-bottom: 1px solid #FFE0B2; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main-content" style="padding:0; background:#FFF8F0;">
+
+    <div class="kitchen-header">
+      <div>
+        <h2>🍳 Kitchen — KOT & Packing</h2>
+        <p>Mark orders as Packing → Packed to notify delivery</p>
+      </div>
+      <div style="text-align:right;">
+        <div class="kitchen-clock" id="kitchen-clock">--:--:--</div>
+        <div class="kitchen-date" id="kitchen-date">Loading…</div>
+      </div>
+    </div>
+
+    <div class="summary-bar">
+      <div class="sum-box"><div class="sum-num" id="cnt-pending">0</div><div class="sum-lbl">⏳ Pending</div></div>
+      <div class="sum-box"><div class="sum-num" id="cnt-packing">0</div><div class="sum-lbl">🔥 Packing</div></div>
+      <div class="sum-box"><div class="sum-num" id="cnt-packed">0</div><div class="sum-lbl">✅ Packed</div></div>
+    </div>
+
+    <!-- Date Filter Pills -->
+    <div class="date-pills" id="kitchen-date-pills">
+      <button class="dp active" data-dp="today" onclick="setKitchenDate('today', this)">📅 Today</button>
+      <button class="dp" data-dp="yesterday" onclick="setKitchenDate('yesterday', this)">Yesterday</button>
+      <button class="dp" data-dp="week" onclick="setKitchenDate('week', this)">Last 7 Days</button>
+      <button class="dp" data-dp="month" onclick="setKitchenDate('month', this)">1 Month</button>
+      <button class="dp" data-dp="custom" onclick="setKitchenDate('custom', this)">📅 Custom</button>
+      <div class="dp-custom-inputs" id="kitchen-custom-dates">
+        <input type="date" id="kitchen-date-from" onchange="loadOrders()" title="From date">
+        <span style="color:#8D6E63;font-size:11px;font-weight:600">to</span>
+        <input type="date" id="kitchen-date-to" onchange="loadOrders()" title="To date">
+      </div>
+    </div>
+
+    <div class="filters" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:10px 14px; background:#fff; border-bottom:1px solid #FFE0B2;">
+      <div style="display:flex; gap:4px; flex:1 1 200px;">
+        <input type="text" class="form-control" id="kitchen-search-input" placeholder="🔍 Find Token, Order #, Item, Customer…" oninput="renderKOT()" style="flex:1; border-radius:8px; padding:6px 12px; border:1px solid #FFCC80; background:#FFF3E0; color:#3E2000; font-weight:600;">
+        <button class="btn btn-primary" onclick="renderKOT()" style="padding:6px 14px; font-weight:700; border-radius:8px; background:linear-gradient(135deg,#E65100,#FF8F00); border:none; color:#fff;">Find</button>
+      </div>
+    </div>
+
+    <!-- Type Tabs -->
+    <div class="type-tabs">
+      <button class="type-tab active" data-type="all" onclick="filterType('all', this)">📋 All Types</button>
+      <button class="type-tab" data-type="takeaway" onclick="filterType('takeaway', this)">🥡 Takeaway</button>
+      <button class="type-tab" data-type="delivery" onclick="filterType('delivery', this)">🛵 Delivery</button>
+      <button class="type-tab" data-type="dinein" onclick="filterType('dinein', this)">🪑 Dine-in</button>
+    </div>
+
+    <div class="pack-tabs">
+      <button class="pack-tab active" data-filter="pending" onclick="filterKOT('pending', this)">⏳ Pending</button>
+      <button class="pack-tab" data-filter="packing" onclick="filterKOT('packing', this)">🔥 Packing</button>
+      <button class="pack-tab" data-filter="packed"  onclick="filterKOT('packed', this)">✅ Packed</button>
+      <button class="pack-tab" data-filter="all"     onclick="filterKOT('all', this)">📋 All</button>
+    </div>
+
+    <!-- Bulk Actions -->
+    <div class="bulk-bar">
+      <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:800; color:#E65100; cursor:pointer;">
+        <input type="checkbox" id="chk-all" onchange="toggleSelectAll()" style="width:18px; height:18px; accent-color:#E65100;">
+        Select All
+      </label>
+      <div style="flex:1"></div>
+      <button class="btn btn-sm btn-secondary" onclick="bulkUpdate('packing')" style="font-weight:700; background:#FFF3E0; color:#E65100; border-color:#FFCC80;">🔥 Mark Packing</button>
+      <button class="btn btn-sm btn-success" onclick="bulkUpdate('packed')" style="font-weight:700;">✅ Mark Packed</button>
+    </div>
+
+    <div class="kot-list" id="kot-list">
+      <div class="no-orders"><div class="icon">⏳</div><p>Loading orders…</p></div>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+if (!authGuard(['kitchen','admin','staff'])) throw 0;
+initSidebar('kitchen');
+
+let allOrders = [];
+let currentFilter = 'pending';
+let currentType = 'all';
+let kitchenDatePeriod = 'today';
+let selectedOrders = new Set();
+let currentlyDisplayedIds = [];
+
+// Live clock
+function updateClock() {
+  const now = new Date();
+  const timeOpts = { timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' };
+  const dateOpts = { timeZone: 'Asia/Kolkata', weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' };
+  
+  document.getElementById('kitchen-clock').textContent = new Intl.DateTimeFormat('en-IN', timeOpts).format(now);
+  document.getElementById('kitchen-date').textContent = new Intl.DateTimeFormat('en-IN', dateOpts).format(now);
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+function getKitchenDateParams() {
+  const now = new Date(Date.now() + 5.5 * 60 * 60 * 1000); // IST
+  const todayStr = now.toISOString().split('T')[0];
+  if (kitchenDatePeriod === 'today') return `date=${todayStr}`;
+  if (kitchenDatePeriod === 'yesterday') {
+    const y = new Date(now); y.setDate(y.getDate() - 1);
+    return `date=${y.toISOString().split('T')[0]}`;
+  }
+  if (kitchenDatePeriod === 'week') {
+    const f = new Date(now); f.setDate(f.getDate() - 6);
+    return `from=${f.toISOString().split('T')[0]}&to=${todayStr}`;
+  }
+  if (kitchenDatePeriod === 'month') {
+    const f = new Date(now); f.setDate(f.getDate() - 29);
+    return `from=${f.toISOString().split('T')[0]}&to=${todayStr}`;
+  }
+  if (kitchenDatePeriod === 'year') {
+    const f = new Date(now); f.setFullYear(f.getFullYear() - 1);
+    return `from=${f.toISOString().split('T')[0]}&to=${todayStr}`;
+  }
+  if (kitchenDatePeriod === 'custom') {
+    const fr = document.getElementById('kitchen-date-from').value;
+    const to = document.getElementById('kitchen-date-to').value;
+    if (fr && to) return `from=${fr}&to=${to}`;
+    if (fr) return `from=${fr}&to=${todayStr}`;
+  }
+  return `date=${todayStr}`;
+}
+
+function setKitchenDate(period, btn) {
+  kitchenDatePeriod = period;
+  document.querySelectorAll('.dp').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const customDiv = document.getElementById('kitchen-custom-dates');
+  if (period === 'custom') { customDiv.classList.add('show'); }
+  else { customDiv.classList.remove('show'); loadOrders(); }
+}
+
+function tokenDisplay(order) {
+  const pfx = order.token_prefix === 'T' ? 'DIN' : (order.token_prefix || 'DIN');
+  return '#' + pfx + String(order.token_number).padStart(3, '0');
+}
+
+async function loadOrders() {
+  try {
+    const params = getKitchenDateParams();
+    const data = await apiFetch('/delivery/kitchen/orders?' + params);
+    allOrders = data.orders || [];
+    updateSummary();
+    renderKOT();
+  } catch (e) {
+    document.getElementById('kot-list').innerHTML = `<div class="no-orders"><div class="icon">❌</div><p>Couldn't load orders — please try again.</p></div>`;
+    console.error('KOT load error:', e);
+  }
+}
+
+function updateSummary() {
+  document.getElementById('cnt-pending').textContent = allOrders.filter(o => o.packing_status === 'pending').length;
+  document.getElementById('cnt-packing').textContent = allOrders.filter(o => o.packing_status === 'packing').length;
+  document.getElementById('cnt-packed').textContent  = allOrders.filter(o => o.packing_status === 'packed').length;
+}
+
+function filterKOT(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.pack-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  selectedOrders.clear();
+  document.getElementById('chk-all').checked = false;
+  renderKOT();
+}
+
+function filterType(type, btn) {
+  currentType = type;
+  document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  selectedOrders.clear();
+  document.getElementById('chk-all').checked = false;
+  renderKOT();
+}
+
+function toggleCheck(bid) {
+  if (selectedOrders.has(bid)) selectedOrders.delete(bid);
+  else selectedOrders.add(bid);
+  
+  const allChecked = currentlyDisplayedIds.length > 0 && currentlyDisplayedIds.every(id => selectedOrders.has(id));
+  document.getElementById('chk-all').checked = allChecked;
+}
+
+function toggleSelectAll() {
+  const isChecked = document.getElementById('chk-all').checked;
+  if (isChecked) {
+    currentlyDisplayedIds.forEach(id => selectedOrders.add(id));
+  } else {
+    selectedOrders.clear();
+  }
+  renderKOT();
+}
+
+async function bulkUpdate(status) {
+  if (selectedOrders.size === 0) return showToast('Select at least one order!', 'warning');
+  const arr = Array.from(selectedOrders);
+  
+  // Show loading state on buttons
+  const originalHtml = document.querySelector('.bulk-bar').innerHTML;
+  
+  try {
+    // Process them sequentially to avoid hammering DB
+    for (const bid of arr) {
+      await apiFetch(`/delivery/kitchen/orders/${bid}/packing`, {
+        method: 'PATCH', body: JSON.stringify({ packing_status: status })
+      });
+      const order = allOrders.find(o => o.bill_id === bid);
+      if (order) {
+        order.packing_status = status;
+        if (status === 'packed') order.delivery_status = 'ready';
+      }
+    }
+    showToast(`✅ ${arr.length} order(s) marked as ${status}`, 'success');
+    selectedOrders.clear();
+    document.getElementById('chk-all').checked = false;
+    updateSummary();
+    renderKOT();
+  } catch (e) {
+    showToast('❌ ' + e.message, 'error');
+  }
+}
+
+async function renderKOT() {
+  const list = document.getElementById('kot-list');
+  const searchInput = document.getElementById('kitchen-search-input');
+  const q = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+  let orders = currentFilter === 'all' ? allOrders : allOrders.filter(o => o.packing_status === currentFilter);
+
+  // Type filter
+  if (currentType !== 'all') {
+    orders = orders.filter(o => (o.order_type || '').toLowerCase().includes(currentType));
+  }
+
+  // Search filter
+  if (q) {
+    orders = orders.filter(o => {
+      const token = `#${o.token_prefix || ''}${o.token_number}`.toLowerCase();
+      const name  = (o.customer_name || '').toLowerCase();
+      const phone = (o.customer_phone || '').toLowerCase();
+      const bill  = (o.bill_number || '').toLowerCase();
+      const items = (o._items || []).map(i => i.item_name).join(' ').toLowerCase();
+      return token.includes(q) || name.includes(q) || phone.includes(q) || bill.includes(q) || items.includes(q);
+    });
+  }
+
+  currentlyDisplayedIds = orders.map(o => o.bill_id);
+
+  if (!orders.length) {
+    list.innerHTML = `<div class="no-orders"><div class="icon">🍳</div><p>No KOT orders matching your filters</p></div>`;
+    return;
+  }
+
+  // For each order, fetch items if not cached
+  const html = await Promise.all(orders.map(async order => {
+    let items = order._items;
+    if (!items) {
+      try {
+        const d = await apiFetch(`/delivery/kitchen/orders/${order.bill_id}`);
+        items = d.items || [];
+        order._items = items;
+      } catch(e) { items = []; }
+    }
+
+    const bid = order.bill_id;
+    const ps = order.packing_status || 'pending';
+    const ot = (order.order_type || '').toLowerCase();
+    const isDelivery = ot.includes('delivery');
+    const isTakeaway = ot.includes('takeaway');
+    const typeBadge = isDelivery ? '🛵 Delivery' : (isTakeaway ? '🥡 Takeaway' : '🪑 Dine-in');
+    
+    const checkedHtml = selectedOrders.has(bid) ? 'checked' : '';
+
+    return `
+      <div class="kot-card pack-${ps}" id="kot-${bid}">
+        <div class="kot-head pack-${ps}">
+          <div class="kot-chk-wrap">
+            <input type="checkbox" class="kot-checkbox" ${checkedHtml} onclick="toggleCheck(${bid})">
+          </div>
+          <div class="kot-token">${tokenDisplay(order)}</div>
+          <div class="kot-info">
+            <div class="kot-name">${escapeHtml(order.customer_name || 'Walk-in')}</div>
+            ${order.customer_phone ? `<div class="kot-phone">📞 ${escapeHtml(order.customer_phone)}</div>` : ''}
+            <div class="kot-type">${typeBadge} · ${escapeHtml(order.order_type || 'Dine-in')}</div>
+          </div>
+          <div>
+            <span class="pack-badge pb-${ps}">${ps === 'pending' ? '⏳ Pending' : (ps === 'packing' ? '🔥 Packing' : '✅ Packed')}</span>
+            <div class="kot-time" style="margin-top:6px">${formatDateTime(order.created_at)}</div>
+          </div>
+        </div>
+
+        ${order.delivery_address ? `<div class="kot-note">📍 ${escapeHtml(order.delivery_address)}</div>` : ''}
+        ${order.custom_note ? `<div class="kot-note" style="color:#BF360C;">📝 ${escapeHtml(order.custom_note)}</div>` : ''}
+
+        <div class="kot-items">
+          ${items.map(item => `
+            <div class="kot-item">
+              <div class="item-name">
+                ${escapeHtml(item.item_name)}
+                ${item.item_note ? `<div class="item-note-text">↳ ${escapeHtml(item.item_note)}</div>` : ''}
+              </div>
+              <div class="item-qty">×${item.quantity}</div>
+            </div>`).join('')}
+        </div>
+
+        <div class="kot-actions">
+          ${ps === 'pending' ? `
+            <button class="btn-packing btn-start" onclick="updatePacking(${bid}, 'packing')">🔥 Start Packing</button>
+          ` : ''}
+          ${ps === 'packing' ? `
+            <button class="btn-packing btn-start" style="background:#ECEFF1; color:#546E7A" onclick="updatePacking(${bid}, 'pending')">↩ Revert</button>
+            <button class="btn-packing btn-done" onclick="updatePacking(${bid}, 'packed')">✅ Mark Packed</button>
+          ` : ''}
+          ${ps === 'packed' ? `
+            <button class="btn-packing btn-start" style="background:#FFF3E0; color:#E65100; border:1px solid #FFCC80;" onclick="updatePacking(${bid}, 'packing')">↩ Reopen</button>
+            <div style="flex:1;display:flex;align-items:center;justify-content:center;color:#43A047;font-weight:800;font-size:13px">✅ Order Packed & Ready</div>
+          ` : ''}
+        </div>
+      </div>`;
+  }));
+
+  list.innerHTML = html.join('');
+  
+  // Sync select-all checkbox visually
+  const allChecked = currentlyDisplayedIds.length > 0 && currentlyDisplayedIds.every(id => selectedOrders.has(id));
+  document.getElementById('chk-all').checked = allChecked;
+}
+
+async function updatePacking(billId, status) {
+  try {
+    await apiFetch(`/delivery/kitchen/orders/${billId}/packing`, {
+      method: 'PATCH', body: JSON.stringify({ packing_status: status })
+    });
+    const order = allOrders.find(o => o.bill_id === billId);
+    if (order) {
+      order.packing_status = status;
+      if (status === 'packed') order.delivery_status = 'ready';
+    }
+    const msgs = { pending: '↩ Reverted to Pending', packing: '🔥 Started Packing!', packed: '✅ Order Packed!' };
+    showToast(msgs[status] || 'Updated', 'success');
+    updateSummary();
+    renderKOT();
+  } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+// Auto-refresh every 20 seconds
+setInterval(() => { loadOrders(); }, 20000);
+loadOrders();
+</script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Restaurant POS — Login</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" href="assets/logo.png">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  body { background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%); display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+  .login-bg { position: fixed; inset: 0; background: radial-gradient(ellipse at 20% 50%, rgba(230,81,0,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(245,124,0,0.07) 0%, transparent 60%); pointer-events: none; }
+  .login-card { background: #FFFFFF; border: 1px solid #FFCC80; border-radius: 18px; width: 400px; padding: 36px 32px; box-shadow: 0 12px 40px rgba(245,124,0,0.15); position: relative; z-index: 1; animation: fadeUp .4s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .login-logo { text-align: center; margin-bottom: 28px; }
+  .login-logo img { width: 80px; height: 80px; object-fit: contain; }
+  .login-logo h1 { font-size: 22px; font-weight: 800; color: #E65100; margin-top: 8px; }
+  .login-logo p { font-size: 12px; color: #8D6E63; margin-top: 4px; }
+  .form-label { font-size: 12px; font-weight: 600; color: #5D3A1A; display: block; margin-bottom: 5px; }
+  .form-control { width: 100%; padding: 10px 14px; border: 1.5px solid #FFCC80; border-radius: 8px; background: #FFFDE7; color: #3E2000; font-size: 13px; outline: none; transition: border .2s, box-shadow .2s; }
+  .form-control:focus { border-color: #E65100; box-shadow: 0 0 0 3px rgba(230,81,0,0.12); }
+  .form-control::placeholder { color: #BCAAA4; }
+  .form-group { margin-bottom: 16px; }
+  .pw-wrapper { position: relative; display: flex; align-items: center; }
+  .pw-toggle { position: absolute; right: 12px; background: none; border: none; cursor: pointer; font-size: 14px; color: #8D6E63; padding: 0; outline: none; }
+  .pw-wrapper .form-control { padding-right: 36px; }
+  .remember-row { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
+  .remember-row input[type=checkbox] { accent-color: #E65100; width: 14px; height: 14px; cursor: pointer; }
+  .remember-row label { font-size: 12px; color: #8D6E63; cursor: pointer; }
+  .btn-login { width: 100%; padding: 13px; font-size: 14px; font-weight: 700; border-radius: 9px; border: none; cursor: pointer; background: linear-gradient(135deg,#E65100,#FF8F00); color: #fff; transition: opacity .2s; }
+  .btn-login:hover { opacity: .9; }
+  .btn-login:disabled { opacity: .6; cursor: not-allowed; }
+  .setup-link { text-align: center; margin-top: 14px; font-size: 12px; color: #8D6E63; }
+  .setup-link a { color: #E65100; cursor: pointer; font-weight: 600; }
+  .setup-link a:hover { text-decoration: underline; }
+  .error-msg { background: #FFEBEE; border: 1px solid #EF9A9A; color: #C62828; padding: 10px 12px; border-radius: 7px; font-size: 12px; margin-bottom: 14px; display: none; }
+  #setup-card { display: none; }
+</style>
+</head>
+<body>
+<div class="login-bg"></div>
+
+<!-- Login Card -->
+<div class="login-card" id="login-card">
+  <div class="login-logo">
+    <img src="assets/logo.png" alt="Restaurant POS">
+    <h1 id="login-brand-name">Restaurant POS</h1>
+    <p>Restaurant Management System</p>
+  </div>
+  <form class="login-form" id="login-form" autocomplete="on">
+    <div id="login-error" class="error-msg"></div>
+    <div class="form-group">
+      <label class="form-label">Username or Email</label>
+      <input id="login-identifier" type="text" class="form-control" placeholder="Enter username or email" autocomplete="username" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <div class="pw-wrapper">
+        <input id="login-password" type="password" class="form-control" placeholder="Enter password" autocomplete="current-password" required>
+        <button type="button" class="pw-toggle" onclick="togglePassword('login-password', this)" tabindex="-1" title="Toggle visibility">👁️</button>
+      </div>
+    </div>
+    <div class="remember-row">
+      <input type="checkbox" id="remember-me">
+      <label for="remember-me">Remember me for 30 days</label>
+    </div>
+    <button type="submit" class="btn btn-primary btn-login" id="login-btn">Sign In</button>
+    <div class="setup-link">First time? <a id="goto-setup">Set up admin account</a></div>
+  </form>
+</div>
+
+<!-- Setup Card -->
+<div class="login-card" id="setup-card">
+  <div class="login-logo">
+    <span class="flame-icon">🔥</span>
+    <h1>Create Admin Account</h1>
+    <p>One-time setup</p>
+  </div>
+  <form id="setup-form">
+    <div id="setup-error" class="error-msg"></div>
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <input id="setup-name" type="text" class="form-control" placeholder="Your full name" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input id="setup-username" type="text" class="form-control" placeholder="admin" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input id="setup-email" type="email" class="form-control" placeholder="admin@example.com" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <div class="pw-wrapper">
+        <input id="setup-password" type="password" class="form-control" placeholder="Strong password" required>
+        <button type="button" class="pw-toggle" onclick="togglePassword('setup-password', this)" tabindex="-1" title="Toggle visibility">👁️</button>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary btn-login">Create Admin Account</button>
+    <div class="setup-link"><a id="back-to-login">← Back to Login</a></div>
+  </form>
+</div>
+
+<script>
+const API = '/api';
+
+async function checkSetup() {
+  try {
+    const r = await fetch(`${API}/auth/setup-status`);
+    const d = await r.json();
+    if (d.needsSetup) showSetup();
+  } catch(e) {}
+}
+
+function showSetup() {
+  document.getElementById('login-card').style.display = 'none';
+  document.getElementById('setup-card').style.display = 'block';
+}
+
+function showLogin() {
+  document.getElementById('setup-card').style.display = 'none';
+  document.getElementById('login-card').style.display = 'block';
+}
+
+function togglePassword(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁️';
+  }
+}
+
+// Check if already logged in
+const token = localStorage.getItem('pos_token');
+if (token) {
+  fetch(`${API}/auth/verify`, { headers: { Authorization: `Bearer ${token}` } })
+    .then(r => r.json()).then(d => { if (d.valid) window.location.href = '/dashboard.html'; })
+    .catch(() => {});
+}
+
+checkSetup();
+
+// Load restaurant name from server config
+fetch('/api/settings/public').then(r => r.json()).then(d => {
+  if (d && d.restaurant_name) {
+    const el = document.getElementById('login-brand-name');
+    if (el) el.textContent = d.restaurant_name;
+  }
+}).catch(() => {});
+
+document.getElementById('goto-setup').addEventListener('click', showSetup);
+document.getElementById('back-to-login').addEventListener('click', showLogin);
+
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-error');
+  err.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Signing in...';
+  try {
+    const r = await fetch(`${API}/auth/login`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        identifier: document.getElementById('login-identifier').value,
+        password: document.getElementById('login-password').value,
+        rememberMe: document.getElementById('remember-me').checked
+      })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Login failed');
+    localStorage.setItem('pos_token', d.token);
+    localStorage.setItem('pos_user', JSON.stringify(d.user));
+    window.location.href = '/dashboard.html';
+  } catch (ex) {
+    err.textContent = ex.message; err.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Sign In';
+  }
+});
+
+document.getElementById('setup-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const err = document.getElementById('setup-error');
+  err.style.display = 'none';
+  try {
+    const r = await fetch(`${API}/auth/setup`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        full_name: document.getElementById('setup-name').value,
+        username: document.getElementById('setup-username').value,
+        email: document.getElementById('setup-email').value,
+        password: document.getElementById('setup-password').value
+      })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Setup failed');
+    showLogin();
+  } catch (ex) {
+    err.textContent = ex.message; err.style.display = 'block';
+  }
+});
+</script>
+</body>
+</html>

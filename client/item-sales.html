@@ -1,0 +1,253 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Item Sales Report — Restaurant POS</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" href="assets/logo.png">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .filters { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
+  .filters input, .filters select { max-width:180px; }
+  .tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 16px; overflow-x:auto; }
+  .tab-btn { padding: 10px 16px; font-weight: 700; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all .2s; white-space:nowrap; }
+  .tab-btn.active { color: var(--flame-light); border-bottom-color: var(--flame-light); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
+  tr:hover { background: var(--surface2); }
+  .cat-header { background: #FFF8F0; font-weight: 700; font-size: 14px; color: #E65100; text-transform: uppercase; }
+  .qty-col { font-weight: 700; color: #1565C0; }
+  .rev-col { font-weight: 700; color: #2E7D32; }
+
+  /* Time filter label row */
+  .time-filter-row { display:flex; gap:8px; align-items:center; }
+  .time-filter-row label { font-size:11px; color:var(--text-muted); font-weight:600; }
+  .time-filter-row input { max-width:120px; }
+
+  @media (max-width:700px) {
+    .filters { flex-direction:column; align-items:stretch; }
+    .filters input, .filters select { max-width:100%; }
+    .time-filter-row { flex-wrap:wrap; }
+    .time-filter-row input { flex:1; }
+  }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main-content">
+    <div class="page-header">
+      <div><h2>📊 Item Sales Report</h2><p>Track performance of menu items</p></div>
+      <button class="btn btn-success" onclick="exportCSV()">📥 Export CSV</button>
+    </div>
+    
+    <div class="page-body">
+      <div class="card">
+        <div class="filters">
+          <select id="period-filter" class="form-control" onchange="toggleCustomDates(); loadData()">
+            <option value="today">Today</option>
+            <option value="yesterday">Yesterday</option>
+            <option value="week">Last 7 Days</option>
+            <option value="month">This Month</option>
+            <option value="all">All Time</option>
+            <option value="custom">Custom Date Range</option>
+          </select>
+          <select id="day-filter" class="form-control" onchange="loadData()">
+            <option value="">All Days</option>
+            <option value="1">Sunday</option>
+            <option value="2">Monday</option>
+            <option value="3">Tuesday</option>
+            <option value="4">Wednesday</option>
+            <option value="5">Thursday</option>
+            <option value="6">Friday</option>
+            <option value="7">Saturday</option>
+          </select>
+          <div id="custom-dates" style="display:none; gap:10px; flex-wrap:wrap;">
+            <input type="date" id="date-from" class="form-control" onchange="loadData()" placeholder="From">
+            <input type="date" id="date-to" class="form-control" onchange="loadData()" placeholder="To">
+          </div>
+          <div class="time-filter-row">
+            <label>⏰ From:</label>
+            <input type="time" id="time-from" class="form-control" onchange="loadData()">
+            <label>To:</label>
+            <input type="time" id="time-to" class="form-control" onchange="loadData()">
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="clearFilters()" style="padding:8px 14px;">✖ Clear</button>
+        </div>
+        
+        <div class="tabs">
+          <div class="tab-btn active" onclick="switchTab('sorted')" id="tab-btn-sorted">Most Sold Items</div>
+          <div class="tab-btn" onclick="switchTab('category')" id="tab-btn-category">Category Wise</div>
+        </div>
+        
+        <div id="loader" style="padding:40px;text-align:center;"><div class="loader"></div></div>
+        
+        <div id="content-sorted" class="tab-content active">
+          <div class="table-wrap">
+            <table id="sorted-table">
+              <thead><tr>
+                <th>Item Name</th><th>Code</th><th>Category</th><th>Quantity Sold</th><th>Revenue (₹)</th>
+              </tr></thead>
+              <tbody id="sorted-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div id="content-category" class="tab-content">
+          <div class="table-wrap">
+            <table id="category-table">
+              <thead><tr>
+                <th>Item Name</th><th>Code</th><th>Quantity Sold</th><th>Revenue (₹)</th>
+              </tr></thead>
+              <tbody id="category-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+if (!authGuard()) throw 0;
+initSidebar('item-sales');
+
+let currentData = [];
+
+function toggleCustomDates() {
+  const isCustom = document.getElementById('period-filter').value === 'custom';
+  document.getElementById('custom-dates').style.display = isCustom ? 'flex' : 'none';
+}
+
+function clearFilters() {
+  document.getElementById('time-from').value = '';
+  document.getElementById('time-to').value = '';
+  document.getElementById('day-filter').value = '';
+  document.getElementById('period-filter').value = 'today';
+  toggleCustomDates();
+  loadData();
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => {
+    c.classList.remove('active');
+    c.style.display = 'none';
+  });
+  document.getElementById('tab-btn-' + tab).classList.add('active');
+  const activeContent = document.getElementById('content-' + tab);
+  activeContent.classList.add('active');
+  activeContent.style.display = '';
+}
+
+async function loadData() {
+  const period = document.getElementById('period-filter').value;
+  const fDate = document.getElementById('date-from').value;
+  const tDate = document.getElementById('date-to').value;
+  const fTime = document.getElementById('time-from').value;
+  const tTime = document.getElementById('time-to').value;
+  const dayF  = document.getElementById('day-filter').value;
+  
+  document.getElementById('loader').style.display = 'block';
+  document.getElementById('content-sorted').style.display = 'none';
+  document.getElementById('content-category').style.display = 'none';
+  
+  try {
+    let url = `/dashboard/item-sales?period=${period}`;
+    if (period === 'custom' && fDate) url += `&from=${fDate}`;
+    if (period === 'custom' && tDate) url += `&to=${tDate}`;
+    if (fTime) url += `&from_time=${fTime}`;
+    if (tTime) url += `&to_time=${tTime}`;
+    if (dayF) url += `&day=${dayF}`;
+    
+    const data = await apiFetch(url);
+    currentData = data.items || [];
+    renderTables();
+  } catch(e) {
+    showToast(e.message, 'error');
+  } finally {
+    document.getElementById('loader').style.display = 'none';
+    switchTab(document.querySelector('.tab-btn.active').id.replace('tab-btn-',''));
+  }
+}
+
+function renderTables() {
+  // Sorted Tab
+  const sTbody = document.getElementById('sorted-tbody');
+  sTbody.innerHTML = currentData.map(i => `
+    <tr>
+      <td style="font-weight:600; color:#3E2000;">${escapeHtml(i.item_name)}</td>
+      <td style="font-size:11px;">${escapeHtml(i.item_code || '—')}</td>
+      <td style="font-size:11px;">${escapeHtml(i.category || 'Uncategorized')}</td>
+      <td class="qty-col">${i.qty}</td>
+      <td class="rev-col">${formatCurrency(i.revenue)}</td>
+    </tr>
+  `).join('');
+  
+  // Category Tab
+  const cTbody = document.getElementById('category-tbody');
+  
+  // Group by category
+  const grouped = {};
+  currentData.forEach(i => {
+    const cat = i.category || 'Uncategorized';
+    if(!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(i);
+  });
+  
+  let cHtml = '';
+  Object.keys(grouped).sort().forEach(cat => {
+    const catTotalQty = grouped[cat].reduce((sum, i) => sum + Number(i.qty), 0);
+    const catTotalRev = grouped[cat].reduce((sum, i) => sum + Number(i.revenue), 0);
+    
+    cHtml += `
+      <tr class="cat-header">
+        <td colspan="2">${escapeHtml(cat)}</td>
+        <td>${catTotalQty}</td>
+        <td>${formatCurrency(catTotalRev)}</td>
+      </tr>
+    `;
+    grouped[cat].forEach(i => {
+      cHtml += `
+        <tr>
+          <td style="padding-left:24px; font-weight:600; color:#3E2000;">${escapeHtml(i.item_name)}</td>
+          <td style="font-size:11px;">${escapeHtml(i.item_code || '—')}</td>
+          <td class="qty-col">${i.qty}</td>
+          <td class="rev-col">${formatCurrency(i.revenue)}</td>
+        </tr>
+      `;
+    });
+  });
+  
+  cTbody.innerHTML = cHtml;
+}
+
+function exportCSV() {
+  if (!currentData.length) return showToast('No data to export', 'warning');
+  
+  let csv = 'Item Name,Code,Category,Quantity Sold,Revenue\n';
+  currentData.forEach(i => {
+    const name = `"${(i.item_name || '').replace(/"/g, '""')}"`;
+    const cat = `"${(i.category || 'Uncategorized').replace(/"/g, '""')}"`;
+    csv += `${name},${i.item_code || ''},${cat},${i.qty},${i.revenue}\n`;
+  });
+  
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `item_sales_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+}
+
+loadData();
+</script>
+</body>
+</html>
