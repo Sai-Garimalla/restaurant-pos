@@ -65,6 +65,8 @@ router.post('/login', authLimiter, async (req, res) => {
     return res.status(400).json({ error: 'Username/email and password are required.' });
   }
 
+  const cleanIdentifier = String(identifier).trim();
+
   // Always authenticate against the MAIN production DB.
   // After login, the auth middleware handles test/main routing per-role.
   const isTest = false;
@@ -72,8 +74,8 @@ router.post('/login', authLimiter, async (req, res) => {
   asyncLocalStorage.run({ isTest }, async () => {
     try {
       const [rows] = await pool.execute(
-        "SELECT * FROM users WHERE (username=? OR email=?) AND status='active'",
-        [identifier, identifier]
+        "SELECT * FROM users WHERE (LOWER(username)=LOWER(?) OR LOWER(email)=LOWER(?)) AND status='active'",
+        [cleanIdentifier, cleanIdentifier]
       );
 
       if (rows.length === 0) {

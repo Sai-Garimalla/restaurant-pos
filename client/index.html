@@ -171,7 +171,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     const r = await fetch(`${API}/auth/login`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        identifier: document.getElementById('login-identifier').value,
+        identifier: document.getElementById('login-identifier').value.trim(),
         password: document.getElementById('login-password').value,
         rememberMe: document.getElementById('remember-me').checked
       })
