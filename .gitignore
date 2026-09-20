@@ -10,3 +10,7 @@ logs/
 .env.production
 server/env-config.js
 config.json
+
+# Local launcher scripts (machine-specific)
+start-server.bat
+create-shortcut.ps1

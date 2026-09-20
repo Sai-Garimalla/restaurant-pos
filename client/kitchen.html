@@ -9,46 +9,46 @@
 <link rel="stylesheet" href="css/style.css">
 <style>
   /* Standard App Theme for Kitchen */
-  .kitchen-header { padding: 14px 16px; background: #fff; border-bottom: 1px solid #FFE0B2; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-  .kitchen-header h2 { margin: 0; font-size: 18px; color: #E65100; }
-  .kitchen-header p  { margin: 3px 0 0; font-size: 11px; color: #8D6E63; }
-  .kitchen-clock { font-size: 22px; font-weight: 800; color: #3E2000; font-family: monospace; }
-  .kitchen-date  { font-size: 11px; color: #8D6E63; text-align: right; }
+  .kitchen-header { padding: 14px 16px; background: #fff; border-bottom: 1px solid #FCE8EC; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .kitchen-header h2 { margin: 0; font-size: 18px; color: #8B1E3F; }
+  .kitchen-header p  { margin: 3px 0 0; font-size: 11px; color: #8A5967; }
+  .kitchen-clock { font-size: 22px; font-weight: 800; color: #2D0E17; font-family: monospace; }
+  .kitchen-date  { font-size: 11px; color: #8A5967; text-align: right; }
 
   /* Tabs */
-  .type-tabs, .pack-tabs { display: flex; gap: 6px; padding: 10px 14px; overflow-x: auto; border-bottom: 1px solid #FFE0B2; background: #FFF8F0; }
+  .type-tabs, .pack-tabs { display: flex; gap: 6px; padding: 10px 14px; overflow-x: auto; border-bottom: 1px solid #FCE8EC; background: #FFF9FA; }
   .type-tabs { background: #fff; }
-  .pack-tab, .type-tab { padding: 6px 16px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid #FFCC80; background: #FFF3E0; color: #8D6E63; cursor: pointer; white-space: nowrap; transition: all .15s; }
-  .pack-tab.active, .type-tab.active { background: linear-gradient(135deg, #E65100, #FF8F00); border-color: transparent; color: #fff; }
+  .pack-tab, .type-tab { padding: 6px 16px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid #F0CBD3; background: #FDF2F4; color: #8A5967; cursor: pointer; white-space: nowrap; transition: all .15s; }
+  .pack-tab.active, .type-tab.active { background: linear-gradient(135deg, #8B1E3F, #B83256); border-color: transparent; color: #fff; }
 
   /* Summary bar */
-  .summary-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px 14px; background: #FFF8F0; }
-  .sum-box { background: #fff; border-radius: 10px; padding: 10px; text-align: center; border: 1px solid #FFE0B2; }
-  .sum-num { font-size: 24px; font-weight: 800; color: #E65100; }
-  .sum-lbl { font-size: 10px; color: #8D6E63; margin-top: 2px; text-transform: uppercase; font-weight: 700; }
+  .summary-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px 14px; background: #FFF9FA; }
+  .sum-box { background: #fff; border-radius: 10px; padding: 10px; text-align: center; border: 1px solid #FCE8EC; }
+  .sum-num { font-size: 24px; font-weight: 800; color: #8B1E3F; }
+  .sum-lbl { font-size: 10px; color: #8A5967; margin-top: 2px; text-transform: uppercase; font-weight: 700; }
 
   /* Order cards */
-  .kot-list { padding: 12px; display: flex; flex-direction: column; gap: 10px; background: #FFF8F0; min-height: 100vh; }
-  .kot-card { border-radius: 14px; overflow: hidden; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.05); transition: transform .15s; border: 1px solid #FFE0B2; }
-  .kot-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(230,81,0,0.1); }
+  .kot-list { padding: 12px; display: flex; flex-direction: column; gap: 10px; background: #FFF9FA; min-height: 100vh; }
+  .kot-card { border-radius: 14px; overflow: hidden; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.05); transition: transform .15s; border: 1px solid #FCE8EC; }
+  .kot-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(139,30,63,0.07); }
   .kot-card.pack-pending  { border: 2px solid #90A4AE; }
   .kot-card.pack-packing  { border: 2px solid #FFB300; }
   .kot-card.pack-packed   { border: 2px solid #43A047; opacity: .9; }
 
-  .kot-head { padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px; border-bottom: 1px solid #FFE0B2; }
+  .kot-head { padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px; border-bottom: 1px solid #FCE8EC; }
   .kot-head.pack-pending  { background: #ECEFF1; }
   .kot-head.pack-packing  { background: #FFF8E1; }
   .kot-head.pack-packed   { background: #E8F5E9; }
 
   .kot-chk-wrap { display: flex; align-items: center; justify-content: center; padding-right: 8px; }
-  .kot-checkbox { width: 22px; height: 22px; cursor: pointer; accent-color: #E65100; }
+  .kot-checkbox { width: 22px; height: 22px; cursor: pointer; accent-color: #8B1E3F; }
 
-  .kot-token { font-size: 24px; font-weight: 900; color: #E65100; min-width: 60px; }
+  .kot-token { font-size: 24px; font-weight: 900; color: #8B1E3F; min-width: 60px; }
   .kot-info  { flex: 1; }
-  .kot-name  { font-size: 15px; font-weight: 800; color: #3E2000; }
-  .kot-phone { font-size: 12px; color: #E65100; margin-top: 2px; font-weight: 600; }
-  .kot-type  { font-size: 11px; color: #8D6E63; margin-top: 2px; font-weight: 600; }
-  .kot-time  { font-size: 11px; color: #8D6E63; text-align: right; font-weight: 600; }
+  .kot-name  { font-size: 15px; font-weight: 800; color: #2D0E17; }
+  .kot-phone { font-size: 12px; color: #8B1E3F; margin-top: 2px; font-weight: 600; }
+  .kot-type  { font-size: 11px; color: #8A5967; margin-top: 2px; font-weight: 600; }
+  .kot-time  { font-size: 11px; color: #8A5967; text-align: right; font-weight: 600; }
   .pack-badge { padding: 4px 12px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
   .pb-pending { background: #607D8B; color: #fff; }
   .pb-packing { background: #FFB300; color: #fff; }
@@ -56,42 +56,42 @@
 
   /* Items */
   .kot-items { background: #fff; }
-  .kot-item  { display: flex; align-items: center; padding: 10px 14px; border-bottom: 1px dashed #FFE0B2; gap: 12px; }
+  .kot-item  { display: flex; align-items: center; padding: 10px 14px; border-bottom: 1px dashed #FCE8EC; gap: 12px; }
   .kot-item:last-child { border-bottom: none; }
-  .item-name { flex: 1; font-size: 14px; font-weight: 700; color: #3E2000; }
-  .item-note-text { font-size: 11px; color: #E65100; margin-top: 2px; font-weight: 600; }
-  .item-qty  { font-size: 20px; font-weight: 900; color: #E65100; min-width: 32px; text-align: right; }
+  .item-name { flex: 1; font-size: 14px; font-weight: 700; color: #2D0E17; }
+  .item-note-text { font-size: 11px; color: #8B1E3F; margin-top: 2px; font-weight: 600; }
+  .item-qty  { font-size: 20px; font-weight: 900; color: #8B1E3F; min-width: 32px; text-align: right; }
 
   /* Note / address bar */
-  .kot-note  { background: #FFF3E0; padding: 8px 14px; font-size: 12px; color: #E65100; border-bottom: 1px solid #FFE0B2; font-weight: 600; }
+  .kot-note  { background: #FDF2F4; padding: 8px 14px; font-size: 12px; color: #8B1E3F; border-bottom: 1px solid #FCE8EC; font-weight: 600; }
 
   /* Action buttons */
-  .kot-actions { display: flex; gap: 8px; padding: 12px 14px; background: #FAFAFA; border-top: 1px solid #FFE0B2; }
+  .kot-actions { display: flex; gap: 8px; padding: 12px 14px; background: #FAFAFA; border-top: 1px solid #FCE8EC; }
   .btn-packing { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer; transition: all .15s; }
-  .btn-start  { background: linear-gradient(135deg, #FFB300, #FF8F00); color: #fff; }
+  .btn-start  { background: linear-gradient(135deg, #FFB300, #B83256); color: #fff; }
   .btn-done   { background: linear-gradient(135deg, #43A047, #2E7D32); color: #fff; }
   .btn-start:hover, .btn-done:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
-  .no-orders { text-align: center; padding: 80px 20px; color: #8D6E63; }
+  .no-orders { text-align: center; padding: 80px 20px; color: #8A5967; }
   .no-orders .icon { font-size: 56px; margin-bottom: 14px; }
   .no-orders p { font-size: 15px; font-weight: 600; }
 
   /* Date filter pills */
-  .date-pills { display:flex; gap:6px; flex-wrap:wrap; padding:10px 14px; background:#fff; border-bottom:1px solid #FFE0B2; align-items:center; }
-  .dp { padding:5px 13px; border-radius:20px; font-size:11px; font-weight:700; border:1px solid #FFCC80; background:#FFF3E0; color:#8D6E63; cursor:pointer; white-space:nowrap; transition:all .15s; }
-  .dp.active { background:linear-gradient(135deg,#E65100,#FF8F00); border-color:transparent; color:#fff; }
+  .date-pills { display:flex; gap:6px; flex-wrap:wrap; padding:10px 14px; background:#fff; border-bottom:1px solid #FCE8EC; align-items:center; }
+  .dp { padding:5px 13px; border-radius:20px; font-size:11px; font-weight:700; border:1px solid #F0CBD3; background:#FDF2F4; color:#8A5967; cursor:pointer; white-space:nowrap; transition:all .15s; }
+  .dp.active { background:linear-gradient(135deg, #8B1E3F, #B83256); border-color:transparent; color:#fff; }
   .dp-custom-inputs { display:none; gap:6px; align-items:center; }
   .dp-custom-inputs.show { display:flex; }
-  .dp-custom-inputs input { background:#fff; border:1px solid #FFCC80; color:#3E2000; border-radius:8px; padding:5px 10px; font-size:11px; font-weight:600; }
+  .dp-custom-inputs input { background:#fff; border:1px solid #F0CBD3; color:#2D0E17; border-radius:8px; padding:5px 10px; font-size:11px; font-weight:600; }
 
   /* Bulk Actions */
-  .bulk-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: #fff; border-bottom: 1px solid #FFE0B2; flex-wrap: wrap; }
+  .bulk-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: #fff; border-bottom: 1px solid #FCE8EC; flex-wrap: wrap; }
 </style>
 </head>
 <body>
 <div class="app-shell">
   <div class="sidebar" id="sidebar"></div>
-  <div class="main-content" style="padding:0; background:#FFF8F0;">
+  <div class="main-content" style="padding:0; background:#FFF9FA;">
 
     <div class="kitchen-header">
       <div>
@@ -119,15 +119,15 @@
       <button class="dp" data-dp="custom" onclick="setKitchenDate('custom', this)">📅 Custom</button>
       <div class="dp-custom-inputs" id="kitchen-custom-dates">
         <input type="date" id="kitchen-date-from" onchange="loadOrders()" title="From date">
-        <span style="color:#8D6E63;font-size:11px;font-weight:600">to</span>
+        <span style="color:#8A5967;font-size:11px;font-weight:600">to</span>
         <input type="date" id="kitchen-date-to" onchange="loadOrders()" title="To date">
       </div>
     </div>
 
-    <div class="filters" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:10px 14px; background:#fff; border-bottom:1px solid #FFE0B2;">
+    <div class="filters" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:10px 14px; background:#fff; border-bottom:1px solid #FCE8EC;">
       <div style="display:flex; gap:4px; flex:1 1 200px;">
-        <input type="text" class="form-control" id="kitchen-search-input" placeholder="🔍 Find Token, Order #, Item, Customer…" oninput="renderKOT()" style="flex:1; border-radius:8px; padding:6px 12px; border:1px solid #FFCC80; background:#FFF3E0; color:#3E2000; font-weight:600;">
-        <button class="btn btn-primary" onclick="renderKOT()" style="padding:6px 14px; font-weight:700; border-radius:8px; background:linear-gradient(135deg,#E65100,#FF8F00); border:none; color:#fff;">Find</button>
+        <input type="text" class="form-control" id="kitchen-search-input" placeholder="🔍 Find Token, Order #, Item, Customer…" oninput="renderKOT()" style="flex:1; border-radius:8px; padding:6px 12px; border:1px solid #F0CBD3; background:#FDF2F4; color:#2D0E17; font-weight:600;">
+        <button class="btn btn-primary" onclick="renderKOT()" style="padding:6px 14px; font-weight:700; border-radius:8px; background:linear-gradient(135deg, #8B1E3F, #B83256); border:none; color:#fff;">Find</button>
       </div>
     </div>
 
@@ -148,12 +148,12 @@
 
     <!-- Bulk Actions -->
     <div class="bulk-bar">
-      <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:800; color:#E65100; cursor:pointer;">
-        <input type="checkbox" id="chk-all" onchange="toggleSelectAll()" style="width:18px; height:18px; accent-color:#E65100;">
+      <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:800; color:#8B1E3F; cursor:pointer;">
+        <input type="checkbox" id="chk-all" onchange="toggleSelectAll()" style="width:18px; height:18px; accent-color:#8B1E3F;">
         Select All
       </label>
       <div style="flex:1"></div>
-      <button class="btn btn-sm btn-secondary" onclick="bulkUpdate('packing')" style="font-weight:700; background:#FFF3E0; color:#E65100; border-color:#FFCC80;">🔥 Mark Packing</button>
+      <button class="btn btn-sm btn-secondary" onclick="bulkUpdate('packing')" style="font-weight:700; background:#FDF2F4; color:#8B1E3F; border-color:#F0CBD3;">🔥 Mark Packing</button>
       <button class="btn btn-sm btn-success" onclick="bulkUpdate('packed')" style="font-weight:700;">✅ Mark Packed</button>
     </div>
 
@@ -384,7 +384,7 @@ async function renderKOT() {
         </div>
 
         ${order.delivery_address ? `<div class="kot-note">📍 ${escapeHtml(order.delivery_address)}</div>` : ''}
-        ${order.custom_note ? `<div class="kot-note" style="color:#BF360C;">📝 ${escapeHtml(order.custom_note)}</div>` : ''}
+        ${order.custom_note ? `<div class="kot-note" style="color:#8B1E3F;">📝 ${escapeHtml(order.custom_note)}</div>` : ''}
 
         <div class="kot-items">
           ${items.map(item => `
@@ -406,7 +406,7 @@ async function renderKOT() {
             <button class="btn-packing btn-done" onclick="updatePacking(${bid}, 'packed')">✅ Mark Packed</button>
           ` : ''}
           ${ps === 'packed' ? `
-            <button class="btn-packing btn-start" style="background:#FFF3E0; color:#E65100; border:1px solid #FFCC80;" onclick="updatePacking(${bid}, 'packing')">↩ Reopen</button>
+            <button class="btn-packing btn-start" style="background:#FDF2F4; color:#8B1E3F; border:1px solid #F0CBD3;" onclick="updatePacking(${bid}, 'packing')">↩ Reopen</button>
             <div style="flex:1;display:flex;align-items:center;justify-content:center;color:#43A047;font-weight:800;font-size:13px">✅ Order Packed & Ready</div>
           ` : ''}
         </div>

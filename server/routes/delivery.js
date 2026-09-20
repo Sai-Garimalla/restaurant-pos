@@ -322,8 +322,9 @@ router.post('/test-print', requireAdminOrStaff, async (req, res) => {
     const settings = {};
     settingsRows.forEach(r => { settings[r.key_name] = r.value; });
 
-    const ip   = printer === 'kitchen' ? settings.kitchen_printer_ip : settings.customer_printer_ip;
-    const port = printer === 'kitchen' ? settings.kitchen_printer_port : settings.customer_printer_port;
+    const ip      = printer === 'kitchen' ? settings.kitchen_printer_ip      : settings.customer_printer_ip;
+    const port    = printer === 'kitchen' ? settings.kitchen_printer_port     : settings.customer_printer_port;
+    const usbName = printer === 'kitchen' ? settings.kitchen_usb_printer_name : settings.customer_usb_printer_name;
 
     const ESC = '\x1B', GS = '\x1D', LF = '\n';
     let t = ESC + '@';
@@ -347,7 +348,7 @@ router.post('/test-print', requireAdminOrStaff, async (req, res) => {
     const data = Buffer.from(t, 'latin1');
     const b64  = data.toString('base64');
 
-    res.json({ success: true, data_b64: b64, printer_ip: ip || null, printer_port: port || '9100' });
+    res.json({ success: true, data_b64: b64, printer_ip: ip || null, printer_port: port || '9100', printer_usb: usbName || null });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

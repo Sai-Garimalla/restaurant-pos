@@ -152,9 +152,9 @@ function renderTable(items) {
   let html = '';
   Object.keys(grouped).sort().forEach(cat => {
     html += `
-      <tr style="background:#FFF8F0;">
-        <td colspan="5" style="font-weight:800; color:#E65100; font-size:13px; text-transform:uppercase; padding-top:16px;">
-          ${escapeHtml(cat)} <span style="color:#8D6E63; font-size:11px; font-weight:600; margin-left:6px;">(${grouped[cat].length} items)</span>
+      <tr style="background:#FFF9FA;">
+        <td colspan="5" style="font-weight:800; color:#8B1E3F; font-size:13px; text-transform:uppercase; padding-top:16px;">
+          ${escapeHtml(cat)} <span style="color:#8A5967; font-size:11px; font-weight:600; margin-left:6px;">(${grouped[cat].length} items)</span>
         </td>
       </tr>
     `;
@@ -162,7 +162,7 @@ function renderTable(items) {
       html += `
         <tr>
           <td><code style="font-size:11px">${escapeHtml(i.item_code || '—')}</code></td>
-          <td style="font-weight:600; color:#3E2000;">${escapeHtml(i.item_name)}</td>
+          <td style="font-weight:600; color:#2D0E17;">${escapeHtml(i.item_name)}</td>
           <td><span class="badge badge-info">${escapeHtml(i.category || '—')}</span></td>
           <td style="font-weight:700;color:var(--flame-light)">${formatCurrency(i.default_price)}</td>
           <td style="display:flex;gap:6px">

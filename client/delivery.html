@@ -9,22 +9,22 @@
 <link rel="stylesheet" href="css/style.css">
 <style>
   .delivery-header { padding: 14px 16px; background: linear-gradient(135deg, #1a1a2e, #16213e); color: #fff; }
-  .delivery-header h2 { margin: 0; font-size: 18px; color: #FF8F00; }
+  .delivery-header h2 { margin: 0; font-size: 18px; color: #B83256; }
   .delivery-header p  { margin: 4px 0 0; font-size: 12px; color: #aaa; }
 
   /* Date pills */
-  .del-dp { padding:5px 14px; border-radius:20px; font-size:11px; font-weight:700; border:1px solid #FFCC80; background:#fff; color:#8D6E63; cursor:pointer; white-space:nowrap; transition:all .15s; }
-  .del-dp.active { background:linear-gradient(135deg,#E65100,#FF8F00); border-color:transparent; color:#fff; }
+  .del-dp { padding:5px 14px; border-radius:20px; font-size:11px; font-weight:700; border:1px solid #F0CBD3; background:#fff; color:#8A5967; cursor:pointer; white-space:nowrap; transition:all .15s; }
+  .del-dp.active { background:linear-gradient(135deg, #8B1E3F, #B83256); border-color:transparent; color:#fff; }
 
   /* Status filter tabs */
-  .status-tabs { display: flex; gap: 6px; padding: 10px 14px; background: #FFF8F0; border-bottom: 2px solid #FFCC80; overflow-x: auto; }
-  .status-tab { padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid #FFCC80; background: #fff; color: #8D6E63; cursor: pointer; white-space: nowrap; transition: all .15s; }
-  .status-tab.active { background: linear-gradient(135deg, #E65100, #FF8F00); border-color: transparent; color: #fff; }
+  .status-tabs { display: flex; gap: 6px; padding: 10px 14px; background: #FFF9FA; border-bottom: 2px solid #F0CBD3; overflow-x: auto; }
+  .status-tab { padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid #F0CBD3; background: #fff; color: #8A5967; cursor: pointer; white-space: nowrap; transition: all .15s; }
+  .status-tab.active { background: linear-gradient(135deg, #8B1E3F, #B83256); border-color: transparent; color: #fff; }
 
   /* Order cards */
   .orders-list { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
-  .order-card { background: #fff; border: 1.5px solid #FFCC80; border-radius: 14px; padding: 14px 16px; cursor: pointer; transition: all .15s; box-shadow: 0 2px 8px rgba(230,81,0,0.07); }
-  .order-card:hover { border-color: #E65100; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(230,81,0,0.13); }
+  .order-card { background: #fff; border: 1.5px solid #F0CBD3; border-radius: 14px; padding: 14px 16px; cursor: pointer; transition: all .15s; box-shadow: 0 2px 8px rgba(230,81,0,0.07); }
+  .order-card:hover { border-color: #8B1E3F; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(139,30,63,0.09); }
   .order-card.status-pending    { border-left: 4px solid #90A4AE; }
   .order-card.status-preparing  { border-left: 4px solid #FFB300; }
   .order-card.status-ready      { border-left: 4px solid #43A047; }
@@ -32,7 +32,7 @@
   .order-card.status-delivered  { border-left: 4px solid #9E9E9E; opacity: .8; }
 
   .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-  .card-token { font-size: 22px; font-weight: 800; color: #E65100; min-width: 50px; }
+  .card-token { font-size: 22px; font-weight: 800; color: #8B1E3F; min-width: 50px; }
   .card-status-badge { padding: 3px 10px; border-radius: 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
   .badge-pending   { background: #ECEFF1; color: #546E7A; }
   .badge-preparing { background: #FFF8E1; color: #F57F17; }
@@ -40,36 +40,36 @@
   .badge-picked_up { background: #E3F2FD; color: #1565C0; }
   .badge-delivered { background: #F5F5F5; color: #616161; }
 
-  .card-customer { font-size: 14px; font-weight: 700; color: #3E2000; margin: 6px 0 2px; }
-  .card-phone    { font-size: 13px; font-weight: 600; color: #E65100; }
-  .card-address  { font-size: 12px; color: #8D6E63; margin-top: 4px; }
-  .card-meta     { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 8px; border-top: 1px solid #FFE0B2; }
+  .card-customer { font-size: 14px; font-weight: 700; color: #2D0E17; margin: 6px 0 2px; }
+  .card-phone    { font-size: 13px; font-weight: 600; color: #8B1E3F; }
+  .card-address  { font-size: 12px; color: #8A5967; margin-top: 4px; }
+  .card-meta     { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 8px; border-top: 1px solid #FCE8EC; }
   .card-amount   { font-size: 16px; font-weight: 800; color: #2E7D32; }
   .card-time     { font-size: 10px; color: #aaa; }
 
   /* Order detail modal */
-  .order-detail-customer { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; padding: 14px; background: linear-gradient(135deg, #FFF8F0, #FFFDE7); border-radius: 10px; margin-bottom: 14px; }
+  .order-detail-customer { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; padding: 14px; background: linear-gradient(135deg, #FFF9FA, #FCF8F9); border-radius: 10px; margin-bottom: 14px; }
   .cust-field { display: flex; flex-direction: column; gap: 2px; }
-  .cust-label { font-size: 10px; font-weight: 700; color: #8D6E63; text-transform: uppercase; letter-spacing: .5px; }
-  .cust-value { font-size: 14px; font-weight: 700; color: #3E2000; }
-  .cust-value.highlight { font-size: 16px; color: #E65100; }
+  .cust-label { font-size: 10px; font-weight: 700; color: #8A5967; text-transform: uppercase; letter-spacing: .5px; }
+  .cust-value { font-size: 14px; font-weight: 700; color: #2D0E17; }
+  .cust-value.highlight { font-size: 16px; color: #8B1E3F; }
   .cust-value.phone { font-size: 16px; color: #1565C0; text-decoration: none; }
-  .cust-addr-full { grid-column: span 2; background: #FFF3E0; border: 1px solid #FFCC80; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #3E2000; font-weight: 600; }
+  .cust-addr-full { grid-column: span 2; background: #FDF2F4; border: 1px solid #F0CBD3; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #2D0E17; font-weight: 600; }
 
   /* Status flow */
   .status-flow { display: flex; align-items: center; justify-content: center; gap: 0; padding: 14px; overflow-x: auto; }
   .sf-step { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 56px; }
-  .sf-circle { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #FFCC80; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all .2s; }
+  .sf-circle { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #F0CBD3; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all .2s; }
   .sf-circle.done { background: linear-gradient(135deg, #43A047, #66BB6A); border-color: transparent; }
-  .sf-circle.active { background: linear-gradient(135deg, #E65100, #FF8F00); border-color: transparent; box-shadow: 0 0 0 3px rgba(230,81,0,0.2); }
-  .sf-label { font-size: 9px; font-weight: 700; color: #8D6E63; text-align: center; }
-  .sf-label.active { color: #E65100; }
-  .sf-connector { width: 24px; height: 2px; background: #FFCC80; flex-shrink: 0; }
+  .sf-circle.active { background: linear-gradient(135deg, #8B1E3F, #B83256); border-color: transparent; box-shadow: 0 0 0 3px rgba(139,30,63,0.15); }
+  .sf-label { font-size: 9px; font-weight: 700; color: #8A5967; text-align: center; }
+  .sf-label.active { color: #8B1E3F; }
+  .sf-connector { width: 24px; height: 2px; background: #F0CBD3; flex-shrink: 0; }
   .sf-connector.done { background: #43A047; }
 
   /* Payment collection */
   .payment-collect { background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 12px; padding: 16px; margin: 12px 0; color: #fff; }
-  .payment-collect h4 { margin: 0 0 12px; font-size: 14px; color: #FF8F00; }
+  .payment-collect h4 { margin: 0 0 12px; font-size: 14px; color: #B83256; }
   .payment-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
   .payment-label { font-size: 12px; font-weight: 600; color: #ccc; min-width: 60px; }
   .payment-input { flex: 1; padding: 8px 12px; border-radius: 8px; border: 1px solid #333; background: #0f3460; color: #fff; font-size: 15px; font-weight: 700; text-align: right; }
@@ -77,25 +77,25 @@
   .payment-total { display: flex; justify-content: space-between; padding: 10px 0 0; border-top: 1px solid #333; margin-top: 6px; }
   .payment-total-label { font-size: 12px; color: #ccc; }
   .payment-total-val { font-size: 18px; font-weight: 800; color: #4CAF50; }
-  .payment-order-total { font-size: 12px; color: #FF8F00; text-align: right; margin-top: 2px; }
+  .payment-order-total { font-size: 12px; color: #B83256; text-align: right; margin-top: 2px; }
 
   /* Action buttons */
-  .delivery-actions { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-top: 2px solid #FFCC80; background: #FFF8F0; }
+  .delivery-actions { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-top: 2px solid #F0CBD3; background: #FFF9FA; }
   .btn-pickup   { background: linear-gradient(135deg, #1565C0, #1976D2); color: #fff; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; transition: all .15s; }
   .btn-pickup:hover  { opacity: .9; transform: translateY(-1px); }
   .btn-deliver  { background: linear-gradient(135deg, #2E7D32, #43A047); color: #fff; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; transition: all .15s; }
   .btn-deliver:hover { opacity: .9; transform: translateY(-1px); }
   .btn-disabled { background: #ECEFF1; color: #90A4AE; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: not-allowed; }
 
-  .no-orders { text-align: center; padding: 60px 20px; color: #BCAAA4; }
+  .no-orders { text-align: center; padding: 60px 20px; color: #BA98A1; }
   .no-orders .icon { font-size: 52px; margin-bottom: 12px; }
 
   /* Items list in modal */
-  .detail-items { border-radius: 10px; overflow: hidden; border: 1px solid #FFE0B2; }
-  .detail-item-row { display: flex; justify-content: space-between; padding: 9px 14px; border-bottom: 1px solid #FFE0B2; font-size: 13px; background: #fff; }
+  .detail-items { border-radius: 10px; overflow: hidden; border: 1px solid #FCE8EC; }
+  .detail-item-row { display: flex; justify-content: space-between; padding: 9px 14px; border-bottom: 1px solid #FCE8EC; font-size: 13px; background: #fff; }
   .detail-item-row:last-child { border-bottom: none; }
-  .detail-item-name { font-weight: 600; color: #3E2000; flex: 1; }
-  .detail-item-qty  { color: #E65100; font-weight: 700; padding: 0 10px; }
+  .detail-item-name { font-weight: 600; color: #2D0E17; flex: 1; }
+  .detail-item-qty  { color: #8B1E3F; font-weight: 700; padding: 0 10px; }
   .detail-item-amt  { font-weight: 700; color: #2E7D32; min-width: 60px; text-align: right; }
 </style>
 </head>
@@ -108,28 +108,28 @@
         <h2>🛵 Delivery Orders</h2>
         <p id="delivery-greeting">Loading your deliveries…</p>
       </div>
-      <button onclick="showQR()" style="background:linear-gradient(135deg,#FF8F00,#E65100); color:#fff; border:none; border-radius:10px; padding:10px 16px; font-size:13px; font-weight:800; cursor:pointer; flex-shrink:0;">
+      <button onclick="showQR()" style="background:linear-gradient(135deg, #B83256, #8B1E3F); color:#fff; border:none; border-radius:10px; padding:10px 16px; font-size:13px; font-weight:800; cursor:pointer; flex-shrink:0;">
         📱 Show QR
       </button>
     </div>
 
-    <div class="filters" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:10px 14px; background:#FFF8F0; border-bottom:1px solid #FFE0B2;">
+    <div class="filters" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:10px 14px; background:#FFF9FA; border-bottom:1px solid #FCE8EC;">
       <div style="display:flex; gap:4px; flex:1 1 200px;">
-        <input type="text" class="form-control" id="delivery-search-input" placeholder="🔍 Find Token, Name, Phone, Address…" oninput="renderOrders()" style="flex:1; border-radius:8px; padding:6px 12px; border:1px solid #FFCC80;">
+        <input type="text" class="form-control" id="delivery-search-input" placeholder="🔍 Find Token, Name, Phone, Address…" oninput="renderOrders()" style="flex:1; border-radius:8px; padding:6px 12px; border:1px solid #F0CBD3;">
         <button class="btn btn-primary" onclick="renderOrders()" style="padding:6px 14px; font-weight:700; border-radius:8px;">Find</button>
       </div>
-      <select id="delivery-prefix-filter" class="form-control" onchange="renderOrders()" style="max-width:160px; border-radius:8px; padding:6px 10px; border:1px solid #FFCC80;">
+      <select id="delivery-prefix-filter" class="form-control" onchange="renderOrders()" style="max-width:160px; border-radius:8px; padding:6px 10px; border:1px solid #F0CBD3;">
         <option value="">All Delivery Types</option>
         <option value="DM">DM — Delivery (Morning)</option>
         <option value="DE">DE — Delivery (Evening)</option>
       </select>
-      <select id="delivery-location-filter" class="form-control" onchange="renderOrders()" style="max-width:180px; border-radius:8px; padding:6px 10px; border:1px solid #FFCC80;">
+      <select id="delivery-location-filter" class="form-control" onchange="renderOrders()" style="max-width:180px; border-radius:8px; padding:6px 10px; border:1px solid #F0CBD3;">
         <option value="">📍 All Locations</option>
       </select>
     </div>
 
     <!-- Date Filter Pills -->
-    <div style="display:flex; gap:6px; flex-wrap:wrap; padding:10px 14px; background:#FFF3E0; border-bottom:1px solid #FFCC80; align-items:center;">
+    <div style="display:flex; gap:6px; flex-wrap:wrap; padding:10px 14px; background:#FDF2F4; border-bottom:1px solid #F0CBD3; align-items:center;">
       <button class="del-dp active" data-period="all" onclick="setDeliveryPeriod('all', this)">📅 All Dates</button>
       <button class="del-dp" data-period="today" onclick="setDeliveryPeriod('today', this)">Today</button>
       <button class="del-dp" data-period="yesterday" onclick="setDeliveryPeriod('yesterday', this)">Yesterday</button>
@@ -138,9 +138,9 @@
       <button class="del-dp" data-period="year" onclick="setDeliveryPeriod('year', this)">1 Year</button>
       <button class="del-dp" data-period="custom" onclick="setDeliveryPeriod('custom', this)">📅 Custom</button>
       <div id="del-custom-dates" style="display:none; gap:6px; align-items:center;">
-        <input type="date" id="delivery-date-from" class="form-control" onchange="loadOrders()" style="max-width:140px; border-radius:8px; padding:6px 10px; border:1px solid #FFCC80; font-size:12px;">
-        <span style="font-size:12px;color:#8D6E63">to</span>
-        <input type="date" id="delivery-date-to" class="form-control" onchange="loadOrders()" style="max-width:140px; border-radius:8px; padding:6px 10px; border:1px solid #FFCC80; font-size:12px;">
+        <input type="date" id="delivery-date-from" class="form-control" onchange="loadOrders()" style="max-width:140px; border-radius:8px; padding:6px 10px; border:1px solid #F0CBD3; font-size:12px;">
+        <span style="font-size:12px;color:#8A5967">to</span>
+        <input type="date" id="delivery-date-to" class="form-control" onchange="loadOrders()" style="max-width:140px; border-radius:8px; padding:6px 10px; border:1px solid #F0CBD3; font-size:12px;">
       </div>
     </div>
 
@@ -162,13 +162,13 @@
 <!-- Order Detail Modal -->
 <div class="modal-overlay" id="order-modal">
   <div class="modal" style="max-width:460px; padding:0; border-radius:16px; overflow:hidden; display:flex; flex-direction:column; max-height:92vh;">
-    <div class="modal-header" style="background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; border-radius:0;">
+    <div class="modal-header" style="background:linear-gradient(135deg, #8B1E3F, #B83256); color:#fff; border-radius:0;">
       <span class="modal-title" id="modal-title" style="color:#fff;">Order Details</span>
       <button class="modal-close" onclick="closeOrderModal()" style="color:#fff; background:rgba(255,255,255,0.2);">✕</button>
     </div>
 
     <!-- Status flow -->
-    <div style="padding: 12px 14px 0; background: #FFF8F0; border-bottom: 1px solid #FFE0B2;">
+    <div style="padding: 12px 14px 0; background: #FFF9FA; border-bottom: 1px solid #FCE8EC;">
       <div class="status-flow" id="modal-status-flow"></div>
     </div>
 
@@ -177,43 +177,43 @@
       <div class="order-detail-customer" id="modal-customer"></div>
 
       <!-- Items -->
-      <div style="font-size:11px; font-weight:700; color:#8D6E63; text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px;">🛒 Items</div>
+      <div style="font-size:11px; font-weight:700; color:#8A5967; text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px;">🛒 Items</div>
       <div class="detail-items" id="modal-items"></div>
 
       <!-- Totals -->
-      <div id="modal-totals" style="margin-top:10px; padding:10px 14px; background:#FFFDE7; border-radius:10px; border:1px solid #FFCC80;"></div>
+      <div id="modal-totals" style="margin-top:10px; padding:10px 14px; background:#FCF8F9; border-radius:10px; border:1px solid #F0CBD3;"></div>
 
       <!-- Payment collection (shown only when delivering) -->
       <div id="payment-section" style="display:none;">
 
         <!-- QR toggle button -->
         <button id="modal-qr-toggle-btn" onclick="toggleModalQR()"
-          style="width:100%; margin-top:12px; padding:12px; border:2px solid #FFCC80; border-radius:12px; background:#FFF8F0; color:#E65100; font-size:14px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .15s;">
+          style="width:100%; margin-top:12px; padding:12px; border:2px solid #F0CBD3; border-radius:12px; background:#FFF9FA; color:#8B1E3F; font-size:14px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .15s;">
           📱 View QR to Collect UPI Payment
         </button>
 
         <!-- Collapsible QR panel (hidden by default) -->
-        <div id="modal-qr-panel" style="display:none; background:#fff; border-radius:14px; border:1.5px solid #FFCC80; overflow:hidden; margin-top:8px;">
-          <div style="padding:10px 14px; background:linear-gradient(135deg,#FFF3E0,#FFE0B2); border-bottom:1px solid #FFE0B2; display:flex; align-items:center; justify-content:space-between;">
-            <span style="font-size:13px; font-weight:800; color:#E65100;">📱 Show QR to Customer</span>
+        <div id="modal-qr-panel" style="display:none; background:#fff; border-radius:14px; border:1.5px solid #F0CBD3; overflow:hidden; margin-top:8px;">
+          <div style="padding:10px 14px; background:linear-gradient(135deg, #FDF2F4, #FCE8EC); border-bottom:1px solid #FCE8EC; display:flex; align-items:center; justify-content:space-between;">
+            <span style="font-size:13px; font-weight:800; color:#8B1E3F;">📱 Show QR to Customer</span>
             <div style="display:flex; align-items:center; gap:8px;">
-              <div style="display:flex; background:#fff; border-radius:10px; padding:3px; gap:3px; border:1px solid #FFCC80;">
+              <div style="display:flex; background:#fff; border-radius:10px; padding:3px; gap:3px; border:1px solid #F0CBD3;">
                 <button id="modal-tab-gpay" onclick="switchModalQR('gpay')"
-                  style="padding:5px 14px; border:none; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer; background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; transition:.15s;">QR 1</button>
+                  style="padding:5px 14px; border:none; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer; background:linear-gradient(135deg, #8B1E3F, #B83256); color:#fff; transition:.15s;">QR 1</button>
                 <button id="modal-tab-paytm" onclick="switchModalQR('paytm')"
-                  style="padding:5px 14px; border:none; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer; background:transparent; color:#8D6E63; transition:.15s;">QR 2</button>
+                  style="padding:5px 14px; border:none; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer; background:transparent; color:#8A5967; transition:.15s;">QR 2</button>
               </div>
               <button onclick="toggleModalQR()" style="border:none; background:rgba(0,0,0,0.08); border-radius:50%; width:28px; height:28px; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center;">✕</button>
             </div>
           </div>
           <div id="modal-qr-gpay" style="padding:14px; text-align:center;">
             <img src="assets/payment_qr.png" alt="GPay / PhonePe QR"
-              style="width:100%; max-width:260px; border-radius:12px; border:2px solid #FFE0B2;"
+              style="width:100%; max-width:260px; border-radius:12px; border:2px solid #FCE8EC;"
               onerror="this.style.display='none'; document.getElementById('modal-qr-gpay-fb').style.display='block'">
-            <div id="modal-qr-gpay-fb" style="display:none; padding:20px; background:#FFF3E0; border-radius:10px; color:#E65100; font-size:12px; font-weight:700;">
-              ⚠️ QR not found.<br><span style="font-size:10px;font-weight:400;color:#8D6E63;">Add payment_qr.png to client/assets/</span>
+            <div id="modal-qr-gpay-fb" style="display:none; padding:20px; background:#FDF2F4; border-radius:10px; color:#8B1E3F; font-size:12px; font-weight:700;">
+              ⚠️ QR not found.<br><span style="font-size:10px;font-weight:400;color:#8A5967;">Add payment_qr.png to client/assets/</span>
             </div>
-            <div style="font-size:10px; color:#8D6E63; margin-top:6px; font-weight:600;">GPay · PhonePe · All UPI Apps</div>
+            <div style="font-size:10px; color:#8A5967; margin-top:6px; font-weight:600;">GPay · PhonePe · All UPI Apps</div>
           </div>
           <div id="modal-qr-paytm" style="display:none; padding:14px; text-align:center;">
             <img src="assets/paytm_qr.jpg" alt="Paytm QR"
@@ -256,20 +256,20 @@
 <!-- QR Modal -->
 <div id="qr-modal" onclick="hideQR()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:9999; justify-content:center; align-items:center; padding:20px;">
   <div onclick="event.stopPropagation()" style="background:#fff; border-radius:24px; padding:24px 20px; max-width:340px; width:100%; text-align:center; box-shadow:0 24px 80px rgba(0,0,0,0.6);">
-    <div style="font-size:17px; font-weight:800; color:#E65100; margin-bottom:3px;">&#128241; Scan to Pay</div>
-    <div style="font-size:12px; color:#8D6E63; margin-bottom:14px;">Choose a payment QR to show customer</div>
+    <div style="font-size:17px; font-weight:800; color:#8B1E3F; margin-bottom:3px;">&#128241; Scan to Pay</div>
+    <div style="font-size:12px; color:#8A5967; margin-bottom:14px;">Choose a payment QR to show customer</div>
 
     <!-- QR Tab Switcher -->
-    <div style="display:flex; background:#FFF3E0; border-radius:14px; padding:4px; gap:4px; margin-bottom:16px;">
-      <button id="del-tab-gpay" onclick="switchDelQR('gpay')" style="flex:1; padding:8px 0; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; transition:.2s;">QR 1</button>
-      <button id="del-tab-paytm" onclick="switchDelQR('paytm')" style="flex:1; padding:8px 0; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; background:transparent; color:#8D6E63; transition:.2s;">QR 2</button>
+    <div style="display:flex; background:#FDF2F4; border-radius:14px; padding:4px; gap:4px; margin-bottom:16px;">
+      <button id="del-tab-gpay" onclick="switchDelQR('gpay')" style="flex:1; padding:8px 0; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; background:linear-gradient(135deg, #8B1E3F, #B83256); color:#fff; transition:.2s;">QR 1</button>
+      <button id="del-tab-paytm" onclick="switchDelQR('paytm')" style="flex:1; padding:8px 0; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; background:transparent; color:#8A5967; transition:.2s;">QR 2</button>
     </div>
 
     <!-- GPay / PhonePe QR -->
     <div id="del-qr-gpay" style="">
-      <img src="assets/payment_qr.png" alt="GPay / PhonePe QR" style="width:100%; max-width:280px; border-radius:14px; border:2px solid #FFE0B2;" onerror="this.style.display='none'; document.getElementById('del-qr-fallback').style.display='block'">
-      <div id="del-qr-fallback" style="display:none; padding:30px; background:#FFF3E0; border-radius:12px; color:#E65100; font-size:13px; font-weight:700;">&#9888;&#65039; QR not found.</div>
-      <div style="margin-top:8px; font-size:11px; color:#8D6E63;">GPay &bull; PhonePe &bull; All UPI Apps</div>
+      <img src="assets/payment_qr.png" alt="GPay / PhonePe QR" style="width:100%; max-width:280px; border-radius:14px; border:2px solid #FCE8EC;" onerror="this.style.display='none'; document.getElementById('del-qr-fallback').style.display='block'">
+      <div id="del-qr-fallback" style="display:none; padding:30px; background:#FDF2F4; border-radius:12px; color:#8B1E3F; font-size:13px; font-weight:700;">&#9888;&#65039; QR not found.</div>
+      <div style="margin-top:8px; font-size:11px; color:#8A5967;">GPay &bull; PhonePe &bull; All UPI Apps</div>
     </div>
 
     <!-- Paytm QR -->
@@ -463,7 +463,7 @@ async function openOrder(billId) {
       <div style="display:flex; justify-content:space-between; font-size:13px;"><span>💵 Cash</span><span style="font-weight:700;">₹${cash.toFixed(2)}</span></div>
       <div style="display:flex; justify-content:space-between; font-size:13px; margin:4px 0;"><span>📱 UPI</span><span style="font-weight:700;">₹${upi.toFixed(2)}</span></div>
       <div style="display:flex; justify-content:space-between; font-size:14px; border-top:1px solid #A5D6A7; padding-top:6px; margin-top:4px;"><span style="font-weight:700;">Total</span><span style="font-weight:800; color:#1565C0;">₹${(cash + upi).toFixed(2)}</span></div>
-      ${selectedOrder.delivered_by ? `<div style="font-size:11px; color:#8D6E63; margin-top:4px;">By: ${selectedOrder.delivery_boy_name || 'Delivery Boy'}</div>` : ''}
+      ${selectedOrder.delivered_by ? `<div style="font-size:11px; color:#8A5967; margin-top:4px;">By: ${selectedOrder.delivery_boy_name || 'Delivery Boy'}</div>` : ''}
     `;
   }
 
@@ -514,7 +514,7 @@ function renderItems(items) {
   if (!items || !items.length) { el.innerHTML = '<div class="detail-item-row">No items</div>'; return; }
   el.innerHTML = items.map(i => `
     <div class="detail-item-row">
-      <span class="detail-item-name">${escapeHtml(i.item_name)}${i.item_note ? `<br><span style="font-size:10px;color:#E65100;font-weight:400;">↳ ${escapeHtml(i.item_note)}</span>` : ''}</span>
+      <span class="detail-item-name">${escapeHtml(i.item_name)}${i.item_note ? `<br><span style="font-size:10px;color:#8B1E3F;font-weight:400;">↳ ${escapeHtml(i.item_note)}</span>` : ''}</span>
       <span class="detail-item-qty">×${i.quantity}</span>
       <span class="detail-item-amt">₹${parseFloat(i.line_total).toFixed(2)}</span>
     </div>
@@ -528,10 +528,10 @@ function renderTotals(bill) {
   const disc = bill.discount_enabled ? parseFloat(bill.discount_amount || 0) : 0;
   const grand = parseFloat(bill.grand_total || 0);
   el.innerHTML = `
-    ${del > 0 ? `<div style="display:flex;justify-content:space-between;font-size:12px;color:#8D6E63;"><span>Subtotal</span><span>₹${sub.toFixed(2)}</span></div>
-    <div style="display:flex;justify-content:space-between;font-size:12px;color:#8D6E63;"><span>Delivery</span><span>₹${del.toFixed(2)}</span></div>` : ''}
+    ${del > 0 ? `<div style="display:flex;justify-content:space-between;font-size:12px;color:#8A5967;"><span>Subtotal</span><span>₹${sub.toFixed(2)}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:#8A5967;"><span>Delivery</span><span>₹${del.toFixed(2)}</span></div>` : ''}
     ${disc > 0 ? `<div style="display:flex;justify-content:space-between;font-size:12px;color:#EF9A9A;"><span>Discount</span><span>-₹${disc.toFixed(2)}</span></div>` : ''}
-    <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;color:#E65100;${del > 0 || disc > 0 ? 'border-top:1px solid #FFCC80;padding-top:8px;margin-top:6px;' : ''}">
+    <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;color:#8B1E3F;${del > 0 || disc > 0 ? 'border-top:1px solid #F0CBD3;padding-top:8px;margin-top:6px;' : ''}">
       <span>TOTAL</span><span>₹${grand.toFixed(2)}</span>
     </div>
   `;
@@ -563,9 +563,9 @@ function updatePaymentTotal() {
   } else if (total > 0 && total < grand - 0.005) {
     const due = grand - total;
     changeBox.style.display = 'block';
-    changeBox.style.background = '#FFF3E0';
-    changeBox.style.color = '#E65100';
-    changeBox.style.border = '1.5px solid #FFCC80';
+    changeBox.style.background = '#FDF2F4';
+    changeBox.style.color = '#8B1E3F';
+    changeBox.style.border = '1.5px solid #F0CBD3';
     changeBox.innerHTML = `⚠️ Remaining Due: ₹${due.toFixed(2)}`;
   } else {
     changeBox.style.display = 'none';
@@ -597,7 +597,7 @@ function renderActionButtons(status, billId) {
 
     if (isUnassigned) {
       el.innerHTML = `
-        <button class="btn-pickup" style="background: linear-gradient(135deg, #E65100, #FF8F00);" onclick="assignSelf(${billId})">✋ Accept Order (Assign to Me)</button>
+        <button class="btn-pickup" style="background: linear-gradient(135deg, #8B1E3F, #B83256);" onclick="assignSelf(${billId})">✋ Accept Order (Assign to Me)</button>
       `;
     } else if (isAssignedToMe) {
       el.innerHTML = `
@@ -676,14 +676,14 @@ function toggleModalQR() {
   panel.style.display = isOpen ? 'none' : '';
   if (!isOpen) {
     switchModalQR('gpay'); // reset to QR 1 each time it opens
-    btn.style.background = '#E65100';
+    btn.style.background = '#8B1E3F';
     btn.style.color      = '#fff';
-    btn.style.borderColor = '#E65100';
+    btn.style.borderColor = '#8B1E3F';
     btn.innerHTML = '✕ Close QR';
   } else {
-    btn.style.background  = '#FFF8F0';
-    btn.style.color       = '#E65100';
-    btn.style.borderColor = '#FFCC80';
+    btn.style.background  = '#FFF9FA';
+    btn.style.color       = '#8B1E3F';
+    btn.style.borderColor = '#F0CBD3';
     btn.innerHTML = '📱 View QR to Collect UPI Payment';
   }
 }
@@ -697,15 +697,15 @@ function switchModalQR(which) {
   if (which === 'gpay') {
     gpayPanel.style.display  = '';
     paytmPanel.style.display = 'none';
-    gpayTab.style.background  = 'linear-gradient(135deg,#E65100,#FF8F00)';
+    gpayTab.style.background  = 'linear-gradient(135deg, #8B1E3F, #B83256)';
     gpayTab.style.color       = '#fff';
     paytmTab.style.background = 'transparent';
-    paytmTab.style.color      = '#8D6E63';
+    paytmTab.style.color      = '#8A5967';
   } else {
     gpayPanel.style.display  = 'none';
     paytmPanel.style.display = '';
     gpayTab.style.background  = 'transparent';
-    gpayTab.style.color       = '#8D6E63';
+    gpayTab.style.color       = '#8A5967';
     paytmTab.style.background = 'linear-gradient(135deg,#00BCD4,#0097A7)';
     paytmTab.style.color      = '#fff';
   }
@@ -720,7 +720,7 @@ function closeOrderModal() {
   const panel = document.getElementById('modal-qr-panel');
   const btn   = document.getElementById('modal-qr-toggle-btn');
   if (panel) panel.style.display = 'none';
-  if (btn)   { btn.style.background = '#FFF8F0'; btn.style.color = '#E65100'; btn.style.borderColor = '#FFCC80'; btn.innerHTML = '📱 View QR to Collect UPI Payment'; }
+  if (btn)   { btn.style.background = '#FFF9FA'; btn.style.color = '#8B1E3F'; btn.style.borderColor = '#F0CBD3'; btn.innerHTML = '📱 View QR to Collect UPI Payment'; }
 }
 
 // Load location dropdown from API
@@ -756,8 +756,8 @@ function switchDelQR(which) {
   const gpayTab = document.getElementById('del-tab-gpay');
   const paytmTab = document.getElementById('del-tab-paytm');
 
-  const activeStyle = 'background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff;';
-  const inactiveStyle = 'background:transparent; color:#8D6E63;';
+  const activeStyle = 'background:linear-gradient(135deg, #8B1E3F, #B83256); color:#fff;';
+  const inactiveStyle = 'background:transparent; color:#8A5967;';
   const paytmActiveStyle = 'background:linear-gradient(135deg,#00BCD4,#0097A7); color:#fff;';
 
   if (which === 'gpay') {
@@ -765,15 +765,15 @@ function switchDelQR(which) {
     paytmPanel.style.display = 'none';
     gpayTab.style.cssText += activeStyle;
     paytmTab.style.cssText = paytmTab.style.cssText.replace(/background:[^;]+;/g, '') + inactiveStyle;
-    gpayTab.style.background = 'linear-gradient(135deg,#E65100,#FF8F00)';
+    gpayTab.style.background = 'linear-gradient(135deg, #8B1E3F, #B83256)';
     gpayTab.style.color = '#fff';
     paytmTab.style.background = 'transparent';
-    paytmTab.style.color = '#8D6E63';
+    paytmTab.style.color = '#8A5967';
   } else {
     gpayPanel.style.display = 'none';
     paytmPanel.style.display = '';
     gpayTab.style.background = 'transparent';
-    gpayTab.style.color = '#8D6E63';
+    gpayTab.style.color = '#8A5967';
     paytmTab.style.background = 'linear-gradient(135deg,#00BCD4,#0097A7)';
     paytmTab.style.color = '#fff';
   }

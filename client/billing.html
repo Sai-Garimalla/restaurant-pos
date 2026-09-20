@@ -11,10 +11,10 @@
   .page-body { padding: 0; }
   .billing-layout { height: calc(100vh - 160px); }
   /* Topbar */
-  .billing-topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 16px; background:#FFF8F0; border-bottom:2px solid #FFCC80; flex-wrap:wrap; }
+  .billing-topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 16px; background:#FFF9FA; border-bottom:2px solid #F0CBD3; flex-wrap:wrap; }
   .topbar-left { display:flex; align-items:center; gap:10px; }
-  .topbar-title { font-size:16px; font-weight:700; color:#E65100; }
-  .topbar-token { font-size:20px; font-weight:800; color:#FF8F00; min-width:30px; }
+  .topbar-title { font-size:16px; font-weight:700; color:#8B1E3F; }
+  .topbar-token { font-size:20px; font-weight:800; color:#B83256; min-width:30px; }
   .topbar-center { display:flex; align-items:center; }
   .topbar-right { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
   .topbar-phone { max-width:145px; padding:6px 10px; }
@@ -26,17 +26,17 @@
   }
   /* Order type pills */
   .ot-pills { display:flex; gap:4px; }
-  .ot-pill { padding:5px 12px; border-radius:20px; font-size:11px; font-weight:700; border:1px solid #FFCC80; background:#fff; color:#8D6E63; cursor:pointer; transition:all .15s; white-space:nowrap; }
-  .ot-pill:hover { border-color:#F57C00; color:#E65100; background:#FFF3E0; }
-  .ot-pill.active { background:linear-gradient(135deg,#E65100,#FF8F00); border-color:transparent; color:#fff; }
+  .ot-pill { padding:5px 12px; border-radius:20px; font-size:11px; font-weight:700; border:1px solid #F0CBD3; background:#fff; color:#8A5967; cursor:pointer; transition:all .15s; white-space:nowrap; }
+  .ot-pill:hover { border-color:#9E2344; color:#8B1E3F; background:#FDF2F4; }
+  .ot-pill.active { background:linear-gradient(135deg, #8B1E3F, #B83256); border-color:transparent; color:#fff; }
   /* Quick add */
-  .quick-add { padding:6px 14px; border-bottom:1px solid #FFE0B2; background:#FFFDE7; }
+  .quick-add { padding:6px 14px; border-bottom:1px solid #FCE8EC; background:#FCF8F9; }
   .quick-add form { display:flex; gap:5px; }
   .qa-name { flex:2; }
   .qa-price { width:80px; }
   .qa-qty { width:50px; }
-  .np-btn { padding:12px; font-size:18px; font-weight:700; border-radius:8px; border:1px solid #FFCC80; background:#fff; color:#3E2000; cursor:pointer; }
-  .np-btn:active { background:#FF8F00; color:#fff; }
+  .np-btn { padding:12px; font-size:18px; font-weight:700; border-radius:8px; border:1px solid #F0CBD3; background:#fff; color:#2D0E17; cursor:pointer; }
+  .np-btn:active { background:#B83256; color:#fff; }
   @media(max-width:1024px) {
     .billing-topbar { flex-direction:column; align-items:stretch; gap:6px; padding:8px 12px; }
     .topbar-center { margin-top:0; justify-content:flex-start; overflow-x:auto; padding-bottom:4px; }
@@ -52,47 +52,47 @@
   }
   .customer-bar input { flex: 1; min-width: 0; max-width: 100%; }
   .addon-toggles { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
-  .addon-section { padding: 8px 14px; border-bottom: 1px solid #FFE0B2; display: flex; gap: 20px; flex-wrap: wrap; align-items: center; background: #FFF8F0; }
+  .addon-section { padding: 8px 14px; border-bottom: 1px solid #FCE8EC; display: flex; gap: 20px; flex-wrap: wrap; align-items: center; background: #FFF9FA; }
   .addon-group { display: flex; gap: 8px; align-items: center; }
-  .addon-label { font-size: 11px; font-weight: 600; color: #8D6E63; }
-  .del-btn { padding: 3px 10px; font-size: 11px; background: #FFF3E0; border: 1px solid #FFCC80; border-radius: 5px; cursor: pointer; color: #3E2000; }
-  .del-btn.active { background: #F57C00; border-color: #F57C00; color: #fff; }
+  .addon-label { font-size: 11px; font-weight: 600; color: #8A5967; }
+  .del-btn { padding: 3px 10px; font-size: 11px; background: #FDF2F4; border: 1px solid #F0CBD3; border-radius: 5px; cursor: pointer; color: #2D0E17; }
+  .del-btn.active { background: #9E2344; border-color: #9E2344; color: #fff; }
   .custom-del { width: 60px; }
   .discount-opts { display: flex; gap: 6px; align-items: center; }
-  .manual-row { padding: 6px 14px; border-bottom: 1px solid #FFE0B2; background: #FFFDE7; }
+  .manual-row { padding: 6px 14px; border-bottom: 1px solid #FCE8EC; background: #FCF8F9; }
   .manual-row form { display: flex; gap: 6px; }
   .manual-row input { flex: 1; min-width: 0; padding: 8px 10px; }
-  .bill-header { padding: 8px 14px; border-bottom: 1px solid #FFE0B2; display: flex; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 700; color: #8D6E63; letter-spacing:.5px; text-transform:uppercase; flex-wrap: wrap; gap: 8px; }
-  .empty-bill { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #BCAAA4; gap: 8px; }
+  .bill-header { padding: 8px 14px; border-bottom: 1px solid #FCE8EC; display: flex; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 700; color: #8A5967; letter-spacing:.5px; text-transform:uppercase; flex-wrap: wrap; gap: 8px; }
+  .empty-bill { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #BA98A1; gap: 8px; }
   .empty-bill .big-icon { font-size: 40px; }
 
   /* ── Cart Item Row ── */
   .cart-item {
     display: flex; flex-direction: column;
-    padding: 10px 14px; border-bottom: 1px solid #FFE0B2;
+    padding: 10px 14px; border-bottom: 1px solid #FCE8EC;
     gap: 7px; transition: background .15s;
   }
-  .cart-item:hover { background: #FFFDE7; }
+  .cart-item:hover { background: #FCF8F9; }
   .cart-item-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
   .cart-item-info { flex: 1; min-width: 0; }
-  .cart-item-name { font-size: 13px; font-weight: 600; color: #3E2000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
-  .cart-item-code { font-size: 10px; color: #8D6E63; margin-top: 2px; }
-  .cart-item-total { font-size: 14px; font-weight: 700; color: #E65100; white-space: nowrap; padding-top: 1px; }
+  .cart-item-name { font-size: 13px; font-weight: 600; color: #2D0E17; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
+  .cart-item-code { font-size: 10px; color: #8A5967; margin-top: 2px; }
+  .cart-item-total { font-size: 14px; font-weight: 700; color: #8B1E3F; white-space: nowrap; padding-top: 1px; }
   .cart-item-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .cart-qty-ctrl { display: flex; align-items: center; background: #FFF3E0; border: 1px solid #FFCC80; border-radius: 8px; overflow: hidden; }
-  .cart-qty-btn { width: 32px; height: 30px; border: none; background: none; color: #3E2000; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; }
-  .cart-qty-btn:hover { background: #FFCC80; color: #E65100; }
-  .cart-qty-val { min-width: 32px; text-align: center; font-size: 13px; font-weight: 700; border-left: 1px solid #FFCC80; border-right: 1px solid #FFCC80; padding: 0 4px; line-height: 30px; color: #3E2000; }
-  .cart-price-input { width: 72px; height: 30px; background: #FFFDE7; border: 1px solid #FFCC80; border-radius: 7px; padding: 0 8px; color: #3E2000; font-size: 12px; text-align: right; font-family: inherit; }
-  .cart-price-input:focus { outline: none; border-color: #F57C00; }
-  .cart-price-label { font-size: 10px; color: #8D6E63; }
+  .cart-qty-ctrl { display: flex; align-items: center; background: #FDF2F4; border: 1px solid #F0CBD3; border-radius: 8px; overflow: hidden; }
+  .cart-qty-btn { width: 32px; height: 30px; border: none; background: none; color: #2D0E17; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; }
+  .cart-qty-btn:hover { background: #F0CBD3; color: #8B1E3F; }
+  .cart-qty-val { min-width: 32px; text-align: center; font-size: 13px; font-weight: 700; border-left: 1px solid #F0CBD3; border-right: 1px solid #F0CBD3; padding: 0 4px; line-height: 30px; color: #2D0E17; }
+  .cart-price-input { width: 72px; height: 30px; background: #FCF8F9; border: 1px solid #F0CBD3; border-radius: 7px; padding: 0 8px; color: #2D0E17; font-size: 12px; text-align: right; font-family: inherit; }
+  .cart-price-input:focus { outline: none; border-color: #9E2344; }
+  .cart-price-label { font-size: 10px; color: #8A5967; }
   .cart-remove-btn { width: 28px; height: 28px; border-radius: 7px; border: 1px solid rgba(198,40,40,0.25); background: rgba(198,40,40,0.07); color: #C62828; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; }
   .cart-remove-btn:hover { background: rgba(198,40,40,0.18); border-color: #C62828; }
-  .cart-unit-price { font-size: 11px; color: #8D6E63; }
+  .cart-unit-price { font-size: 11px; color: #8A5967; }
   /* Preview tabs */
-  .prev-tabs { display:flex; border-bottom:2px solid #FFCC80; background:#FFF8F0; }
-  .prev-tab { flex:1; padding:10px 6px; font-size:12px; font-weight:700; border:none; background:none; color:#8D6E63; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:all .15s; }
-  .prev-tab.active { color:#E65100; border-bottom-color:#E65100; background:#fff; }
+  .prev-tabs { display:flex; border-bottom:2px solid #F0CBD3; background:#FFF9FA; }
+  .prev-tab { flex:1; padding:10px 6px; font-size:12px; font-weight:700; border:none; background:none; color:#8A5967; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:all .15s; }
+  .prev-tab.active { color:#8B1E3F; border-bottom-color:#8B1E3F; background:#fff; }
   .prev-content { display:none; }
   .prev-content.active { display:block; }
   /* ═══════════════════════════════════════════════════
@@ -128,8 +128,8 @@
       display: flex !important;
       align-items: center;
       padding: 5px 12px;
-      background: #FFF8F0;
-      border-bottom: 1px solid #FFE0B2;
+      background: #FFF9FA;
+      border-bottom: 1px solid #FCE8EC;
       flex-shrink: 0;
     }
 
@@ -149,7 +149,7 @@
       align-items: center;
       justify-content: center;
       gap: 4px;
-      background: linear-gradient(135deg, #E65100, #FF8F00);
+      background: linear-gradient(135deg, #8B1E3F, #B83256);
       color: #fff;
       border: none;
       border-radius: 10px;
@@ -160,7 +160,7 @@
       white-space: nowrap;
       flex-shrink: 0;
       min-height: unset;
-      box-shadow: 0 3px 10px rgba(230,81,0,0.35);
+      box-shadow: 0 3px 10px rgba(139,30,63,0.25);
     }
 
     /* 6. Bill panel flex column layout */
@@ -180,7 +180,7 @@
     }
 
     /* 8. Compact totals */
-    .totals-panel { padding: 5px 12px !important; flex-shrink: 0; border-top: 2px solid #FFD180; background: #FFF8F0; }
+    .totals-panel { padding: 5px 12px !important; flex-shrink: 0; border-top: 2px solid #F0CBD3; background: #FFF9FA; }
     .total-row.grand { display: flex !important; align-items: center; gap: 8px; }
     .total-row.grand > span:first-child { flex: 1; }
 
@@ -340,14 +340,14 @@
             <label class="toggle"><input type="checkbox" id="dinein-paid-toggle"><span class="toggle-slider"></span></label>
             <div id="dinein-payment-opts" style="display:none;flex-direction:column;gap:6px;width:100%;margin-top:6px;">
               <div style="display:flex;gap:8px;align-items:center;">
-                <span style="font-size:11px;font-weight:600;color:#8D6E63;width:30px;">Cash</span>
+                <span style="font-size:11px;font-weight:600;color:#8A5967;width:30px;">Cash</span>
                 <input type="number" id="dinein-cash-input" class="form-control" placeholder="₹0.00" min="0" step="0.01" style="flex:1;">
-                <button type="button" onclick="showQR()" style="background:linear-gradient(135deg,#FF8F00,#E65100); color:#fff; border:none; border-radius:6px; padding:6px 10px; font-size:11px; font-weight:800; cursor:pointer; flex-shrink:0;">
+                <button type="button" onclick="showQR()" style="background:linear-gradient(135deg, #B83256, #8B1E3F); color:#fff; border:none; border-radius:6px; padding:6px 10px; font-size:11px; font-weight:800; cursor:pointer; flex-shrink:0;">
                   📱 Show QR
                 </button>
               </div>
               <div style="display:flex;gap:8px;align-items:center;">
-                <span style="font-size:11px;font-weight:600;color:#8D6E63;width:30px;">UPI</span>
+                <span style="font-size:11px;font-weight:600;color:#8A5967;width:30px;">UPI</span>
                 <input type="number" id="dinein-upi-input" class="form-control" placeholder="₹0.00" min="0" step="0.01" style="flex:1;">
               </div>
             </div>
@@ -453,12 +453,12 @@
         </div>
         <div id="mob-dinein-payment-opts" style="display:none;" class="mob-charge-opts mob-charge-opts-col">
           <div style="display:flex;gap:8px;align-items:center;">
-            <span style="font-size:11px;font-weight:600;color:#8D6E63;min-width:30px;">Cash</span>
+            <span style="font-size:11px;font-weight:600;color:#8A5967;min-width:30px;">Cash</span>
             <input type="number" id="mob-dinein-cash" class="form-control" placeholder="₹0.00" min="0" step="0.01" style="flex:1;">
-            <button type="button" onclick="showQR()" style="background:linear-gradient(135deg,#FF8F00,#E65100);color:#fff;border:none;border-radius:6px;padding:6px 10px;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0;">📱 QR</button>
+            <button type="button" onclick="showQR()" style="background:linear-gradient(135deg, #B83256, #8B1E3F);color:#fff;border:none;border-radius:6px;padding:6px 10px;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0;">📱 QR</button>
           </div>
           <div style="display:flex;gap:8px;align-items:center;margin-top:6px;">
-            <span style="font-size:11px;font-weight:600;color:#8D6E63;min-width:30px;">UPI</span>
+            <span style="font-size:11px;font-weight:600;color:#8A5967;min-width:30px;">UPI</span>
             <input type="number" id="mob-dinein-upi" class="form-control" placeholder="₹0.00" min="0" step="0.01" style="flex:1;">
           </div>
         </div>
@@ -484,13 +484,13 @@
         <button class="prev-tab" onclick="switchPreviewTab('checklist',this)">🍳 KOT</button>
       </div>
       <div class="prev-content active" id="prev-receipt" style="padding:12px">
-        <pre id="preview-receipt-pre" style="font-family:monospace;font-size:12px;background:#FFFDE7;border:1px solid #FFCC80;padding:14px;border-radius:8px;overflow-x:auto;color:#3E2000;white-space:pre;line-height:1.5"></pre>
+        <pre id="preview-receipt-pre" style="font-family:monospace;font-size:12px;background:#FCF8F9;border:1px solid #F0CBD3;padding:14px;border-radius:8px;overflow-x:auto;color:#2D0E17;white-space:pre;line-height:1.5"></pre>
       </div>
       <div class="prev-content" id="prev-checklist" style="padding:12px">
-        <pre id="preview-checklist-pre" style="font-family:monospace;font-size:12px;background:#FFFDE7;border:1px solid #FFCC80;padding:14px;border-radius:8px;overflow-x:auto;color:#3E2000;white-space:pre;line-height:1.5"></pre>
+        <pre id="preview-checklist-pre" style="font-family:monospace;font-size:12px;background:#FCF8F9;border:1px solid #F0CBD3;padding:14px;border-radius:8px;overflow-x:auto;color:#2D0E17;white-space:pre;line-height:1.5"></pre>
       </div>
-      <div style="padding:12px;border-top:2px solid #FFCC80;background:#FFF8F0">
-        <div style="font-size:11px;font-weight:700;color:#8D6E63;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">✏️ Edit Items (changes reflect in all 3 receipts)</div>
+      <div style="padding:12px;border-top:2px solid #F0CBD3;background:#FFF9FA">
+        <div style="font-size:11px;font-weight:700;color:#8A5967;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">✏️ Edit Items (changes reflect in all 3 receipts)</div>
         <div id="preview-edit-list"></div>
         <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
           <input type="text" id="preview-add-name" class="form-control" placeholder="Item name" style="flex:2;min-width:110px;height:34px">
@@ -501,7 +501,7 @@
       </div>
     </div>
     <div class="modal-footer" style="flex-direction:column; gap:10px; align-items:stretch;">
-      <div style="font-size:12px; font-weight:700; color:#8D6E63; text-align:center;">📤 Choose what to print:</div>
+      <div style="font-size:12px; font-weight:700; color:#8A5967; text-align:center;">📤 Choose what to print:</div>
       <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center;" id="print-options-row">
         <button class="btn btn-secondary btn-sm" onclick="confirmPrint('receipt')">🧾 Invoice Only</button>
         <button class="btn btn-secondary btn-sm print-check-opt" onclick="confirmPrint('checklist')">🍳 KOT Only</button>
@@ -518,10 +518,10 @@
   <div class="modal" style="max-width:360px;text-align:center">
     <div class="modal-body" style="padding:28px 20px">
       <div style="font-size:48px">✅</div>
-      <h3 style="margin:10px 0 6px;font-size:18px;color:#E65100">Bill Saved!</h3>
+      <h3 style="margin:10px 0 6px;font-size:18px;color:#8B1E3F">Bill Saved!</h3>
       <div class="token-badge" style="display:inline-flex;font-size:24px;padding:8px 20px;margin:8px 0" id="success-token">—</div>
-      <div style="font-size:13px;color:#8D6E63" id="success-billno"></div>
-      <div style="font-size:20px;font-weight:800;color:#E65100;margin:8px 0" id="success-total"></div>
+      <div style="font-size:13px;color:#8A5967" id="success-billno"></div>
+      <div style="font-size:20px;font-weight:800;color:#8B1E3F;margin:8px 0" id="success-total"></div>
       <div id="print-status" style="margin-bottom:12px"></div>
       <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px;flex-wrap:wrap">
         <button class="btn btn-secondary btn-sm" onclick="reprintDocument('receipt')">🧾 Invoice</button>
@@ -856,7 +856,7 @@ function renderBill() {
         <button class="cart-remove-btn" onclick="removeItem(${i})" title="Remove">✕</button>
       </div>
       <div style="margin-top:6px;">
-        <input type="text" class="form-control" style="font-size:11px; padding:4px 8px; height:26px; border-color:#FFE0B2; background:#FFF;" placeholder="✏️ Note for this item (e.g. spicy)" value="${item.item_note || ''}" onchange="changeItemNote(${i},this.value)">
+        <input type="text" class="form-control" style="font-size:11px; padding:4px 8px; height:26px; border-color:#FCE8EC; background:#FFF;" placeholder="✏️ Note for this item (e.g. spicy)" value="${item.item_note || ''}" onchange="changeItemNote(${i},this.value)">
       </div>
     </div>`).join('');
   updateTotals();
@@ -1476,13 +1476,13 @@ function renderPreviewEditList() {
   const el = document.getElementById('preview-edit-list');
   if (!el) return;
   el.innerHTML = billItems.map((item, i) => `
-    <div style="display:flex; flex-direction:column; padding:5px 0; border-bottom:1px solid #FFE0B2;">
+    <div style="display:flex; flex-direction:column; padding:5px 0; border-bottom:1px solid #FCE8EC;">
       <div style="display:flex;align-items:center;gap:6px;">
-        <span style="flex:1;font-size:12px;color:#3E2000;font-weight:600">${item.item_name}</span>
-        <input type="number" value="${item.quantity}" min="1" style="width:46px;height:28px;border:1px solid #FFCC80;border-radius:5px;text-align:center;font-size:12px;background:#FFFDE7;color:#3E2000" onchange="previewChangeQty(${i}, this.value)">
-        <span style="font-size:11px;color:#8D6E63">× ₹</span>
-        <input type="number" value="${item.unit_price.toFixed(2)}" min="0" step="0.01" style="width:70px;height:28px;border:1px solid #FFCC80;border-radius:5px;text-align:right;font-size:12px;background:#FFFDE7;color:#3E2000" onchange="previewChangePrice(${i}, this.value)">
-        <span style="font-size:12px;font-weight:700;color:#E65100;min-width:55px;text-align:right">₹${item.line_total.toFixed(2)}</span>
+        <span style="flex:1;font-size:12px;color:#2D0E17;font-weight:600">${item.item_name}</span>
+        <input type="number" value="${item.quantity}" min="1" style="width:46px;height:28px;border:1px solid #F0CBD3;border-radius:5px;text-align:center;font-size:12px;background:#FCF8F9;color:#2D0E17" onchange="previewChangeQty(${i}, this.value)">
+        <span style="font-size:11px;color:#8A5967">× ₹</span>
+        <input type="number" value="${item.unit_price.toFixed(2)}" min="0" step="0.01" style="width:70px;height:28px;border:1px solid #F0CBD3;border-radius:5px;text-align:right;font-size:12px;background:#FCF8F9;color:#2D0E17" onchange="previewChangePrice(${i}, this.value)">
+        <span style="font-size:12px;font-weight:700;color:#8B1E3F;min-width:55px;text-align:right">₹${item.line_total.toFixed(2)}</span>
         <button onclick="previewRemoveItem(${i})" style="width:24px;height:24px;border:1px solid #C62828;background:rgba(198,40,40,0.08);border-radius:5px;cursor:pointer;color:#C62828;font-size:13px">✕</button>
       </div>
       <input type="text" class="form-control" style="margin-top:4px; font-size:11px; padding:2px 6px; height:24px;" placeholder="✏️ Note for this item" value="${item.item_note || ''}" onchange="previewChangeItemNote(${i}, this.value)">
@@ -1628,13 +1628,18 @@ async function saveBill(print=true, status='completed') {
     const pr = res.print_results || [];
     const statusEl = document.getElementById('print-status');
     if (!pr.length) {
-      statusEl.innerHTML = `<div style="background:#FFF8DC;border:1px solid #F57F17;border-radius:8px;padding:8px 12px;font-size:12px;color:#E65100">⚠️ Auto-print not configured. Use Reprint buttons below.</div>`;
+      statusEl.innerHTML = `<div style="background:#FFF8DC;border:1px solid #F57F17;border-radius:8px;padding:8px 12px;font-size:12px;color:#8B1E3F">⚠️ No printer configured. Set Printer IP in Settings, or use Reprint buttons below.</div>`;
     } else {
       statusEl.innerHTML = pr.map(p => {
-        if (p.queued)   return `<div style="background:#E3F2FD;border:1px solid #1565C0;border-radius:8px;padding:8px 12px;font-size:12px;color:#1565C0;margin-bottom:4px">🖨️ ${p.type.toUpperCase()}: Sent to queue — ESP32 must be ON to print</div>`;
-        if (p.success)  return `<div style="background:#E8F5E9;border:1px solid #2E7D32;border-radius:8px;padding:8px 12px;font-size:12px;color:#2E7D32;margin-bottom:4px">✅ ${p.type.toUpperCase()} printed</div>`;
-        if (p.skipped)  return `<div style="background:#FFF8DC;border:1px solid #F57F17;border-radius:8px;padding:8px 12px;font-size:12px;color:#E65100;margin-bottom:4px">⚠️ ${p.type.toUpperCase()}: ${p.reason || 'Printer not configured'}</div>`;
-        return `<div style="background:#FFEBEE;border:1px solid #C62828;border-radius:8px;padding:8px 12px;font-size:12px;color:#C62828;margin-bottom:4px">❌ ${p.type.toUpperCase()} failed: ${p.error || 'Unknown'}</div>`;
+        if (p.success && p.method === 'TCP')
+          return `<div style="background:#E8F5E9;border:1px solid #2E7D32;border-radius:8px;padding:8px 12px;font-size:12px;color:#2E7D32;margin-bottom:4px">✅ ${p.type.toUpperCase()}: Printed directly via local network (TCP)</div>`;
+        if (p.success)
+          return `<div style="background:#E8F5E9;border:1px solid #2E7D32;border-radius:8px;padding:8px 12px;font-size:12px;color:#2E7D32;margin-bottom:4px">✅ ${p.type.toUpperCase()}: Printed successfully</div>`;
+        if (p.queued)
+          return `<div style="background:#E3F2FD;border:1px solid #1565C0;border-radius:8px;padding:8px 12px;font-size:12px;color:#1565C0;margin-bottom:4px">📡 ${p.type.toUpperCase()}: Queued via MQTT — ESP32 will print when online</div>`;
+        if (p.skipped)
+          return `<div style="background:#FFF8DC;border:1px solid #F57F17;border-radius:8px;padding:8px 12px;font-size:12px;color:#8B1E3F;margin-bottom:4px">⚠️ ${p.type.toUpperCase()}: ${p.reason || 'Printer not reachable'}</div>`;
+        return `<div style="background:#FFEBEE;border:1px solid #C62828;border-radius:8px;padding:8px 12px;font-size:12px;color:#C62828;margin-bottom:4px">❌ ${p.type.toUpperCase()} failed: ${p.error || 'Unknown error'}</div>`;
       }).join('');
     }
     document.getElementById('success-modal').classList.add('open');
@@ -1665,14 +1670,16 @@ async function reprintDocument(type) {
     if (!pr.length) {
       showToast('⚠️ No printer configured in Settings', 'warning');
     } else {
+      const tcpOk   = pr.filter(p => p.success && p.method === 'TCP');
+      const ok      = pr.filter(p => p.success && p.method !== 'TCP');
       const queued  = pr.filter(p => p.queued);
       const skipped = pr.filter(p => p.skipped);
       const failed  = pr.filter(p => !p.success && !p.skipped && !p.queued);
-      const ok      = pr.filter(p => p.success);
-      if (queued.length)  showToast(`🖨️ ${queued.map(p=>p.type.toUpperCase()).join(' & ')}: Queued — ESP32 will print when online`, 'success');
-      if (ok.length)      showToast(`✅ ${ok.map(p=>p.type.toUpperCase()).join(' & ')} printed successfully`, 'success');
-      if (skipped.length) showToast(`⚠️ ${skipped.map(p=>p.type.toUpperCase()).join(' & ')}: Printer IP not set in Settings`, 'warning');
-      if (failed.length)  showToast(`📡 Direct print failed — ESP32 may be off. Will retry via MQTT queue`, 'warning');
+      if (tcpOk.length)   showToast(`✅ ${tcpOk.map(p=>p.type.toUpperCase()).join(' & ')}: Printed via local network`, 'success');
+      if (ok.length)      showToast(`✅ ${ok.map(p=>p.type.toUpperCase()).join(' & ')}: Printed successfully`, 'success');
+      if (queued.length)  showToast(`📡 ${queued.map(p=>p.type.toUpperCase()).join(' & ')}: Queued via MQTT — ESP32 will print`, 'success');
+      if (skipped.length) showToast(`⚠️ ${skipped.map(p=>p.type.toUpperCase()).join(' & ')}: ${skipped[0].reason || 'Printer not reachable'}`, 'warning');
+      if (failed.length)  showToast(`❌ Print error — check printer IP/network`, 'error');
     }
   } catch (e) {
     showToast('❌ Print error: ' + e.message, 'error');
@@ -1713,10 +1720,10 @@ function showCustomerHistory() {
   } else {
     content.innerHTML = `
       <table style="width:100%; font-size:13px; text-align:left; border-collapse:collapse;">
-        <thead><tr style="border-bottom:1px solid #FFE0B2;"><th style="padding:6px">Date</th><th style="padding:6px">Type</th><th style="padding:6px">Amount</th></tr></thead>
+        <thead><tr style="border-bottom:1px solid #FCE8EC;"><th style="padding:6px">Date</th><th style="padding:6px">Type</th><th style="padding:6px">Amount</th></tr></thead>
         <tbody>
           ${currentCustHistory.map(h => `
-            <tr style="border-bottom:1px solid #FFE0B2;">
+            <tr style="border-bottom:1px solid #FCE8EC;">
               <td style="padding:6px">${new Date(h.created_at).toLocaleDateString()}</td>
               <td style="padding:6px">${h.order_type || 'Dine-in'}</td>
               <td style="padding:6px; font-weight:bold; color:var(--flame-light);">${formatCurrency(h.grand_total)}</td>
@@ -1823,19 +1830,19 @@ loadMenu();
 <!-- QR Modal -->
 <div id="qr-modal" onclick="hideQR()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:9999; justify-content:center; align-items:center; flex-direction:column; padding:20px;">
   <div onclick="event.stopPropagation()" style="background:#fff; border-radius:24px; padding:24px 20px; max-width:340px; width:100%; text-align:center; box-shadow:0 24px 80px rgba(0,0,0,0.6);">
-    <div style="font-size:17px; font-weight:800; color:#E65100; margin-bottom:3px;">&#128241; Scan to Pay</div>
-    <div style="font-size:12px; color:#8D6E63; margin-bottom:14px;">Choose a payment QR to show customer</div>
+    <div style="font-size:17px; font-weight:800; color:#8B1E3F; margin-bottom:3px;">&#128241; Scan to Pay</div>
+    <div style="font-size:12px; color:#8A5967; margin-bottom:14px;">Choose a payment QR to show customer</div>
 
     <!-- QR Tab Switcher -->
-    <div style="display:flex; background:#FFF3E0; border-radius:14px; padding:4px; gap:4px; margin-bottom:16px;">
-      <button id="db-tab-gpay" onclick="switchQR('gpay')" style="flex:1; padding:8px 0; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; transition:.2s;">QR 1</button>
-      <button id="db-tab-paytm" onclick="switchQR('paytm')" style="flex:1; padding:8px 0; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; background:transparent; color:#8D6E63; transition:.2s;">QR 2</button>
+    <div style="display:flex; background:#FDF2F4; border-radius:14px; padding:4px; gap:4px; margin-bottom:16px;">
+      <button id="db-tab-gpay" onclick="switchQR('gpay')" style="flex:1; padding:8px 0; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; background:linear-gradient(135deg, #8B1E3F, #B83256); color:#fff; transition:.2s;">QR 1</button>
+      <button id="db-tab-paytm" onclick="switchQR('paytm')" style="flex:1; padding:8px 0; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; background:transparent; color:#8A5967; transition:.2s;">QR 2</button>
     </div>
 
     <!-- GPay / PhonePe QR -->
     <div id="db-qr-gpay">
-      <img src="assets/payment_qr.png" alt="GPay / PhonePe QR" style="width:100%; max-width:280px; border-radius:14px; border:2px solid #FFE0B2;" onerror="this.style.display='none'; document.getElementById('qr-fallback').style.display='block'">
-      <div id="qr-fallback" style="display:none; padding:30px; background:#FFF3E0; border-radius:12px; color:#E65100; font-size:13px; font-weight:700;">&#9888;&#65039; QR not found.<br><span style="font-size:11px; color:#8D6E63; font-weight:400;">Add payment_qr.png to client/assets/</span></div>
+      <img src="assets/payment_qr.png" alt="GPay / PhonePe QR" style="width:100%; max-width:280px; border-radius:14px; border:2px solid #FCE8EC;" onerror="this.style.display='none'; document.getElementById('qr-fallback').style.display='block'">
+      <div id="qr-fallback" style="display:none; padding:30px; background:#FDF2F4; border-radius:12px; color:#8B1E3F; font-size:13px; font-weight:700;">&#9888;&#65039; QR not found.<br><span style="font-size:11px; color:#8A5967; font-weight:400;">Add payment_qr.png to client/assets/</span></div>
     </div>
 
     <!-- Paytm QR -->
@@ -1870,17 +1877,17 @@ function switchQR(which) {
   if (which === 'gpay') {
     gpayPanel.style.display = 'block';
     paytmPanel.style.display = 'none';
-    btnGpay.style.background = 'linear-gradient(135deg,#E65100,#FF8F00)';
+    btnGpay.style.background = 'linear-gradient(135deg, #8B1E3F, #B83256)';
     btnGpay.style.color = '#fff';
     btnPaytm.style.background = 'transparent';
-    btnPaytm.style.color = '#8D6E63';
+    btnPaytm.style.color = '#8A5967';
   } else {
     gpayPanel.style.display = 'none';
     paytmPanel.style.display = 'block';
-    btnPaytm.style.background = 'linear-gradient(135deg,#E65100,#FF8F00)';
+    btnPaytm.style.background = 'linear-gradient(135deg, #8B1E3F, #B83256)';
     btnPaytm.style.color = '#fff';
     btnGpay.style.background = 'transparent';
-    btnGpay.style.color = '#8D6E63';
+    btnGpay.style.color = '#8A5967';
   }
 }
 // Close on Escape key

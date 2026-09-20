@@ -10,16 +10,16 @@
 <style>
   .settings-section { margin-bottom: 20px; }
   .settings-section h3 { font-size: 13px; font-weight: 700; color: var(--flame-light); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
-  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #FFE0B2; gap: 12px; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #FCE8EC; gap: 12px; }
   .toggle-row-label { font-size: 13px; font-weight: 600; }
   .toggle-row-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
   .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   @media (max-width: 768px) { .settings-grid { grid-template-columns: 1fr; } }
-  .export-db-card { background: linear-gradient(135deg,#FFF8F0,#FFF3E0); border: 2px solid #FFCC80; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .export-db-card { background: linear-gradient(135deg,#FFF9FA,#FDF2F4); border: 2px solid #F0CBD3; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
   .export-db-card h3 { font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
   .export-db-card p { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5; }
   .export-db-sheets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
-  .sheet-badge { background: #FFF; border: 1px solid #FFCC80; border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 700; color: var(--primary); }
+  .sheet-badge { background: #FFF; border: 1px solid #F0CBD3; border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 700; color: var(--primary); }
 </style>
 </head>
 <body>
@@ -118,33 +118,42 @@
 
       <!-- Printer Configuration -->
       <div class="card settings-section">
-        <h3>🖨️ Printer Configuration (ESC/POS 80mm or 58mm Thermal)</h3>
+        <h3>🖨️ Printer Configuration (ESC/POS Thermal)</h3>
         <div class="grid-2">
           <div>
             <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Customer Receipt Printer</p>
             <div class="form-group">
-              <label class="form-label">Printer IP Address</label>
+              <label class="form-label">USB Printer Name <span style="font-size:10px;color:var(--text-muted);font-weight:400">(Windows name from Printers &amp; Scanners)</span></label>
+              <input type="text" class="form-control" id="s-cust-usb" placeholder="e.g. EPSON TM-T20" autocomplete="off">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Network IP Address <span style="font-size:10px;color:var(--text-muted);font-weight:400">(WiFi/Ethernet printer)</span></label>
               <input type="text" class="form-control" id="s-cust-ip" placeholder="192.168.1.100">
             </div>
             <div class="form-group">
-              <label class="form-label">Printer Port</label>
+              <label class="form-label">Network Port</label>
               <input type="number" class="form-control" id="s-cust-port" placeholder="9100" min="1" max="65535">
             </div>
           </div>
           <div>
             <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Kitchen Order Ticket Printer</p>
             <div class="form-group">
-              <label class="form-label">Printer IP Address</label>
+              <label class="form-label">USB Printer Name <span style="font-size:10px;color:var(--text-muted);font-weight:400">(Windows name from Printers &amp; Scanners)</span></label>
+              <input type="text" class="form-control" id="s-kit-usb" placeholder="e.g. EPSON TM-T20 KOT" autocomplete="off">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Network IP Address <span style="font-size:10px;color:var(--text-muted);font-weight:400">(WiFi/Ethernet printer)</span></label>
               <input type="text" class="form-control" id="s-kit-ip" placeholder="192.168.1.101">
             </div>
             <div class="form-group">
-              <label class="form-label">Printer Port</label>
+              <label class="form-label">Network Port</label>
               <input type="number" class="form-control" id="s-kit-port" placeholder="9100" min="1" max="65535">
             </div>
           </div>
         </div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:8px;padding:10px;background:var(--surface2);border-radius:8px">
-          ℹ️ <strong>Setup:</strong> Connect any ESC/POS-compatible network thermal printer (80mm or 58mm paper). Configure the printer's IP address on the same local network subnet. Port 9100 is the standard RAW print port for most thermal printers.
+          🖨️ <strong>Print Priority:</strong> USB (cable) → Network/TCP (WiFi/LAN) → MQTT Cloud (ESP32).
+          Fill in USB name <em>or</em> IP — you don’t need both. USB name must match exactly what Windows shows in <em>Settings → Bluetooth &amp; devices → Printers &amp; scanners</em>.
         </div>
         <!-- Paper width selector -->
         <div class="form-group" style="margin-top:14px;max-width:280px">
@@ -163,7 +172,7 @@
       </div>
 
       <!-- Database Environment Switcher -->
-      <div class="card settings-section" style="border:2px solid var(--primary,#E65100); background:linear-gradient(135deg,#FFF8F0,#FFFFFF)">
+      <div class="card settings-section" style="border:2px solid var(--primary, #8B1E3F); background:linear-gradient(135deg, #FFF9FA, #FFFFFF)">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px">
           <h3 style="margin:0; border:none; padding:0">🗄️ Database Environment Selection</h3>
           <span id="db-status-badge" style="padding:4px 12px; border-radius:20px; font-weight:800; font-size:12px"></span>
@@ -184,7 +193,7 @@
       <!-- Export Data -->
       <div class="export-db-card" id="export-db-section">
         <h3>&#128228; Export Data</h3>
-        <p>Use the <strong>Export</strong> button on the <a href="dashboard.html" style="color:#E65100;font-weight:700;">Dashboard</a> to selectively export any combination of database tables and reports to Excel. Choose exactly which schemas to include — orders, items, payments, delivery performance, users, menu, and more.</p>
+        <p>Use the <strong>Export</strong> button on the <a href="dashboard.html" style="color:#8B1E3F;font-weight:700;">Dashboard</a> to selectively export any combination of database tables and reports to Excel. Choose exactly which schemas to include — orders, items, payments, delivery performance, users, menu, and more.</p>
         <div class="export-db-sheets">
           <span class="sheet-badge">&#x1F9BE; Orders Summary</span>
           <span class="sheet-badge">&#x1F4CB; Order Items</span>
@@ -227,10 +236,12 @@ async function loadSettings() {
     document.getElementById('s-token-format').value = s.token_format || 'daily';
     document.getElementById('s-auto-receipt').checked = s.auto_print_receipt === '1';
     document.getElementById('s-auto-kot').checked = s.auto_print_kot === '1';
-    document.getElementById('s-cust-ip').value = s.customer_printer_ip || '';
-    document.getElementById('s-cust-port').value = s.customer_printer_port || '9100';
-    document.getElementById('s-kit-ip').value = s.kitchen_printer_ip || '';
-    document.getElementById('s-kit-port').value = s.kitchen_printer_port || '9100';
+    document.getElementById('s-cust-usb').value  = s.customer_usb_printer_name || '';
+    document.getElementById('s-cust-ip').value    = s.customer_printer_ip || '';
+    document.getElementById('s-cust-port').value  = s.customer_printer_port || '9100';
+    document.getElementById('s-kit-usb').value    = s.kitchen_usb_printer_name || '';
+    document.getElementById('s-kit-ip').value     = s.kitchen_printer_ip || '';
+    document.getElementById('s-kit-port').value   = s.kitchen_printer_port || '9100';
     document.getElementById('s-paper-width').value = s.paper_width || '80';
     document.getElementById('s-db-mode').value = s.db_mode || 'main';
     updateDbBadge();
@@ -257,8 +268,10 @@ async function saveSettings() {
         token_format: document.getElementById('s-token-format').value,
         auto_print_receipt: document.getElementById('s-auto-receipt').checked ? '1' : '0',
         auto_print_kot: document.getElementById('s-auto-kot').checked ? '1' : '0',
+        customer_usb_printer_name: document.getElementById('s-cust-usb').value,
         customer_printer_ip: document.getElementById('s-cust-ip').value,
         customer_printer_port: document.getElementById('s-cust-port').value,
+        kitchen_usb_printer_name: document.getElementById('s-kit-usb').value,
         kitchen_printer_ip: document.getElementById('s-kit-ip').value,
         kitchen_printer_port: document.getElementById('s-kit-port').value,
         paper_width: document.getElementById('s-paper-width').value,
@@ -280,13 +293,14 @@ async function testPrint(printer) {
     const data = await apiFetch('/delivery/test-print', {
       method: 'POST', body: JSON.stringify({ printer })
     });
-    if (data.printer_ip) {
+    if (data.printer_ip || data.printer_usb) {
+      const method = data.printer_usb ? `USB: <strong>${data.printer_usb}</strong>` : `Network: <strong>${data.printer_ip}:${data.printer_port}</strong>`;
       resultEl.innerHTML = `<div style="background:#E8F5E9;border:1px solid #A5D6A7;border-radius:8px;padding:10px 14px;font-size:12px;color:#2E7D32;margin-top:6px">
-        ✅ Test print data ready for <strong>${printer === 'kitchen' ? 'Kitchen' : 'Customer'}</strong> printer (${data.printer_ip}:${data.printer_port}).
-        <br>The printer will receive the job via MQTT/ESP32 bridge.
+        ✅ Test sent to <strong>${printer === 'kitchen' ? 'Kitchen' : 'Customer'}</strong> printer via ${method}.
+        <br><span style="color:#1B5E20">🖨️ USB prints instantly • 📡 Network prints via TCP • MQTT is cloud fallback</span>
       </div>`;
     } else {
-      resultEl.innerHTML = `<div style="background:#FFF3E0;border:1px solid #FFCC80;border-radius:8px;padding:10px 14px;font-size:12px;color:#E65100;margin-top:6px">
+      resultEl.innerHTML = `<div style="background:#FDF2F4;border:1px solid #F0CBD3;border-radius:8px;padding:10px 14px;font-size:12px;color:#8B1E3F;margin-top:6px">
         ⚠️ No printer IP configured for ${printer === 'kitchen' ? 'Kitchen' : 'Customer'} printer. Please add the IP above and save.
       </div>`;
     }
@@ -303,9 +317,9 @@ function updateDbBadge() {
   const mode = document.getElementById('s-db-mode').value;
   const badge = document.getElementById('db-status-badge');
   if (mode === 'test') {
-    badge.style.background = '#FFF3E0';
-    badge.style.color = '#E65100';
-    badge.style.border = '1px solid #FFCC80';
+    badge.style.background = '#FDF2F4';
+    badge.style.color = '#8B1E3F';
+    badge.style.border = '1px solid #F0CBD3';
     badge.innerHTML = '🧪 SAFE TEST DB MODE';
   } else {
     badge.style.background = '#E8F5E9';

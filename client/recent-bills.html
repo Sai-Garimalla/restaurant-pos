@@ -81,13 +81,13 @@
     .bill-card-name {
       font-size: 14px;
       font-weight: 700;
-      color: #3E2000;
+      color: #2D0E17;
     }
 
     .bill-card-phone {
       font-size: 13px;
       font-weight: 600;
-      color: #E65100;
+      color: #8B1E3F;
     }
 
     .bill-card-meta {
@@ -203,10 +203,10 @@
       grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
       gap: 10px;
       padding: 14px;
-      background: linear-gradient(135deg, #FFF8F0, #FFFDE7);
+      background: linear-gradient(135deg, #FFF9FA, #FCF8F9);
       border-radius: 12px;
       margin-bottom: 14px;
-      border: 1px solid #FFCC80;
+      border: 1px solid #F0CBD3;
     }
 
     .cust-hero-field {
@@ -218,7 +218,7 @@
     .cust-hero-label {
       font-size: 10px;
       font-weight: 700;
-      color: #8D6E63;
+      color: #8A5967;
       text-transform: uppercase;
       letter-spacing: .5px;
     }
@@ -226,7 +226,7 @@
     .cust-hero-val {
       font-size: 15px;
       font-weight: 700;
-      color: #3E2000;
+      color: #2D0E17;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -234,7 +234,7 @@
 
     .cust-hero-val.big {
       font-size: 18px;
-      color: #E65100;
+      color: #8B1E3F;
     }
 
     .cust-hero-val.phone {
@@ -243,12 +243,12 @@
 
     .cust-hero-addr {
       grid-column: 1 / -1;
-      background: #FFF3E0;
-      border: 1px solid #FFCC80;
+      background: #FDF2F4;
+      border: 1px solid #F0CBD3;
       border-radius: 8px;
       padding: 8px 12px;
       font-size: 13px;
-      color: #3E2000;
+      color: #2D0E17;
       font-weight: 600;
     }
 
@@ -258,15 +258,15 @@
       gap: 6px;
       align-items: center;
       padding: 10px 14px;
-      background: #FFF8F0;
-      border-top: 1px solid #FFCC80;
+      background: #FFF9FA;
+      border-top: 1px solid #F0CBD3;
       flex-wrap: wrap;
     }
 
     .ds-label {
       font-size: 11px;
       font-weight: 700;
-      color: #8D6E63;
+      color: #8A5967;
     }
 
     .ds-btn {
@@ -274,22 +274,22 @@
       border-radius: 16px;
       font-size: 11px;
       font-weight: 700;
-      border: 1px solid #FFCC80;
+      border: 1px solid #F0CBD3;
       background: #fff;
-      color: #8D6E63;
+      color: #8A5967;
       cursor: pointer;
       transition: all .15s;
     }
 
     .ds-btn.active {
-      background: linear-gradient(135deg, #E65100, #FF8F00);
+      background: linear-gradient(135deg, #8B1E3F, #B83256);
       border-color: transparent;
       color: #fff;
     }
 
     .ds-btn:hover:not(.active) {
-      border-color: #E65100;
-      color: #E65100;
+      border-color: #8B1E3F;
+      color: #8B1E3F;
     }
 
     /* Payment summary in modal */
@@ -381,7 +381,7 @@
             </select>
             <div style="display:flex; align-items:center; gap:4px">
               <input type="date" class="form-control" id="date-from" placeholder="From Date" onchange="loadBills(1)">
-              <span style="color:#8D6E63; font-weight:600;">to</span>
+              <span style="color:#8A5967; font-weight:600;">to</span>
               <input type="date" class="form-control" id="date-to" placeholder="To Date" onchange="loadBills(1)">
             </div>
             <select id="status-filter" class="form-control" onchange="loadBills(1)">
@@ -560,8 +560,8 @@
           return `
       <tr>
         <td><span style="background:var(--gradient);padding:3px 10px;border-radius:6px;font-weight:800;font-size:13px">${tokenStr(b)}</span></td>
-        <td style="font-size:13px;font-weight:700;color:#3E2000">${b.customer_name ? escapeHtml(b.customer_name) : '<span style="color:var(--text-muted)">Walk-in</span>'}</td>
-        <td style="font-size:13px;font-weight:600;color:#E65100">${b.customer_phone ? escapeHtml(b.customer_phone) : '<span style="color:var(--text-muted)">—</span>'}</td>
+        <td style="font-size:13px;font-weight:700;color:#2D0E17">${b.customer_name ? escapeHtml(b.customer_name) : '<span style="color:var(--text-muted)">Walk-in</span>'}</td>
+        <td style="font-size:13px;font-weight:600;color:#8B1E3F">${b.customer_phone ? escapeHtml(b.customer_phone) : '<span style="color:var(--text-muted)">—</span>'}</td>
         <td style="font-size:12px;font-weight:600;color:var(--flame-light)">${escapeHtml(b.order_type || 'Dine-in')}</td>
         <td style="font-size:11px;font-family:monospace">${escapeHtml(b.bill_number)}</td>
         <td style="font-size:11px">${formatDateTime(b.created_at)}</td>
@@ -676,7 +676,7 @@
 
         // Items table
         const itemsTable = `
-      <div style="font-size:11px;font-weight:700;color:#8D6E63;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">🛒 Items</div>
+      <div style="font-size:11px;font-weight:700;color:#8A5967;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">🛒 Items</div>
       <div class="bill-detail-items table-wrap">
         <table>
           <thead><tr><th>Item</th><th>Code</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
@@ -684,7 +684,7 @@
             <tr>
               <td>
                 ${escapeHtml(i.item_name)}${i.is_manual ? ' <span class="badge badge-info">Manual</span>' : ''}
-                ${i.item_note ? `<div style="font-size:10px; color:#E65100; margin-top:2px;">↳ ${escapeHtml(i.item_note)}</div>` : ''}
+                ${i.item_note ? `<div style="font-size:10px; color:#8B1E3F; margin-top:2px;">↳ ${escapeHtml(i.item_note)}</div>` : ''}
               </td>
               <td style="font-size:10px">${i.item_code || '—'}</td>
               <td>${i.quantity}</td>
@@ -718,7 +718,7 @@
               ? `<div style="margin-top:8px; display:flex; gap:6px;">
                <button onclick="markPaid(${billId}, ${grand}, 'cash')" style="flex:1; padding:6px; font-size:12px; font-weight:700; background:#E8F5E9; color:#2E7D32; border:1px solid #A5D6A7; border-radius:6px; cursor:pointer;">Mark Paid (Cash)</button>
                <button onclick="markPaid(${billId}, ${grand}, 'upi')" style="flex:1; padding:6px; font-size:12px; font-weight:700; background:#E3F2FD; color:#1565C0; border:1px solid #90CAF9; border-radius:6px; cursor:pointer;">Mark Paid (UPI)</button>
-               <button onclick="showQR()" style="background:linear-gradient(135deg,#FF8F00,#E65100); color:#fff; border:none; border-radius:6px; padding:6px; font-size:12px; font-weight:800; cursor:pointer; flex-shrink:0;">📱 QR</button>
+               <button onclick="showQR()" style="background:linear-gradient(135deg, #B83256, #8B1E3F); color:#fff; border:none; border-radius:6px; padding:6px; font-size:12px; font-weight:800; cursor:pointer; flex-shrink:0;">📱 QR</button>
              </div>`
               : '';
 
@@ -729,7 +729,7 @@
           } else if (diff > 0.005) {
             const isSettled = bill.change_settled;
             const settleBtnHtml = canManage
-              ? `<button onclick="toggleSettleChange(${billId})" style="margin-top:8px;width:100%;padding:8px;border-radius:8px;font-weight:800;font-size:13px;border:none;cursor:pointer;background:${isSettled ? '#FFF3E0;color:#E65100;border:1px solid #FFE0B2' : '#00838F;color:#fff'}">
+              ? `<button onclick="toggleSettleChange(${billId})" style="margin-top:8px;width:100%;padding:8px;border-radius:8px;font-weight:800;font-size:13px;border:none;cursor:pointer;background:${isSettled ? '#FDF2F4;color:#8B1E3F;border:1px solid #FCE8EC' : '#00838F;color:#fff'}">
                ${isSettled ? '↩️ Unmark Change Settled' : '✅ Settle Extra Change (₹' + diff.toFixed(2) + ')'}
              </button>`
               : '';
@@ -752,7 +752,7 @@
           <div class="payment-row"><span>📱 UPI</span><span style="font-weight:700;">₹${upi.toFixed(2)}</span></div>
           <div class="payment-total-row"><span>Total Collected</span><span>₹${collected.toFixed(2)}</span></div>
           ${balHtml}
-          ${bill.delivery_boy_name ? `<div style="font-size:11px;color:#8D6E63;margin-top:4px;">Delivered by: ${escapeHtml(bill.delivery_boy_name)}</div>` : ''}
+          ${bill.delivery_boy_name ? `<div style="font-size:11px;color:#8A5967;margin-top:4px;">Delivered by: ${escapeHtml(bill.delivery_boy_name)}</div>` : ''}
         </div>`;
         }
 
@@ -841,10 +841,10 @@
         if (!boys.length) return;
         const row = document.createElement('div');
         row.id = 'assign-row';
-        row.style.cssText = 'width:100%;padding:8px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-top:1px solid #FFE0B2;margin-top:4px';
+        row.style.cssText = 'width:100%;padding:8px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-top:1px solid #FCE8EC;margin-top:4px';
         row.innerHTML = `
-      <span style="font-size:11px;font-weight:700;color:#8D6E63;flex-shrink:0">🛵 Assign:</span>
-      <select id="assign-select" style="flex:1;padding:6px 10px;border-radius:8px;border:1px solid #FFCC80;font-size:12px;min-width:120px;" onchange="">
+      <span style="font-size:11px;font-weight:700;color:#8A5967;flex-shrink:0">🛵 Assign:</span>
+      <select id="assign-select" style="flex:1;padding:6px 10px;border-radius:8px;border:1px solid #F0CBD3;font-size:12px;min-width:120px;" onchange="">
         <option value="">— Unassigned —</option>
         ${boys.map(b => `<option value="${b.id}" ${currentAssigned == b.id ? 'selected' : ''}>${b.full_name}${b.phone ? ' (' + b.phone + ')' : ''}</option>`).join('')}
       </select>
@@ -869,19 +869,19 @@
 
     async function reprint(billId, type) {
       const statusEl = document.getElementById('modal-print-status');
-      statusEl.innerHTML = `<div style="padding:8px 12px;font-size:12px;color:#8D6E63;background:#FFF8F0;border-radius:8px;">⏳ Sending to printer…</div>`;
+      statusEl.innerHTML = `<div style="padding:8px 12px;font-size:12px;color:#8A5967;background:#FFF9FA;border-radius:8px;">⏳ Sending to printer…</div>`;
       try {
         const data = await apiFetch(`/billing/${billId}/reprint`, { method: 'POST', body: JSON.stringify({ type }) });
         const pr = data.print_results || [];
         if (!pr.length) {
-          statusEl.innerHTML = `<div style="background:#FFF3E0;border:1px solid #FFCC80;border-radius:8px;padding:8px 12px;font-size:12px;color:#8D6E63">⚠️ No printer configured. Go to Settings to add printer IP.</div>`;
+          statusEl.innerHTML = `<div style="background:#FDF2F4;border:1px solid #F0CBD3;border-radius:8px;padding:8px 12px;font-size:12px;color:#8A5967">⚠️ No printer configured. Go to Settings to add printer IP.</div>`;
         } else {
           statusEl.innerHTML = pr.map(p => {
             const t = (p.type || '').toUpperCase();
             if (p.queued) return `<div style="background:#E3F2FD;border:1px solid #90CAF9;border-radius:8px;padding:8px 12px;font-size:12px;color:#1565C0;margin-bottom:4px">🖨️ ${t}: Queued — ESP32 will print when connected</div>`;
             if (p.success) return `<div style="background:#E8F5E9;border:1px solid #A5D6A7;border-radius:8px;padding:8px 12px;font-size:12px;color:#2E7D32;margin-bottom:4px">✅ ${t}: Printed successfully</div>`;
             if (p.skipped) return `<div style="background:#FFF8DC;border:1px solid #F9A825;border-radius:8px;padding:8px 12px;font-size:12px;color:#F57F17;margin-bottom:4px">⚠️ ${t}: ${p.reason || 'Printer IP not configured in Settings'}</div>`;
-            return `<div style="background:#FFF3E0;border:1px solid #FFCC80;border-radius:8px;padding:8px 12px;font-size:12px;color:#8D6E63;margin-bottom:4px">📡 ${t}: Direct TCP failed — ESP32 may be off. Will retry via MQTT.</div>`;
+            return `<div style="background:#FDF2F4;border:1px solid #F0CBD3;border-radius:8px;padding:8px 12px;font-size:12px;color:#8A5967;margin-bottom:4px">📡 ${t}: Direct TCP failed — ESP32 may be off. Will retry via MQTT.</div>`;
           }).join('');
         }
       } catch (e) {
@@ -948,27 +948,27 @@
     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:9999; justify-content:center; align-items:center; flex-direction:column; padding:20px;">
     <div onclick="event.stopPropagation()"
       style="background:#fff; border-radius:24px; padding:24px 20px; max-width:340px; width:100%; text-align:center; box-shadow:0 24px 80px rgba(0,0,0,0.6);">
-      <div style="font-size:17px; font-weight:800; color:#E65100; margin-bottom:3px;">&#128241; Scan to Pay</div>
-      <div style="font-size:12px; color:#8D6E63; margin-bottom:14px;">Choose a payment QR to show customer</div>
+      <div style="font-size:17px; font-weight:800; color:#8B1E3F; margin-bottom:3px;">&#128241; Scan to Pay</div>
+      <div style="font-size:12px; color:#8A5967; margin-bottom:14px;">Choose a payment QR to show customer</div>
 
       <!-- QR Tab Switcher -->
-      <div style="display:flex; background:#FFF3E0; border-radius:14px; padding:4px; gap:4px; margin-bottom:16px;">
+      <div style="display:flex; background:#FDF2F4; border-radius:14px; padding:4px; gap:4px; margin-bottom:16px;">
         <button id="db-tab-gpay" onclick="switchQR('gpay')"
-          style="flex:1; padding:8px 0; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; transition:.2s;">QR
+          style="flex:1; padding:8px 0; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; background:linear-gradient(135deg, #8B1E3F, #B83256); color:#fff; transition:.2s;">QR
           1</button>
         <button id="db-tab-paytm" onclick="switchQR('paytm')"
-          style="flex:1; padding:8px 0; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; background:transparent; color:#8D6E63; transition:.2s;">QR
+          style="flex:1; padding:8px 0; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; background:transparent; color:#8A5967; transition:.2s;">QR
           2</button>
       </div>
 
       <!-- GPay / PhonePe QR -->
       <div id="db-qr-gpay">
         <img src="assets/payment_qr.png" alt="GPay / PhonePe QR"
-          style="width:100%; max-width:280px; border-radius:14px; border:2px solid #FFE0B2;"
+          style="width:100%; max-width:280px; border-radius:14px; border:2px solid #FCE8EC;"
           onerror="this.style.display='none'; document.getElementById('qr-fallback').style.display='block'">
         <div id="qr-fallback"
-          style="display:none; padding:30px; background:#FFF3E0; border-radius:12px; color:#E65100; font-size:13px; font-weight:700;">
-          &#9888;&#65039; QR not found.<br><span style="font-size:11px; color:#8D6E63; font-weight:400;">Add
+          style="display:none; padding:30px; background:#FDF2F4; border-radius:12px; color:#8B1E3F; font-size:13px; font-weight:700;">
+          &#9888;&#65039; QR not found.<br><span style="font-size:11px; color:#8A5967; font-weight:400;">Add
             payment_qr.png to client/assets/</span></div>
       </div>
 
@@ -1010,17 +1010,17 @@
       if (which === 'gpay') {
         gpayPanel.style.display = 'block';
         paytmPanel.style.display = 'none';
-        btnGpay.style.background = 'linear-gradient(135deg,#E65100,#FF8F00)';
+        btnGpay.style.background = 'linear-gradient(135deg, #8B1E3F, #B83256)';
         btnGpay.style.color = '#fff';
         btnPaytm.style.background = 'transparent';
-        btnPaytm.style.color = '#8D6E63';
+        btnPaytm.style.color = '#8A5967';
       } else {
         gpayPanel.style.display = 'none';
         paytmPanel.style.display = 'block';
-        btnPaytm.style.background = 'linear-gradient(135deg,#E65100,#FF8F00)';
+        btnPaytm.style.background = 'linear-gradient(135deg, #8B1E3F, #B83256)';
         btnPaytm.style.color = '#fff';
         btnGpay.style.background = 'transparent';
-        btnGpay.style.color = '#8D6E63';
+        btnGpay.style.color = '#8A5967';
       }
     }
     // Close on Escape key

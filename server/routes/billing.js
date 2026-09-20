@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const mqtt = require('mqtt');
+const net   = require('net');
+const { execFile } = require('child_process');
+const fs    = require('fs');
+const os    = require('os');
+const path  = require('path');
 const { pool } = require('../db/connection');
 const { authenticateToken, requireAdminOrStaff } = require('../middleware/auth');
 router.use(authenticateToken);
@@ -129,23 +134,151 @@ function waitForMqttConnect(timeoutMs = 6000) {
   });
 }
 
-function printToPrinter(ip, port, data) {
-  return new Promise(async (resolve, reject) => {
-    if (!ip) return resolve({ skipped: true, reason: 'No printer IP configured' });
-    if (!mqttClient) return resolve({ skipped: true, reason: 'MQTT not configured (MQTT_HOST missing)' });
+// ── Direct local TCP print (ESC/POS raw socket to port 9100) ──
+function printViaLocalTCP(ip, port, data) {
+  const tcpPort = parseInt(port) || 9100;
+  return new Promise((resolve, reject) => {
+    const socket = new net.Socket();
+    let settled = false;
+    const done = (fn, val) => { if (!settled) { settled = true; fn(val); } };
 
-    // If not yet connected (Vercel cold-start), wait up to 6 s for connection
+    const timer = setTimeout(() => {
+      socket.destroy();
+      done(reject, new Error(`TCP connect timeout to ${ip}:${tcpPort}`));
+    }, 5000); // 5 s timeout
+
+    socket.connect(tcpPort, ip, () => {
+      clearTimeout(timer);
+      socket.write(data, (err) => {
+        socket.end();
+        if (err) return done(reject, err);
+        done(resolve, { success: true, method: 'TCP', message: `Printed directly to ${ip}:${tcpPort}` });
+      });
+    });
+
+    socket.on('error', (err) => {
+      clearTimeout(timer);
+      socket.destroy();
+      done(reject, err);
+    });
+  });
+}
+
+// ── Windows USB print via PowerShell WinSpool (raw ESC/POS to any installed printer) ──
+function printViaWindowsUSB(printerName, data) {
+  return new Promise((resolve, reject) => {
+    if (!printerName) return reject(new Error('No USB printer name configured'));
+
+    // Write ESC/POS bytes to a temp file, then use PowerShell to send raw bytes
+    const tmpFile = path.join(os.tmpdir(), `pos_usb_${Date.now()}.bin`);
+    try {
+      fs.writeFileSync(tmpFile, data);
+    } catch (e) {
+      return reject(new Error(`Failed to write temp print file: ${e.message}`));
+    }
+
+    // Pre-escape values before embedding in the PowerShell template literal
+    const psFilePath    = tmpFile.split('\\').join('\\\\').split('/').join('\\\\');
+    const psPrinterName = printerName.split("'").join("''");
+
+    // PowerShell script: sends raw bytes via Windows WinSpool API (works for any USB/parallel printer)
+    const ps = `
+$ErrorActionPreference = 'Stop';
+Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+public class RawPrint {
+  [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Ansi)]
+  public class DOCINFOA { public string pDocName; public string pOutputFile; public string pDataType; }
+  [DllImport("winspool.drv",CharSet=CharSet.Ansi,ExactSpelling=true)] public static extern bool OpenPrinterA(string n, out IntPtr h, IntPtr p);
+  [DllImport("winspool.drv")] public static extern bool ClosePrinter(IntPtr h);
+  [DllImport("winspool.drv",CharSet=CharSet.Ansi,ExactSpelling=true)] public static extern int StartDocPrinterA(IntPtr h, int l, [In,MarshalAs(UnmanagedType.LPStruct)] DOCINFOA d);
+  [DllImport("winspool.drv")] public static extern bool EndDocPrinter(IntPtr h);
+  [DllImport("winspool.drv")] public static extern bool StartPagePrinter(IntPtr h);
+  [DllImport("winspool.drv")] public static extern bool EndPagePrinter(IntPtr h);
+  [DllImport("winspool.drv")] public static extern bool WritePrinter(IntPtr h, IntPtr p, int n, out int w);
+}
+"@;
+$bytes = [System.IO.File]::ReadAllBytes('${psFilePath}');
+$ptr = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($bytes.Length);
+[System.Runtime.InteropServices.Marshal]::Copy($bytes, 0, $ptr, $bytes.Length);
+$h = [IntPtr]::Zero;
+[RawPrint]::OpenPrinterA('${psPrinterName}', [ref]$h, [IntPtr]::Zero) | Out-Null;
+$di = New-Object RawPrint+DOCINFOA; $di.pDocName='POS'; $di.pDataType='RAW';
+[RawPrint]::StartDocPrinterA($h, 1, $di) | Out-Null;
+[RawPrint]::StartPagePrinter($h) | Out-Null;
+$w = 0; [RawPrint]::WritePrinter($h, $ptr, $bytes.Length, [ref]$w) | Out-Null;
+[RawPrint]::EndPagePrinter($h) | Out-Null;
+[RawPrint]::EndDocPrinter($h) | Out-Null;
+[RawPrint]::ClosePrinter($h) | Out-Null;
+[System.Runtime.InteropServices.Marshal]::FreeHGlobal($ptr);
+Write-Output 'OK';
+`;
+
+    execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', ps],
+      { timeout: 15000 },
+      (err, stdout, stderr) => {
+        try { fs.unlinkSync(tmpFile); } catch (_) {}
+        if (err) return reject(new Error(stderr || err.message));
+        resolve({ success: true, method: 'USB', message: `Printed via USB to "${printerName}"` });
+      }
+    );
+  });
+}
+
+// ── Hybrid: USB → TCP → MQTT (try each in order, stop at first success) ──
+// usbName: Windows printer name (e.g. "EPSON TM-T20")  — optional
+// ip/port: network printer IP and port (default 9100)   — optional
+function printToPrinter(ip, port, data, usbName) {
+  return new Promise(async (resolve) => {
+    if (!ip && !usbName) return resolve({ skipped: true, reason: 'No printer configured (no IP or USB printer name)' });
+
+    // ── 1. Try Windows USB print (fastest, no network needed) ──
+    if (usbName) {
+      try {
+        const result = await printViaWindowsUSB(usbName, data);
+        console.log(`🖨️  USB print OK → "${usbName}"`);
+        return resolve(result);
+      } catch (usbErr) {
+        console.warn(`⚠️  USB print failed ("${usbName}"): ${usbErr.message} — trying TCP…`);
+      }
+    }
+
+    // ── 2. Try direct local TCP / network print ──
+    if (ip) {
+      try {
+        const result = await printViaLocalTCP(ip, port, data);
+        console.log(`🖨️  TCP print OK → ${ip}`);
+        return resolve(result);
+      } catch (tcpErr) {
+        console.warn(`⚠️  TCP print failed (${ip}): ${tcpErr.message} — trying MQTT fallback…`);
+      }
+    }
+
+    // ── 3. Fall back to MQTT cloud bridge (ESP32) ──
+    if (!mqttClient) {
+      return resolve({
+        skipped: true,
+        reason: `${usbName ? 'USB & ' : ''}${ip ? 'TCP & ' : ''}MQTT not configured — no print method available`,
+      });
+    }
+
     if (!mqttClient.connected) {
       try {
         await waitForMqttConnect(6000);
       } catch (e) {
-        return resolve({ skipped: true, reason: `MQTT not ready: ${e.message}` });
+        return resolve({
+          skipped: true,
+          reason: `All print methods failed. Last: MQTT not ready (${e.message})`,
+        });
       }
     }
 
     mqttClient.publish(`restaurant/printer/${ip}`, data, { qos: 1 }, (err) => {
-      if (err) return reject(err);
-      resolve({ queued: true, method: 'MQTT', message: 'Sent to printer queue' });
+      if (err) {
+        return resolve({ skipped: true, reason: `MQTT publish failed: ${err.message}` });
+      }
+      resolve({ queued: true, method: 'MQTT', message: 'USB/TCP failed — sent to ESP32 via MQTT queue' });
     });
   });
 }
@@ -526,38 +659,38 @@ router.post('/', requireAdminOrStaff, async (req, res) => {
 
     if (billStatus === 'completed') {
       // Receipt
-      if (shouldPrint('receipt') && settings.customer_printer_ip) {
+      if (shouldPrint('receipt') && (settings.customer_printer_ip || settings.customer_usb_printer_name)) {
         const data = await buildCustomerReceipt(bill, items, settings);
         receiptB64 = data.toString('base64');
-        try { const r = await printToPrinter(settings.customer_printer_ip, settings.customer_printer_port, data); printResults.push({ type:'receipt', ...r }); }
+        try { const r = await printToPrinter(settings.customer_printer_ip, settings.customer_printer_port, data, settings.customer_usb_printer_name); printResults.push({ type:'receipt', ...r }); }
         catch(e) { printResults.push({ type:'receipt', error: e.message }); }
       } else if (shouldPrint('receipt')) {
         const data = await buildCustomerReceipt(bill, items, settings);
         receiptB64 = data.toString('base64');
-        printResults.push({ type:'receipt', skipped:true, reason:'No customer printer IP' });
+        printResults.push({ type:'receipt', skipped:true, reason:'No customer printer configured (set IP or USB name in Settings)' });
       }
       // KOT
-      if (shouldPrint('kot') && settings.kitchen_printer_ip) {
+      if (shouldPrint('kot') && (settings.kitchen_printer_ip || settings.kitchen_usb_printer_name)) {
         const data = await buildKOT(bill, items, settings);
         kotB64 = data.toString('base64');
-        try { const r = await printToPrinter(settings.kitchen_printer_ip, settings.kitchen_printer_port, data); printResults.push({ type:'kot', ...r }); }
+        try { const r = await printToPrinter(settings.kitchen_printer_ip, settings.kitchen_printer_port, data, settings.kitchen_usb_printer_name); printResults.push({ type:'kot', ...r }); }
         catch(e) { printResults.push({ type:'kot', error: e.message }); }
       } else if (shouldPrint('kot')) {
         const data = await buildKOT(bill, items, settings);
         kotB64 = data.toString('base64');
-        printResults.push({ type:'kot', skipped:true, reason:'No kitchen printer IP' });
+        printResults.push({ type:'kot', skipped:true, reason:'No kitchen printer configured (set IP or USB name in Settings)' });
       }
       // Checklist (skip for Dine-in)
       const isDineIn = (bill.order_type || '').toLowerCase().includes('dine');
-      if (!isDineIn && shouldPrint('checklist') && settings.customer_printer_ip) {
+      if (!isDineIn && shouldPrint('checklist') && (settings.customer_printer_ip || settings.customer_usb_printer_name)) {
         const data = await buildCounterChecklist(bill, items, settings);
         checklistB64 = data.toString('base64');
-        try { const r = await printToPrinter(settings.customer_printer_ip, settings.customer_printer_port, data); printResults.push({ type:'checklist', ...r }); }
+        try { const r = await printToPrinter(settings.customer_printer_ip, settings.customer_printer_port, data, settings.customer_usb_printer_name); printResults.push({ type:'checklist', ...r }); }
         catch(e) { printResults.push({ type:'checklist', error: e.message }); }
       } else if (!isDineIn && shouldPrint('checklist')) {
         const data = await buildCounterChecklist(bill, items, settings);
         checklistB64 = data.toString('base64');
-        printResults.push({ type:'checklist', skipped:true, reason:'No printer IP' });
+        printResults.push({ type:'checklist', skipped:true, reason:'No printer configured' });
       }
     }
 
@@ -659,38 +792,38 @@ router.put('/:billId', requireAdminOrStaff, async (req, res) => {
     };
 
     if (billStatus === 'completed') {
-      if (shouldPrint('receipt') && settings.customer_printer_ip) {
+      if (shouldPrint('receipt') && (settings.customer_printer_ip || settings.customer_usb_printer_name)) {
         const data = await buildCustomerReceipt(billData, items, settings);
         receiptB64 = data.toString('base64');
-        try { const r = await printToPrinter(settings.customer_printer_ip, settings.customer_printer_port, data); printResults.push({ type:'receipt', ...r }); }
+        try { const r = await printToPrinter(settings.customer_printer_ip, settings.customer_printer_port, data, settings.customer_usb_printer_name); printResults.push({ type:'receipt', ...r }); }
         catch(e) { printResults.push({ type:'receipt', error: e.message }); }
       } else if (shouldPrint('receipt')) {
         const data = await buildCustomerReceipt(billData, items, settings);
         receiptB64 = data.toString('base64');
-        printResults.push({ type:'receipt', skipped:true, reason:'No customer printer IP' });
+        printResults.push({ type:'receipt', skipped:true, reason:'No customer printer configured' });
       }
 
-      if (shouldPrint('kot') && settings.kitchen_printer_ip) {
+      if (shouldPrint('kot') && (settings.kitchen_printer_ip || settings.kitchen_usb_printer_name)) {
         const data = await buildKOT(billData, items, settings);
         kotB64 = data.toString('base64');
-        try { const r = await printToPrinter(settings.kitchen_printer_ip, settings.kitchen_printer_port, data); printResults.push({ type:'kot', ...r }); }
+        try { const r = await printToPrinter(settings.kitchen_printer_ip, settings.kitchen_printer_port, data, settings.kitchen_usb_printer_name); printResults.push({ type:'kot', ...r }); }
         catch(e) { printResults.push({ type:'kot', error: e.message }); }
       } else if (shouldPrint('kot')) {
         const data = await buildKOT(billData, items, settings);
         kotB64 = data.toString('base64');
-        printResults.push({ type:'kot', skipped:true, reason:'No kitchen printer IP' });
+        printResults.push({ type:'kot', skipped:true, reason:'No kitchen printer configured' });
       }
 
       const isDineIn = (billData.order_type || '').toLowerCase().includes('dine');
-      if (!isDineIn && shouldPrint('checklist') && settings.customer_printer_ip) {
+      if (!isDineIn && shouldPrint('checklist') && (settings.customer_printer_ip || settings.customer_usb_printer_name)) {
         const data = await buildCounterChecklist(billData, items, settings);
         checklistB64 = data.toString('base64');
-        try { const r = await printToPrinter(settings.customer_printer_ip, settings.customer_printer_port, data); printResults.push({ type:'checklist', ...r }); }
+        try { const r = await printToPrinter(settings.customer_printer_ip, settings.customer_printer_port, data, settings.customer_usb_printer_name); printResults.push({ type:'checklist', ...r }); }
         catch(e) { printResults.push({ type:'checklist', error: e.message }); }
       } else if (!isDineIn && shouldPrint('checklist')) {
         const data = await buildCounterChecklist(billData, items, settings);
         checklistB64 = data.toString('base64');
-        printResults.push({ type:'checklist', skipped:true, reason:'No printer IP' });
+        printResults.push({ type:'checklist', skipped:true, reason:'No printer configured' });
       }
     }
 
@@ -730,9 +863,9 @@ router.post('/:billId/reprint', async (req, res) => {
     if (type === 'receipt' || type === 'both') {
       const data = await buildCustomerReceipt(bill, items, settings);
       receiptB64 = data.toString('base64');
-      if (settings.customer_printer_ip) {
+      if (settings.customer_printer_ip || settings.customer_usb_printer_name) {
         try {
-          const r = await printToPrinter(settings.customer_printer_ip, settings.customer_printer_port, data);
+          const r = await printToPrinter(settings.customer_printer_ip, settings.customer_printer_port, data, settings.customer_usb_printer_name);
           printResults.push({ type: 'receipt', ...r });
         } catch (e) { printResults.push({ type: 'receipt', error: e.message }); }
       }
@@ -740,9 +873,9 @@ router.post('/:billId/reprint', async (req, res) => {
     if (type === 'kot' || type === 'both') {
       const data = await buildKOT(bill, items, settings);
       kotB64 = data.toString('base64');
-      if (settings.kitchen_printer_ip) {
+      if (settings.kitchen_printer_ip || settings.kitchen_usb_printer_name) {
         try {
-          const r = await printToPrinter(settings.kitchen_printer_ip, settings.kitchen_printer_port, data);
+          const r = await printToPrinter(settings.kitchen_printer_ip, settings.kitchen_printer_port, data, settings.kitchen_usb_printer_name);
           printResults.push({ type: 'kot', ...r });
         } catch (e) { printResults.push({ type: 'kot', error: e.message }); }
       }
@@ -750,9 +883,9 @@ router.post('/:billId/reprint', async (req, res) => {
     if (type === 'checklist' || type === 'both') {
       const data = await buildCounterChecklist(bill, items, settings);
       checklistB64 = data.toString('base64');
-      if (settings.customer_printer_ip) {
+      if (settings.customer_printer_ip || settings.customer_usb_printer_name) {
         try {
-          const r = await printToPrinter(settings.customer_printer_ip, settings.customer_printer_port, data);
+          const r = await printToPrinter(settings.customer_printer_ip, settings.customer_printer_port, data, settings.customer_usb_printer_name);
           printResults.push({ type: 'checklist', ...r });
         } catch (e) { printResults.push({ type: 'checklist', error: e.message }); }
       }

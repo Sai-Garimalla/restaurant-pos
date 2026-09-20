@@ -25,7 +25,7 @@ function confirmModal(message, onConfirm, { confirmLabel = 'Confirm', confirmCla
   box.style.cssText = 'background:var(--surface,#fff);border-radius:16px;padding:28px 24px;max-width:340px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.25);text-align:center;';
 
   const msg = document.createElement('p');
-  msg.style.cssText = 'margin:0 0 20px;font-size:15px;font-weight:600;color:var(--text,#3E2000);line-height:1.5;';
+  msg.style.cssText = 'margin:0 0 20px;font-size:15px;font-weight:600;color:var(--text, #2D0E17);line-height:1.5;';
   msg.textContent = message;
 
   const btnRow = document.createElement('div');

@@ -9,21 +9,21 @@
 <link rel="stylesheet" href="css/style.css">
 <style>
   /* Filter bar */
-  .dash-filters { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:18px; padding:12px 16px; background:#fff; border:1px solid #FFE0B2; border-radius:12px; }
+  .dash-filters { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:18px; padding:12px 16px; background:#fff; border:1px solid #FCE8EC; border-radius:12px; }
   .period-pills { display:flex; gap:6px; flex-wrap:wrap; }
-  .pp { padding:6px 14px; border-radius:20px; border:1px solid #FFCC80; background:#FFF3E0; color:#8D6E63; font-size:12px; font-weight:700; cursor:pointer; transition:.15s; }
+  .pp { padding:6px 14px; border-radius:20px; border:1px solid #F0CBD3; background:#FDF2F4; color:#8A5967; font-size:12px; font-weight:700; cursor:pointer; transition:.15s; }
   .pp.active { background:var(--gradient); color:#fff; border-color:transparent; }
   .date-range { display:none; gap:8px; align-items:center; }
   .date-range.show { display:flex; }
 
   /* KPIs */
   .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:16px; }
-  .kpi { background:#fff; border:1px solid #FFE0B2; border-radius:12px; padding:14px 16px; transition:.15s; position:relative; overflow:hidden; }
-  .kpi:hover { border-color:#E65100; transform:translateY(-1px); box-shadow:0 4px 16px rgba(230,81,0,.12); }
+  .kpi { background:#fff; border:1px solid #FCE8EC; border-radius:12px; padding:14px 16px; transition:.15s; position:relative; overflow:hidden; }
+  .kpi:hover { border-color:#8B1E3F; transform:translateY(-1px); box-shadow:0 4px 16px rgba(230,81,0,.12); }
   .kpi-icon { font-size:22px; margin-bottom:4px; }
-  .kpi-val  { font-size:20px; font-weight:800; color:#E65100; }
-  .kpi-lbl  { font-size:10px; color:#8D6E63; margin-top:2px; text-transform:uppercase; letter-spacing:.5px; }
-  .kpi-sub  { font-size:11px; color:#BCAAA4; margin-top:4px; }
+  .kpi-val  { font-size:20px; font-weight:800; color:#8B1E3F; }
+  .kpi-lbl  { font-size:10px; color:#8A5967; margin-top:2px; text-transform:uppercase; letter-spacing:.5px; }
+  .kpi-sub  { font-size:11px; color:#BA98A1; margin-top:4px; }
   .kpi-trend { font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px; display:inline-flex; align-items:center; gap:3px; margin-top:5px; }
   .trend-up   { background:#E8F5E9; color:#2E7D32; }
   .trend-down { background:#FFEBEE; color:#C62828; }
@@ -38,7 +38,7 @@
   /* Type breakdown */
   .type-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:16px; }
   .type-card { border-radius:12px; padding:14px; color:#fff; text-align:center; }
-  .type-card.dinein  { background:linear-gradient(135deg,#E65100,#FF6D00); }
+  .type-card.dinein  { background:linear-gradient(135deg, #8B1E3F, #B83256); }
   .type-card.takeaway{ background:linear-gradient(135deg,#1565C0,#1E88E5); }
   .type-card.delivery{ background:linear-gradient(135deg,#2E7D32,#43A047); }
   .type-val { font-size:20px; font-weight:800; }
@@ -47,9 +47,9 @@
 
   /* Extra metrics row */
   .metric-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:16px; }
-  .metric { background:linear-gradient(135deg,#FFF3E0,#FFE0B2); border-radius:10px; padding:12px 14px; }
-  .metric-val { font-size:16px; font-weight:800; color:#BF360C; }
-  .metric-lbl { font-size:10px; color:#8D6E63; margin-top:2px; text-transform:uppercase; letter-spacing:.4px; }
+  .metric { background:linear-gradient(135deg, #FDF2F4, #FCE8EC); border-radius:10px; padding:12px 14px; }
+  .metric-val { font-size:16px; font-weight:800; color:#8B1E3F; }
+  .metric-lbl { font-size:10px; color:#8A5967; margin-top:2px; text-transform:uppercase; letter-spacing:.4px; }
 
   /* Line Chart */
   .line-chart-wrap { position:relative; height:110px; margin-top:10px; padding:0 4px; }
@@ -59,8 +59,8 @@
   /* Delivery scrollable table */
   .delivery-table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
   .delivery-table { min-width:480px; width:100%; border-collapse:collapse; }
-  .delivery-table th { font-size:10px; color:#8D6E63; font-weight:700; border-bottom:1px solid #FFE0B2; padding:8px 14px; text-transform:uppercase; white-space:nowrap; }
-  .delivery-table td { font-size:12px; padding:9px 14px; border-bottom:1px solid #FFE0B2; white-space:nowrap; }
+  .delivery-table th { font-size:10px; color:#8A5967; font-weight:700; border-bottom:1px solid #FCE8EC; padding:8px 14px; text-transform:uppercase; white-space:nowrap; }
+  .delivery-table td { font-size:12px; padding:9px 14px; border-bottom:1px solid #FCE8EC; white-space:nowrap; }
   .delivery-table tr:last-child td { border-bottom:none; }
   /* Highest bill KPI */
   .kpi.highest-bill { border-color:#CE93D8; }
@@ -71,21 +71,21 @@
   .hour-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:6px; }
   .hour-cell { border-radius:8px; padding:8px 10px; text-align:center; font-size:11px; }
   .hour-cell .h-time { font-weight:700; font-size:12px; }
-  .hour-cell .h-cnt  { font-size:10px; color:#8D6E63; margin-top:1px; }
+  .hour-cell .h-cnt  { font-size:10px; color:#8A5967; margin-top:1px; }
 
   /* Tables */
-  .top-item-row { display:grid; grid-template-columns:24px 1fr 50px 85px; align-items:center; gap:8px; padding:9px 14px; border-bottom:1px solid #FFE0B2; font-size:12px; }
+  .top-item-row { display:grid; grid-template-columns:24px 1fr 50px 85px; align-items:center; gap:8px; padding:9px 14px; border-bottom:1px solid #FCE8EC; font-size:12px; }
   .top-item-row:last-child { border-bottom:none; }
-  .rank-badge { background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:10px; flex-shrink:0; }
-  .recent-row { display:grid; grid-template-columns:50px 1fr 75px 75px; gap:8px; align-items:center; padding:9px 14px; border-bottom:1px solid #FFE0B2; font-size:12px; }
+  .rank-badge { background:linear-gradient(135deg, #8B1E3F, #B83256); color:#fff; border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:10px; flex-shrink:0; }
+  .recent-row { display:grid; grid-template-columns:50px 1fr 75px 75px; gap:8px; align-items:center; padding:9px 14px; border-bottom:1px solid #FCE8EC; font-size:12px; }
   .recent-row:last-child { border-bottom:none; }
-  .tok { background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; border-radius:6px; text-align:center; padding:4px 6px; font-weight:800; font-size:13px; }
+  .tok { background:linear-gradient(135deg, #8B1E3F, #B83256); color:#fff; border-radius:6px; text-align:center; padding:4px 6px; font-weight:800; font-size:13px; }
   .badge-cancel { background:#FFEBEE; color:#C62828; border:1px solid #EF9A9A; padding:2px 6px; border-radius:8px; font-size:9px; font-weight:700; }
   .badge-ok { background:#E8F5E9; color:#2E7D32; border:1px solid #A5D6A7; padding:2px 6px; border-radius:8px; font-size:9px; font-weight:700; }
   .badge-draft { background:#FFF8E1; color:#F57F17; border:1px solid #FFE082; padding:2px 6px; border-radius:8px; font-size:9px; font-weight:700; }
 
   /* Period title */
-  #period-label { font-size:12px; color:#8D6E63; font-style:italic; margin-left:auto; }
+  #period-label { font-size:12px; color:#8A5967; font-style:italic; margin-left:auto; }
 
   /* Export Modal */
   .exp-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1200; justify-content:center; align-items:center; padding:16px; }
@@ -97,21 +97,21 @@
   .exp-body { padding:20px 24px; overflow-y:auto; flex:1; }
   .exp-schema-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
   @media(max-width:580px){ .exp-schema-grid { grid-template-columns:1fr; } }
-  .exp-schema-card { border:2px solid #FFE0B2; border-radius:12px; padding:12px 14px; cursor:pointer; transition:.15s; user-select:none; }
-  .exp-schema-card:hover { border-color:#E65100; background:#FFF8F0; }
+  .exp-schema-card { border:2px solid #FCE8EC; border-radius:12px; padding:12px 14px; cursor:pointer; transition:.15s; user-select:none; }
+  .exp-schema-card:hover { border-color:#8B1E3F; background:#FFF9FA; }
   .exp-schema-card.selected { border-color:#1565C0; background:#E3F2FD; }
   .exp-schema-card.admin-only { border-color:#CE93D8; }
   .exp-schema-card.admin-only.selected { border-color:#7B1FA2; background:#F3E5F5; }
   .exp-schema-top { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
   .exp-schema-icon { font-size:20px; }
-  .exp-schema-name { font-size:13px; font-weight:700; color:#3E2000; flex:1; }
+  .exp-schema-name { font-size:13px; font-weight:700; color:#2D0E17; flex:1; }
   .exp-schema-badge { font-size:9px; padding:2px 7px; border-radius:10px; font-weight:700; background:#F3E5F5; color:#7B1FA2; }
-  .exp-schema-desc { font-size:11px; color:#8D6E63; line-height:1.4; margin-bottom:6px; }
+  .exp-schema-desc { font-size:11px; color:#8A5967; line-height:1.4; margin-bottom:6px; }
   .exp-schema-cols { display:flex; flex-wrap:wrap; gap:3px; }
-  .exp-col-tag { font-size:9px; background:#FFF3E0; border:1px solid #FFCC80; border-radius:8px; padding:1px 6px; color:#E65100; font-weight:600; }
-  .exp-footer { padding:16px 24px; border-top:1px solid #FFE0B2; background:#FFF8F0; display:flex; gap:10px; align-items:center; flex-shrink:0; }
-  .exp-footer .exp-date-row { display:flex; align-items:center; gap:8px; font-size:13px; color:#5D4037; }
-  .exp-footer .exp-date-row input { padding:7px 10px; border:1px solid #FFCC80; border-radius:8px; font-size:12px; }
+  .exp-col-tag { font-size:9px; background:#FDF2F4; border:1px solid #F0CBD3; border-radius:8px; padding:1px 6px; color:#8B1E3F; font-weight:600; }
+  .exp-footer { padding:16px 24px; border-top:1px solid #FCE8EC; background:#FFF9FA; display:flex; gap:10px; align-items:center; flex-shrink:0; }
+  .exp-footer .exp-date-row { display:flex; align-items:center; gap:8px; font-size:13px; color:#5A2D3A; }
+  .exp-footer .exp-date-row input { padding:7px 10px; border:1px solid #F0CBD3; border-radius:8px; font-size:12px; }
   .exp-sel-all { font-size:12px; font-weight:700; color:#1565C0; cursor:pointer; white-space:nowrap; }
 
   @media(max-width:1024px){
@@ -157,14 +157,14 @@
         </div>
         <div class="date-range" id="custom-range">
           <input type="date" id="range-from" class="form-control" style="max-width:140px;padding:6px 10px;font-size:12px;">
-          <span style="font-size:12px;color:#8D6E63">to</span>
+          <span style="font-size:12px;color:#8A5967">to</span>
           <input type="date" id="range-to" class="form-control" style="max-width:140px;padding:6px 10px;font-size:12px;">
           <button class="btn btn-primary btn-sm" onclick="loadDashboard()">Go</button>
         </div>
         <div class="time-range" id="time-range" style="display:none; gap:8px; align-items:center;">
-          <span style="font-size:11px;color:#8D6E63;font-weight:600;">&#9200; Time:</span>
+          <span style="font-size:11px;color:#8A5967;font-weight:600;">&#9200; Time:</span>
           <input type="time" id="range-time-from" class="form-control" style="max-width:110px;padding:6px 10px;font-size:12px;" title="Start Time" onchange="loadDashboard()">
-          <span style="font-size:12px;color:#8D6E63">to</span>
+          <span style="font-size:12px;color:#8A5967">to</span>
           <input type="time" id="range-time-to" class="form-control" style="max-width:110px;padding:6px 10px;font-size:12px;" title="End Time" onchange="loadDashboard()">
         </div>
         <span id="period-label"></span>
@@ -280,18 +280,18 @@
     </div>
     <div class="exp-body">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div style="font-size:12px;font-weight:700;color:#5D4037;">Available Schemas &amp; Reports</div>
+        <div style="font-size:12px;font-weight:700;color:#5A2D3A;">Available Schemas &amp; Reports</div>
         <span class="exp-sel-all" onclick="selectAllSchemas()">Select / Deselect All</span>
       </div>
       <div class="exp-schema-grid" id="exp-schema-container">
-        <div style="text-align:center;padding:30px;color:#8D6E63;grid-column:span 2">⏳ Loading…</div>
+        <div style="text-align:center;padding:30px;color:#8A5967;grid-column:span 2">⏳ Loading…</div>
       </div>
     </div>
     <div class="exp-footer">
       <div class="exp-date-row">
         📅 Date:
         <input type="date" id="exp-date" title="For date-based reports (Orders Summary, Item Sales, etc.)">
-        <span style="font-size:10px;color:#8D6E63;">Used for DATE reports above</span>
+        <span style="font-size:10px;color:#8A5967;">Used for DATE reports above</span>
       </div>
       <button id="exp-download-btn" onclick="doSelectiveExport()" disabled style="margin-left:auto;background:linear-gradient(135deg,#1565C0,#1E88E5);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;opacity:.5;">
         📥 Export to Excel
@@ -425,21 +425,21 @@ async function loadDashboard() {
     // Top items
     const topEl = document.getElementById('top-items-list');
     if (!d.top_items.length) {
-      topEl.innerHTML = '<p style="color:#8D6E63;padding:16px;font-size:12px">No orders in this period</p>';
+      topEl.innerHTML = '<p style="color:#8A5967;padding:16px;font-size:12px">No orders in this period</p>';
     } else {
       topEl.innerHTML = d.top_items.map((item, i) => `
         <div class="top-item-row">
           <div class="rank-badge">${i+1}</div>
-          <div style="font-weight:600;color:#3E2000">${item.item_name}</div>
-          <div style="color:#8D6E63">${item.qty}×</div>
-          <div style="font-weight:700;color:#E65100;text-align:right">${formatCurrency(item.revenue)}</div>
+          <div style="font-weight:600;color:#2D0E17">${item.item_name}</div>
+          <div style="color:#8A5967">${item.qty}×</div>
+          <div style="font-weight:700;color:#8B1E3F;text-align:right">${formatCurrency(item.revenue)}</div>
         </div>`).join('');
     }
 
     // Peak hours
     const peakEl = document.getElementById('peak-hours-grid');
     if (!d.peak_hours.length) {
-      peakEl.innerHTML = '<p style="color:#8D6E63;font-size:12px;grid-column:span 4">No data</p>';
+      peakEl.innerHTML = '<p style="color:#8A5967;font-size:12px;grid-column:span 4">No data</p>';
     } else {
       const maxBills = Math.max(...d.peak_hours.map(x => x.bill_count));
       peakEl.innerHTML = d.peak_hours.map(ph => {
@@ -456,19 +456,19 @@ async function loadDashboard() {
     // Staff performance
     const staffEl = document.getElementById('staff-perf-list');
     if (!d.staff_perf.length) {
-      staffEl.innerHTML = '<p style="color:#8D6E63;padding:14px;font-size:12px">No staff data for this period</p>';
+      staffEl.innerHTML = '<p style="color:#8A5967;padding:14px;font-size:12px">No staff data for this period</p>';
     } else {
       staffEl.innerHTML = `
-        <div style="display:grid;grid-template-columns:24px 1fr 70px 80px 90px;gap:8px;padding:8px 14px;font-size:10px;color:#8D6E63;font-weight:700;border-bottom:1px solid #FFE0B2;text-transform:uppercase">
+        <div style="display:grid;grid-template-columns:24px 1fr 70px 80px 90px;gap:8px;padding:8px 14px;font-size:10px;color:#8A5967;font-weight:700;border-bottom:1px solid #FCE8EC;text-transform:uppercase">
           <div>#</div><div>Name</div><div style="text-align:right">Bills</div><div style="text-align:right">Avg Bill</div><div style="text-align:right">Total</div>
         </div>` +
         d.staff_perf.map((s, i) => `
-        <div style="display:grid;grid-template-columns:24px 1fr 70px 80px 90px;gap:8px;padding:9px 14px;font-size:12px;border-bottom:1px solid #FFE0B2;align-items:center">
+        <div style="display:grid;grid-template-columns:24px 1fr 70px 80px 90px;gap:8px;padding:9px 14px;font-size:12px;border-bottom:1px solid #FCE8EC;align-items:center">
           <div class="rank-badge">${i+1}</div>
-          <div style="font-weight:600;color:#3E2000">${s.full_name}</div>
-          <div style="text-align:right;color:#8D6E63">${s.bills_taken}</div>
-          <div style="text-align:right;color:#8D6E63">${formatCurrency(s.avg_bill)}</div>
-          <div style="text-align:right;font-weight:700;color:#E65100">${formatCurrency(s.sales)}</div>
+          <div style="font-weight:600;color:#2D0E17">${s.full_name}</div>
+          <div style="text-align:right;color:#8A5967">${s.bills_taken}</div>
+          <div style="text-align:right;color:#8A5967">${formatCurrency(s.avg_bill)}</div>
+          <div style="text-align:right;font-weight:700;color:#8B1E3F">${formatCurrency(s.sales)}</div>
         </div>`).join('');
     }
 
@@ -476,7 +476,7 @@ async function loadDashboard() {
     const delPerfEl = document.getElementById('delivery-perf-list');
     const dp = d.delivery_perf || [];
     if (!dp.length) {
-      delPerfEl.innerHTML = '<p style="color:#8D6E63;padding:14px;font-size:12px">No delivery data for this period</p>';
+      delPerfEl.innerHTML = '<p style="color:#8A5967;padding:14px;font-size:12px">No delivery data for this period</p>';
     } else {
       delPerfEl.innerHTML = `
         <div class="delivery-table-wrap">
@@ -491,12 +491,12 @@ async function loadDashboard() {
             </tr></thead>
             <tbody>
               ${dp.map(r => `<tr>
-                <td style="font-weight:700;color:#3E2000">🛵 ${r.full_name}</td>
+                <td style="font-weight:700;color:#2D0E17">🛵 ${r.full_name}</td>
                 <td style="text-align:right;color:#2E7D32;font-weight:700">${r.completed}</td>
-                <td style="text-align:right;color:#E65100;font-weight:700">${r.active}</td>
+                <td style="text-align:right;color:#8B1E3F;font-weight:700">${r.active}</td>
                 <td style="text-align:right;color:#1565C0">${formatCurrency(r.cash_collected)}</td>
                 <td style="text-align:right;color:#6A1B9A">${formatCurrency(r.upi_collected)}</td>
-                <td style="text-align:right;font-weight:800;color:#E65100">${formatCurrency(r.total_collected)}</td>
+                <td style="text-align:right;font-weight:800;color:#8B1E3F">${formatCurrency(r.total_collected)}</td>
               </tr>`).join('')}
             </tbody>
           </table>
@@ -519,7 +519,7 @@ function drawLineChart(canvasEl, data) {
   const ctx = canvasEl.getContext('2d');
   ctx.scale(dpr, dpr);
   if (!data.length) {
-    ctx.fillStyle = '#BCAAA4'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#BA98A1'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('No data for this period', W/2, H/2); return;
   }
   const vals = data.map(x => parseFloat(x.total));
@@ -529,8 +529,8 @@ function drawLineChart(canvasEl, data) {
   const cH   = H - pad.top  - pad.bottom;
   const n    = data.length;
   const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + cH);
-  grad.addColorStop(0, 'rgba(230,81,0,0.22)');
-  grad.addColorStop(1, 'rgba(230,81,0,0)');
+  grad.addColorStop(0, 'rgba(139,30,63,0.18)');
+  grad.addColorStop(1, 'rgba(139,30,63,0)');
   const xOf = i => n === 1 ? pad.left + cW/2 : pad.left + (i / (n-1)) * cW;
   const yOf = v => pad.top + cH - (v / maxV) * cH;
   ctx.beginPath();
@@ -540,10 +540,10 @@ function drawLineChart(canvasEl, data) {
   ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
   ctx.beginPath();
   data.forEach((d, i) => { const x=xOf(i), y=yOf(parseFloat(d.total)); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
-  ctx.strokeStyle = '#E65100'; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.stroke();
+  ctx.strokeStyle = '#8B1E3F'; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.stroke();
   data.forEach((d, i) => {
     const x=xOf(i), y=yOf(parseFloat(d.total));
-    ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI*2); ctx.fillStyle='#E65100'; ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI*2); ctx.fillStyle='#8B1E3F'; ctx.fill();
     ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
   });
 }
@@ -586,7 +586,7 @@ function renderSchemaGrid() {
         <div class="exp-schema-top">
           <span class="exp-schema-icon">${s.icon}</span>
           <span class="exp-schema-name">${s.name}</span>
-          ${s.requiresDate ? '<span style="font-size:9px;background:#FFF3E0;color:#E65100;border-radius:8px;padding:2px 6px;font-weight:700;">DATE</span>' : '<span style="font-size:9px;background:#E3F2FD;color:#1565C0;border-radius:8px;padding:2px 6px;font-weight:700;">ALL</span>'}
+          ${s.requiresDate ? '<span style="font-size:9px;background:#FDF2F4;color:#8B1E3F;border-radius:8px;padding:2px 6px;font-weight:700;">DATE</span>' : '<span style="font-size:9px;background:#E3F2FD;color:#1565C0;border-radius:8px;padding:2px 6px;font-weight:700;">ALL</span>'}
           ${isAdminOnly ? '<span class="exp-schema-badge">ADMIN</span>' : ''}
           <span style="margin-left:auto;font-size:18px;">${isSelected?'✅':'⬜'}</span>
         </div>
@@ -653,7 +653,7 @@ function openExportModal() {
 async function _openExportModal() {
   document.getElementById('exp-overlay').classList.add('open');
   if (!_expSchemas.length) {
-    document.getElementById('exp-schema-container').innerHTML = '<div style="text-align:center;padding:30px;color:#8D6E63;">⏳ Loading schemas…</div>';
+    document.getElementById('exp-schema-container').innerHTML = '<div style="text-align:center;padding:30px;color:#8A5967;">⏳ Loading schemas…</div>';
     try {
       const data = await apiFetch('/export/schemas');
       _expSchemas = data.schemas.filter(s => !s.adminOnly || _isAdmin);

@@ -13,26 +13,26 @@
 
   /* User card — bigger, shows full details */
   .user-card {
-    background:#fff; border:1px solid #FFCC80; border-radius:16px;
+    background:#fff; border:1px solid #F0CBD3; border-radius:16px;
     padding:20px; cursor:pointer; transition:.2s;
   }
-  .user-card:hover { border-color:#E65100; background:#FFF8F0; box-shadow:0 4px 16px rgba(230,81,0,.1); transform:translateY(-2px); }
+  .user-card:hover { border-color:#8B1E3F; background:#FFF9FA; box-shadow:0 4px 16px rgba(230,81,0,.1); transform:translateY(-2px); }
   .user-card.disabled-card { opacity:.65; border-color:#EF9A9A; background:#FFF8F8; }
   .user-card.disabled-card:hover { background:#FFF0F0; }
 
   .card-top { display:flex; align-items:center; gap:14px; margin-bottom:12px; }
-  .user-av { width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:800; flex-shrink:0; }
+  .user-av { width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg, #8B1E3F, #B83256); color:#fff; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:800; flex-shrink:0; }
   .user-av.av-disabled { background:linear-gradient(135deg,#B0BEC5,#90A4AE); }
   .card-header { flex:1; min-width:0; }
-  .user-name { font-size:17px; font-weight:700; color:#3E2000; }
-  .user-username { font-size:13px; color:#8D6E63; margin-top:2px; }
+  .user-name { font-size:17px; font-weight:700; color:#2D0E17; }
+  .user-username { font-size:13px; color:#8A5967; margin-top:2px; }
 
-  .card-details { display:flex; flex-wrap:wrap; gap:6px 20px; font-size:13px; color:#5D4037; padding:10px 14px; background:#FFF8F0; border-radius:10px; margin-bottom:12px; }
+  .card-details { display:flex; flex-wrap:wrap; gap:6px 20px; font-size:13px; color:#5A2D3A; padding:10px 14px; background:#FFF9FA; border-radius:10px; margin-bottom:12px; }
   .card-detail { display:flex; align-items:center; gap:5px; }
-  .card-detail .dl { color:#8D6E63; font-size:11px; }
+  .card-detail .dl { color:#8A5967; font-size:11px; }
 
   .card-badges { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
-  .badge-admin    { background:#FFF3E0; color:#E65100; border:1px solid #FFCC80; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; }
+  .badge-admin    { background:#FDF2F4; color:#8B1E3F; border:1px solid #F0CBD3; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; }
   .badge-staff    { background:#E8F5E9; color:#2E7D32; border:1px solid #A5D6A7; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; }
   .badge-delivery { background:#E3F2FD; color:#1565C0; border:1px solid #90CAF9; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; }
   .badge-kitchen  { background:#F3E5F5; color:#7B1FA2; border:1px solid #CE93D8; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; }
@@ -43,21 +43,21 @@
   .card-actions .btn { font-size:12px; padding:6px 14px; }
 
   /* Tabs */
-  .tab-bar { display:flex; gap:4px; margin-bottom:20px; border-bottom:2px solid #FFCC80; }
+  .tab-bar { display:flex; gap:4px; margin-bottom:20px; border-bottom:2px solid #F0CBD3; }
   .tab-btn {
     padding:9px 20px; border:none; border-radius:8px 8px 0 0;
     background:transparent; font-size:13px; font-weight:600;
-    color:#8D6E63; cursor:pointer; transition:.15s;
+    color:#8A5967; cursor:pointer; transition:.15s;
     display:flex; align-items:center; gap:7px;
     border-bottom:3px solid transparent; margin-bottom:-2px;
   }
-  .tab-btn:hover { color:#E65100; background:#FFF3E0; }
-  .tab-btn.active { color:#E65100; border-bottom:3px solid #E65100; background:#FFF8F0; }
-  .tab-count { background:#E65100; color:#fff; border-radius:10px; padding:1px 7px; font-size:10px; font-weight:800; min-width:18px; text-align:center; }
+  .tab-btn:hover { color:#8B1E3F; background:#FDF2F4; }
+  .tab-btn.active { color:#8B1E3F; border-bottom:3px solid #8B1E3F; background:#FFF9FA; }
+  .tab-count { background:#8B1E3F; color:#fff; border-radius:10px; padding:1px 7px; font-size:10px; font-weight:800; min-width:18px; text-align:center; }
   .tab-count.grey { background:#90A4AE; }
   .tab-panel { display:none; }
   .tab-panel.active { display:block; }
-  .empty-state { text-align:center; padding:48px 20px; color:#8D6E63; }
+  .empty-state { text-align:center; padding:48px 20px; color:#8A5967; }
   .empty-state .empty-icon { font-size:48px; margin-bottom:12px; }
   .empty-state p { font-size:14px; }
 
@@ -73,7 +73,7 @@
   }
   @keyframes prevSlide { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
   .preview-header {
-    background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; padding:28px 24px;
+    background:linear-gradient(135deg, #8B1E3F, #B83256); color:#fff; padding:28px 24px;
     text-align:center; position:relative;
   }
   .preview-close {
@@ -90,11 +90,11 @@
   .preview-name { font-size:22px; font-weight:700; }
   .preview-username { font-size:14px; opacity:.85; margin-top:4px; }
   .preview-body { padding:20px 24px; }
-  .preview-row { display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid #FFF3E0; font-size:14px; }
+  .preview-row { display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid #FDF2F4; font-size:14px; }
   .preview-row:last-child { border-bottom:none; }
   .preview-icon { font-size:18px; width:28px; text-align:center; flex-shrink:0; }
-  .preview-label { color:#8D6E63; font-size:12px; min-width:80px; }
-  .preview-value { color:#3E2000; font-weight:600; flex:1; word-break:break-all; }
+  .preview-label { color:#8A5967; font-size:12px; min-width:80px; }
+  .preview-value { color:#2D0E17; font-weight:600; flex:1; word-break:break-all; }
   .preview-actions { padding:0 24px 20px; display:flex; gap:10px; }
   .preview-actions .btn { flex:1; font-size:13px; }
 
@@ -201,7 +201,7 @@
         <label class="form-label">New Password *</label>
         <input type="password" id="pw-new" class="form-control" placeholder="Min 6 characters" oninput="checkPwStrength()">
         <div class="pw-strength" id="pw-strength-bar"></div>
-        <div style="font-size:10px;color:#8D6E63;margin-top:3px;" id="pw-strength-label"></div>
+        <div style="font-size:10px;color:#8A5967;margin-top:3px;" id="pw-strength-label"></div>
       </div>
       <div class="form-group">
         <label class="form-label">Confirm Password *</label>
@@ -342,7 +342,7 @@ function openPreview(userId) {
   const isDis = u.status !== 'active';
 
   document.getElementById('preview-header').style.background =
-    isDis ? 'linear-gradient(135deg,#78909C,#90A4AE)' : 'linear-gradient(135deg,#E65100,#FF8F00)';
+    isDis ? 'linear-gradient(135deg,#78909C,#90A4AE)' : 'linear-gradient(135deg, #8B1E3F, #B83256)';
   document.getElementById('preview-av').textContent = safeName[0].toUpperCase();
   document.getElementById('preview-name').textContent = u.full_name;
   document.getElementById('preview-username').textContent = '@' + u.username;

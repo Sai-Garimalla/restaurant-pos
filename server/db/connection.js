@@ -282,8 +282,10 @@ async function initSingleDB(targetPool, isTest = false) {
       ['paper_width', '80'],
       ['customer_printer_ip', process.env.CUSTOMER_PRINTER_IP || ''],
       ['customer_printer_port', process.env.CUSTOMER_PRINTER_PORT || '9100'],
+      ['customer_usb_printer_name', process.env.CUSTOMER_USB_PRINTER_NAME || ''],
       ['kitchen_printer_ip', process.env.KITCHEN_PRINTER_IP || ''],
       ['kitchen_printer_port', process.env.KITCHEN_PRINTER_PORT || '9100'],
+      ['kitchen_usb_printer_name', process.env.KITCHEN_USB_PRINTER_NAME || ''],
     ];
 
     for (const [key, value] of defaultSettings) {

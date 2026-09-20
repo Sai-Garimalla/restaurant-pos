@@ -1,18 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <defs>
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FF6B00"/>
-      <stop offset="50%" stop-color="#E65100"/>
-      <stop offset="100%" stop-color="#C62828"/>
+      <stop offset="0%" stop-color="#B83256"/>
+      <stop offset="50%" stop-color="#8B1E3F"/>
+      <stop offset="100%" stop-color="#5E1126"/>
     </linearGradient>
     <linearGradient id="flameGrad" x1="0%" y1="100%" x2="0%" y2="0%">
-      <stop offset="0%" stop-color="#FFD54F"/>
-      <stop offset="50%" stop-color="#FF9800"/>
-      <stop offset="100%" stop-color="#FF3D00"/>
+      <stop offset="0%" stop-color="#FCE8EC"/>
+      <stop offset="50%" stop-color="#EAA6B6"/>
+      <stop offset="100%" stop-color="#B83256"/>
     </linearGradient>
     <linearGradient id="innerFlame" x1="0%" y1="100%" x2="0%" y2="0%">
-      <stop offset="0%" stop-color="#FFF9C4"/>
-      <stop offset="100%" stop-color="#FFE082"/>
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#FDF2F4"/>
     </linearGradient>
   </defs>
   <rect width="100" height="100" rx="24" fill="url(#bgGrad)"/>

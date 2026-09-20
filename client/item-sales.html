@@ -20,7 +20,7 @@
   th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
   th { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
   tr:hover { background: var(--surface2); }
-  .cat-header { background: #FFF8F0; font-weight: 700; font-size: 14px; color: #E65100; text-transform: uppercase; }
+  .cat-header { background: #FFF9FA; font-weight: 700; font-size: 14px; color: #8B1E3F; text-transform: uppercase; }
   .qty-col { font-weight: 700; color: #1565C0; }
   .rev-col { font-weight: 700; color: #2E7D32; }
 
@@ -183,7 +183,7 @@ function renderTables() {
   const sTbody = document.getElementById('sorted-tbody');
   sTbody.innerHTML = currentData.map(i => `
     <tr>
-      <td style="font-weight:600; color:#3E2000;">${escapeHtml(i.item_name)}</td>
+      <td style="font-weight:600; color:#2D0E17;">${escapeHtml(i.item_name)}</td>
       <td style="font-size:11px;">${escapeHtml(i.item_code || '—')}</td>
       <td style="font-size:11px;">${escapeHtml(i.category || 'Uncategorized')}</td>
       <td class="qty-col">${i.qty}</td>
@@ -217,7 +217,7 @@ function renderTables() {
     grouped[cat].forEach(i => {
       cHtml += `
         <tr>
-          <td style="padding-left:24px; font-weight:600; color:#3E2000;">${escapeHtml(i.item_name)}</td>
+          <td style="padding-left:24px; font-weight:600; color:#2D0E17;">${escapeHtml(i.item_name)}</td>
           <td style="font-size:11px;">${escapeHtml(i.item_code || '—')}</td>
           <td class="qty-col">${i.qty}</td>
           <td class="rev-col">${formatCurrency(i.revenue)}</td>

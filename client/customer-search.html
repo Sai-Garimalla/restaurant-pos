@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="css/style.css">
 <style>
   .search-hero {
-    background: linear-gradient(135deg,#E65100,#FF8F00);
+    background: linear-gradient(135deg, #8B1E3F, #B83256);
     border-radius: 14px; padding: 24px; margin-bottom: 20px;
     color:#fff; text-align:center;
   }
@@ -18,7 +18,7 @@
   .phone-input-wrap { position:relative; display:flex; gap:10px; max-width:500px; margin:16px auto 0; align-items:flex-start; }
   .phone-input-wrap input {
     flex:1; padding:12px 16px; border-radius:10px; border:none;
-    font-size:15px; background:#fff; color:#3E2000; outline:none;
+    font-size:15px; background:#fff; color:#2D0E17; outline:none;
   }
   .phone-input-wrap button {
     padding:12px 20px; border-radius:10px; border:none;
@@ -33,18 +33,18 @@
     position:absolute; top:calc(100% + 4px); left:0; right:0;
     background:#fff; border-radius:10px; box-shadow:0 8px 28px rgba(0,0,0,0.18);
     overflow:hidden; z-index:999; display:none;
-    border:1px solid #FFCC80; max-height:240px; overflow-y:auto;
+    border:1px solid #F0CBD3; max-height:240px; overflow-y:auto;
   }
   .phone-suggest-box.show { display:block; }
   .suggest-item {
     padding:11px 16px; cursor:pointer; transition:.12s;
     display:flex; align-items:center; justify-content:space-between;
-    font-size:14px; color:#3E2000; border-bottom:1px solid #FFF3E0;
+    font-size:14px; color:#2D0E17; border-bottom:1px solid #FDF2F4;
   }
   .suggest-item:last-child { border-bottom:none; }
-  .suggest-item:hover, .suggest-item.active-suggestion { background:#FFF3E0; }
+  .suggest-item:hover, .suggest-item.active-suggestion { background:#FDF2F4; }
   .suggest-phone { font-weight:700; }
-  .suggest-name  { font-size:12px; color:#8D6E63; }
+  .suggest-name  { font-size:12px; color:#8A5967; }
 
   @media(max-width:600px) {
     .cust-stat-grid { grid-template-columns:1fr 1fr; }
@@ -53,33 +53,33 @@
     .item-hist-row .col-orders { display:none; }
   }
   .cust-profile {
-    background:#fff; border:1px solid #FFCC80;
+    background:#fff; border:1px solid #F0CBD3;
     border-radius:14px; padding:20px; margin-bottom:16px;
   }
   .cust-stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:16px; }
-  .cust-stat { background:linear-gradient(135deg,#FFF3E0,#FFE0B2); border-radius:10px; padding:14px; text-align:center; }
-  .cust-stat .val { font-size:20px; font-weight:800; color:#E65100; }
-  .cust-stat .lbl { font-size:11px; color:#8D6E63; margin-top:4px; }
+  .cust-stat { background:linear-gradient(135deg, #FDF2F4, #FCE8EC); border-radius:10px; padding:14px; text-align:center; }
+  .cust-stat .val { font-size:20px; font-weight:800; color:#8B1E3F; }
+  .cust-stat .lbl { font-size:11px; color:#8A5967; margin-top:4px; }
 
   /* Tabs */
-  .cs-tabs { display:flex; gap:0; border-bottom:2px solid #FFCC80; margin-bottom:16px; }
+  .cs-tabs { display:flex; gap:0; border-bottom:2px solid #F0CBD3; margin-bottom:16px; }
   .cs-tab {
     flex:1; padding:11px 10px; font-size:13px; font-weight:700;
-    border:none; background:none; color:#8D6E63; cursor:pointer;
+    border:none; background:none; color:#8A5967; cursor:pointer;
     border-bottom:2px solid transparent; margin-bottom:-2px; transition:.15s;
   }
-  .cs-tab.active { color:#E65100; border-bottom-color:#E65100; }
+  .cs-tab.active { color:#8B1E3F; border-bottom-color:#8B1E3F; }
 
   /* Order card */
   .order-card {
-    border:1px solid #FFE0B2; border-radius:10px; padding:14px;
+    border:1px solid #FCE8EC; border-radius:10px; padding:14px;
     margin-bottom:10px; background:#fff;
     display:flex; justify-content:space-between; align-items:center;
     transition:.15s; cursor:pointer;
   }
-  .order-card:hover { background:#FFF8F0; border-color:#FFCC80; }
+  .order-card:hover { background:#FFF9FA; border-color:#F0CBD3; }
   .order-token {
-    background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff;
+    background:linear-gradient(135deg, #8B1E3F, #B83256); color:#fff;
     border-radius:8px; padding:6px 12px; font-weight:800; font-size:16px; flex-shrink:0;
   }
 
@@ -87,21 +87,21 @@
   .item-hist-row {
     display:grid; grid-template-columns:1fr 60px 80px 80px;
     gap:8px; align-items:center;
-    padding:10px 14px; border-bottom:1px solid #FFE0B2; font-size:12px;
+    padding:10px 14px; border-bottom:1px solid #FCE8EC; font-size:12px;
   }
   .item-hist-row:last-child { border-bottom:none; }
-  .item-hist-row:hover { background:#FFF8F0; }
+  .item-hist-row:hover { background:#FFF9FA; }
   .item-rank {
     width:22px; height:22px; border-radius:50%;
-    background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff;
+    background:linear-gradient(135deg, #8B1E3F, #B83256); color:#fff;
     display:inline-flex; align-items:center; justify-content:center;
     font-weight:800; font-size:10px; flex-shrink:0; margin-right:8px;
   }
-  .item-bar-wrap { height:6px; background:#FFE0B2; border-radius:3px; margin-top:3px; overflow:hidden; }
-  .item-bar { height:100%; background:linear-gradient(90deg,#E65100,#FF8F00); border-radius:3px; }
+  .item-bar-wrap { height:6px; background:#FCE8EC; border-radius:3px; margin-top:3px; overflow:hidden; }
+  .item-bar { height:100%; background:linear-gradient(90deg, #8B1E3F, #B83256); border-radius:3px; }
 
   /* Order detail expand */
-  .order-items-expand { display:none; margin-top:8px; border-top:1px solid #FFE0B2; padding-top:8px; }
+  .order-items-expand { display:none; margin-top:8px; border-top:1px solid #FCE8EC; padding-top:8px; }
   .order-items-expand.open { display:block; }
 
   @media(max-width:600px) {
@@ -113,15 +113,15 @@
   }
   /* Customer picker for disambiguation */
   .cust-picker-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:10px; padding:12px; }
-  .cust-pick-card { border:2px solid #FFE0B2; border-radius:12px; padding:14px 16px; cursor:pointer; transition:.15s; background:#fff; }
-  .cust-pick-card:hover { border-color:#E65100; background:#FFF8F0; transform:translateY(-1px); box-shadow:0 4px 12px rgba(230,81,0,.12); }
-  .cust-pick-avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#E65100,#FF8F00); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; flex-shrink:0; }
-  .cust-pick-name { font-size:14px; font-weight:700; color:#3E2000; }
-  .cust-pick-phone { font-size:12px; color:#8D6E63; margin-top:2px; }
-  .cust-pick-stats { font-size:11px; color:#BCAAA4; margin-top:6px; }
+  .cust-pick-card { border:2px solid #FCE8EC; border-radius:12px; padding:14px 16px; cursor:pointer; transition:.15s; background:#fff; }
+  .cust-pick-card:hover { border-color:#8B1E3F; background:#FFF9FA; transform:translateY(-1px); box-shadow:0 4px 12px rgba(230,81,0,.12); }
+  .cust-pick-avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg, #8B1E3F, #B83256); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; flex-shrink:0; }
+  .cust-pick-name { font-size:14px; font-weight:700; color:#2D0E17; }
+  .cust-pick-phone { font-size:12px; color:#8A5967; margin-top:2px; }
+  .cust-pick-stats { font-size:11px; color:#BA98A1; margin-top:6px; }
   /* Recent customers section */
   .recent-section { margin-bottom:20px; }
-  .recent-header { font-size:14px; font-weight:800; color:#3E2000; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+  .recent-header { font-size:14px; font-weight:800; color:#2D0E17; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
   .recent-cust-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:8px; }
 </style>
 </head>
@@ -162,7 +162,7 @@
       <div id="recent-section" class="recent-section">
         <div class="recent-header">🕐 Recent Customers</div>
         <div class="recent-cust-grid" id="recent-cust-grid">
-          <div style="grid-column:span 4;text-align:center;padding:20px;color:#BCAAA4"><div class="loader"></div></div>
+          <div style="grid-column:span 4;text-align:center;padding:20px;color:#BA98A1"><div class="loader"></div></div>
         </div>
       </div>
 
@@ -178,7 +178,7 @@
       </div>
 
       <!-- Empty state -->
-      <div id="empty-section" style="display:none; text-align:center; padding:60px 20px; color:#8D6E63;">
+      <div id="empty-section" style="display:none; text-align:center; padding:60px 20px; color:#8A5967;">
         <div style="font-size:48px">📵</div>
         <p style="margin-top:12px; font-size:14px; font-weight:600;">No customer found with this number.</p>
         <p style="font-size:12px; margin-top:6px;">This number hasn't placed any orders yet.</p>
@@ -204,7 +204,7 @@
         <!-- Items tab -->
         <div id="tab-items" style="display:none;">
           <div class="card" style="padding:0; overflow:hidden;">
-            <div style="padding:12px 16px; border-bottom:1px solid #FFE0B2; font-size:11px; font-weight:700; color:#8D6E63; display:grid; grid-template-columns:1fr 60px 80px 80px; gap:8px;">
+            <div style="padding:12px 16px; border-bottom:1px solid #FCE8EC; font-size:11px; font-weight:700; color:#8A5967; display:grid; grid-template-columns:1fr 60px 80px 80px; gap:8px;">
               <span>ITEM</span><span style="text-align:right">QTY</span><span style="text-align:right">SPENT</span><span style="text-align:right" class="col-orders">ORDERS</span>
             </div>
             <div id="item-history-list"></div>
@@ -234,7 +234,7 @@ async function loadRecentCustomers() {
   try {
     const rows = await apiFetch('/bills/recent-customers');
     if (!rows.length) {
-      grid.innerHTML = '<div style="grid-column:span 4;color:#8D6E63;font-size:13px;padding:16px;">No recent customer data available.</div>';
+      grid.innerHTML = '<div style="grid-column:span 4;color:#8A5967;font-size:13px;padding:16px;">No recent customer data available.</div>';
       return;
     }
     grid.innerHTML = rows.map(r => `
@@ -249,7 +249,7 @@ async function loadRecentCustomers() {
         <div class="cust-pick-stats">${r.visit_count} orders · ${formatCurrency(r.total_spent)}</div>
       </div>`).join('');
   } catch(e) {
-    grid.innerHTML = '<div style="grid-column:span 4;color:#8D6E63;font-size:13px;padding:16px;">Could not load recent customers.</div>';
+    grid.innerHTML = '<div style="grid-column:span 4;color:#8A5967;font-size:13px;padding:16px;">Could not load recent customers.</div>';
   }
 }
 loadRecentCustomers();
@@ -324,8 +324,8 @@ async function fetchNameSuggestions(q) {
     if (!rows.length) { hideSuggestions(); return; }
     box.innerHTML = rows.map((r, i) => `
       <div class="suggest-item" id="sni-${i}" onclick="selectNameSuggestion('${r.customer_name || ''}', '${r.customer_phone}')">
-        <span class="suggest-name" style="font-size:14px; color:#3E2000; font-weight:700;">${r.customer_name || 'Unknown'}</span>
-        <span class="suggest-phone" style="font-size:12px; color:#8D6E63; font-weight:normal;">📞 ${r.customer_phone}</span>
+        <span class="suggest-name" style="font-size:14px; color:#2D0E17; font-weight:700;">${r.customer_name || 'Unknown'}</span>
+        <span class="suggest-phone" style="font-size:12px; color:#8A5967; font-weight:normal;">📞 ${r.customer_phone}</span>
       </div>`).join('');
     box.classList.add('show');
     box._rows = rows;
@@ -449,14 +449,14 @@ async function doSearch(type) {
     const profile = document.getElementById('cust-profile');
     profile.innerHTML = `
       <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
-        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#E65100,#FF8F00);
+        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg, #8B1E3F, #B83256);
                     display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;
                     color:#fff;flex-shrink:0;">
           ${data.customer_name ? data.customer_name[0].toUpperCase() : '👤'}
         </div>
         <div>
-          <div style="font-size:19px;font-weight:800;color:#3E2000">${data.customer_name || nameVal || 'Unknown Customer'}</div>
-          <div style="font-size:13px;color:#8D6E63;margin-top:3px">${finalPhone ? '📞 ' + finalPhone : 'No Phone Provided'}</div>
+          <div style="font-size:19px;font-weight:800;color:#2D0E17">${data.customer_name || nameVal || 'Unknown Customer'}</div>
+          <div style="font-size:13px;color:#8A5967;margin-top:3px">${finalPhone ? '📞 ' + finalPhone : 'No Phone Provided'}</div>
         </div>
       </div>
       <div class="cust-stat-grid">
@@ -475,24 +475,24 @@ async function doSearch(type) {
     // ── Order history ──
     const histEl = document.getElementById('order-history-list');
     if (!data.history.length) {
-      histEl.innerHTML = '<p style="color:#8D6E63;text-align:center;padding:24px;font-size:13px">No orders found.</p>';
+      histEl.innerHTML = '<p style="color:#8A5967;text-align:center;padding:24px;font-size:13px">No orders found.</p>';
     } else {
       histEl.innerHTML = data.history.map((h, i) => `
         <div class="order-card" onclick="toggleOrderDetail('od-${i}')">
           <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
             <div class="order-token">#${h.token_number}</div>
             <div style="min-width:0;">
-              <div style="font-size:13px;font-weight:700;color:#3E2000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.bill_number}</div>
-              <div style="font-size:11px;color:#8D6E63;margin-top:2px">${h.order_type || 'Dine-in'} · ${formatDateTime(h.created_at)}</div>
+              <div style="font-size:13px;font-weight:700;color:#2D0E17;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.bill_number}</div>
+              <div style="font-size:11px;color:#8A5967;margin-top:2px">${h.order_type || 'Dine-in'} · ${formatDateTime(h.created_at)}</div>
             </div>
           </div>
           <div style="text-align:right;flex-shrink:0;margin-left:10px;">
-            <div style="font-weight:800;font-size:16px;color:#E65100">${formatCurrency(h.grand_total)}</div>
-            <div style="font-size:10px;color:#BCAAA4;margin-top:2px">tap to expand</div>
+            <div style="font-weight:800;font-size:16px;color:#8B1E3F">${formatCurrency(h.grand_total)}</div>
+            <div style="font-size:10px;color:#BA98A1;margin-top:2px">tap to expand</div>
           </div>
         </div>
         <div class="order-items-expand" id="od-${i}">
-          <div id="od-items-${i}" style="padding:0 4px 8px;font-size:12px;color:#8D6E63">Loading…</div>
+          <div id="od-items-${i}" style="padding:0 4px 8px;font-size:12px;color:#8A5967">Loading…</div>
         </div>
       `).join('');
 
@@ -503,7 +503,7 @@ async function doSearch(type) {
     // ── Item history ──
     const itemEl = document.getElementById('item-history-list');
     if (!data.item_history || !data.item_history.length) {
-      itemEl.innerHTML = '<p style="color:#8D6E63;padding:16px;font-size:12px">No item data available.</p>';
+      itemEl.innerHTML = '<p style="color:#8A5967;padding:16px;font-size:12px">No item data available.</p>';
     } else {
       const maxQty = Math.max(...data.item_history.map(x => parseInt(x.total_qty)));
       itemEl.innerHTML = data.item_history.map((item, i) => `
@@ -511,15 +511,15 @@ async function doSearch(type) {
           <div style="display:flex;align-items:flex-start;gap:0;flex-direction:column;min-width:0;">
             <div style="display:flex;align-items:center;gap:0;">
               <span class="item-rank">${i + 1}</span>
-              <span style="font-weight:600;color:#3E2000;font-size:13px">${item.item_name}</span>
+              <span style="font-weight:600;color:#2D0E17;font-size:13px">${item.item_name}</span>
             </div>
             <div class="item-bar-wrap" style="width:100%;margin-left:30px;margin-top:2px;">
               <div class="item-bar" style="width:${Math.round((parseInt(item.total_qty) / maxQty) * 100)}%"></div>
             </div>
           </div>
-          <div style="text-align:right;font-weight:700;color:#E65100;font-size:13px">${item.total_qty}×</div>
-          <div style="text-align:right;font-weight:600;color:#3E2000;font-size:12px">${formatCurrency(item.total_spent)}</div>
-          <div style="text-align:right;color:#8D6E63;font-size:11px" class="col-orders">${item.order_count} order${item.order_count > 1 ? 's' : ''}</div>
+          <div style="text-align:right;font-weight:700;color:#8B1E3F;font-size:13px">${item.total_qty}×</div>
+          <div style="text-align:right;font-weight:600;color:#2D0E17;font-size:12px">${formatCurrency(item.total_spent)}</div>
+          <div style="text-align:right;color:#8A5967;font-size:11px" class="col-orders">${item.order_count} order${item.order_count > 1 ? 's' : ''}</div>
         </div>`).join('');
     }
 
@@ -550,26 +550,26 @@ async function toggleOrderDetail(id) {
         itemsEl.innerHTML = `
           <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:4px;">
             <thead>
-              <tr style="background:#FFF3E0;">
-                <th style="text-align:left;padding:6px 10px;color:#8D6E63;font-weight:700;">Item</th>
-                <th style="text-align:center;padding:6px 6px;color:#8D6E63;font-weight:700;">Qty</th>
-                <th style="text-align:right;padding:6px 10px;color:#8D6E63;font-weight:700;">Price</th>
-                <th style="text-align:right;padding:6px 10px;color:#8D6E63;font-weight:700;">Total</th>
+              <tr style="background:#FDF2F4;">
+                <th style="text-align:left;padding:6px 10px;color:#8A5967;font-weight:700;">Item</th>
+                <th style="text-align:center;padding:6px 6px;color:#8A5967;font-weight:700;">Qty</th>
+                <th style="text-align:right;padding:6px 10px;color:#8A5967;font-weight:700;">Price</th>
+                <th style="text-align:right;padding:6px 10px;color:#8A5967;font-weight:700;">Total</th>
               </tr>
             </thead>
             <tbody>
               ${data.items.map(i => `
-                <tr style="border-bottom:1px solid #FFE0B2;">
-                  <td style="padding:7px 10px;color:#3E2000;font-weight:500;">${i.item_name}</td>
-                  <td style="padding:7px 6px;text-align:center;color:#8D6E63;">${i.quantity}</td>
-                  <td style="padding:7px 10px;text-align:right;color:#8D6E63;">₹${parseFloat(i.unit_price).toFixed(2)}</td>
-                  <td style="padding:7px 10px;text-align:right;font-weight:700;color:#E65100;">₹${parseFloat(i.line_total).toFixed(2)}</td>
+                <tr style="border-bottom:1px solid #FCE8EC;">
+                  <td style="padding:7px 10px;color:#2D0E17;font-weight:500;">${i.item_name}</td>
+                  <td style="padding:7px 6px;text-align:center;color:#8A5967;">${i.quantity}</td>
+                  <td style="padding:7px 10px;text-align:right;color:#8A5967;">₹${parseFloat(i.unit_price).toFixed(2)}</td>
+                  <td style="padding:7px 10px;text-align:right;font-weight:700;color:#8B1E3F;">₹${parseFloat(i.line_total).toFixed(2)}</td>
                 </tr>`).join('')}
             </tbody>
             <tfoot>
               <tr>
-                <td colspan="3" style="padding:7px 10px;font-weight:700;color:#3E2000;text-align:right;">Grand Total</td>
-                <td style="padding:7px 10px;text-align:right;font-weight:800;color:#E65100;">${formatCurrency(order.grand_total)}</td>
+                <td colspan="3" style="padding:7px 10px;font-weight:700;color:#2D0E17;text-align:right;">Grand Total</td>
+                <td style="padding:7px 10px;text-align:right;font-weight:800;color:#8B1E3F;">${formatCurrency(order.grand_total)}</td>
               </tr>
             </tfoot>
           </table>`;
